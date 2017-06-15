@@ -3,8 +3,8 @@
     {
       "target_name": "glpk",
       "sources": [ "src/nodeglpk.cc", "src/problem.hpp", "src/tree.hpp"],
-      "cflags": [ "-fexceptions" ],
-      "cflags_cc": [ "-fexceptions" ],
+      "cflags": [ "-std=c++14 -fexceptions" ],
+      "cflags_cc": [ "-std=c++14 -fexceptions" ],
       "conditions": [
             ['OS=="mac"', {
                 "xcode_settings": {

@@ -6,6 +6,7 @@
 
 #include "glpk/glpk.h"
 #include "common.h"
+#include "tree.hpp"
 
 namespace NodeGLPK {
     
