@@ -1,3 +1,5 @@
+#include <atomic>
+
 #include <node.h>
 #include <node_object_wrap.h>
 #include <stdlib.h>
@@ -7,6 +9,7 @@
 #include "glpk/glpk.h"
 #include "common.h"
 #include "tree.hpp"
+#include "events/eventemitter.hpp"
 
 namespace NodeGLPK {
     
@@ -214,9 +217,7 @@ namespace NodeGLPK {
             return true;
         }
     private:
-        explicit Problem(): node::ObjectWrap(){
-            handle = glp_create_prob();
-            thread = false;
+        explicit Problem() : node::ObjectWrap(), emitter_(), handle(glp_create_prob()), thread(false) {
         }
 
         ~Problem(){
@@ -250,8 +251,10 @@ namespace NodeGLPK {
             for (size_t i = 0; i < ar->Length(); i++) par[i] = ar->Get(i)->NumberValue();
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
+            std::atomic_thread_fence(std::memory_order_acquire);
             V8CHECK(!lp->handle, "object deleted");
-            V8CHECK(lp->thread, "an async operation is inprogress");
+            V8CHECK(lp->thread.load(std::memory_order_relaxed), "an async operation is inprogress");
+            std::atomic_thread_fence(std::memory_order_release);
             
             GLP_CATCH(glp_load_matrix(lp->handle, info[0]->Int32Value(), pia, pja, par);)
             
@@ -271,23 +274,23 @@ namespace NodeGLPK {
                       
                       Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
                       V8CHECK(!lp->handle, "object deleted");
-                      V8CHECK(lp->thread, "an async operation is inprogress");
+                      V8CHECK(lp->thread.load(), "an async operation is inprogress");
                       
                       glp_simplex(lp->handle, &scmp);
             )
         }
         
-        class SimplexWorker : public Nan::AsyncWorker {
+        class SimplexWorker : public AsyncEventEmittingCWorker {
         public:
-            SimplexWorker(Nan::Callback *callback, Problem *lp)
-            : Nan::AsyncWorker(callback), lp(lp){
+            SimplexWorker(Nan::Callback *callback, std::shared_ptr<EventEmitter> emitter, Problem *lp)
+            : AsyncEventEmittingCWorker(callback, emitter), lp(lp){
                 glp_init_smcp(&smcp);
             }
             void WorkComplete() {
                 lp->thread = false;
                 Nan::AsyncWorker::WorkComplete();
             }
-            void Execute () {
+            void ExecuteWithEmitter(eventemitter_fn emitter) {
                 try {
                     glp_simplex(lp->handle, &smcp);
                 } catch (std::string s){
@@ -305,10 +308,10 @@ namespace NodeGLPK {
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
-            V8CHECK(lp->thread, "an async operation is inprogress");
+            V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
-            SimplexWorker *worker = new SimplexWorker(callback, lp);
+            SimplexWorker *worker = new SimplexWorker(callback, lp->emitter_, lp);
             if (!SmcpInit(&worker->smcp, info[0])){
                 worker->Destroy();
                 return;
@@ -330,7 +333,7 @@ namespace NodeGLPK {
                       
                       Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
                       V8CHECK(!lp->handle, "object deleted");
-                      V8CHECK(lp->thread, "an async operation is inprogress");
+                      V8CHECK(lp->thread.load(), "an async operation is inprogress");
                           
                       glp_exact(lp->handle, &scmp);
             )
@@ -364,7 +367,7 @@ namespace NodeGLPK {
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
-            V8CHECK(lp->thread, "an async operation is inprogress");
+            V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
             ExactWorker *worker = new ExactWorker(callback, lp);
@@ -411,7 +414,7 @@ namespace NodeGLPK {
                       
                       Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
                       V8CHECK(!lp->handle, "object deleted");
-                      V8CHECK(lp->thread, "an async operation is inprogress");
+                      V8CHECK(lp->thread.load(), "an async operation is inprogress");
                           
                       glp_interior(lp->handle, &iptcp);
             )
@@ -446,7 +449,7 @@ namespace NodeGLPK {
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
-            V8CHECK(lp->thread, "an async operation is inprogress");
+            V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
             InteriorWorker *worker = new InteriorWorker(callback, lp);
@@ -499,7 +502,7 @@ namespace NodeGLPK {
                       
                 Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
                 V8CHECK(!lp->handle, "object deleted");
-                V8CHECK(lp->thread, "an async operation is inprogress");
+                V8CHECK(lp->thread.load(), "an async operation is inprogress");
                           
                 int ret = glp_read_mps(lp->handle, info[0]->Int32Value(), &mpscp, V8TOCSTRING(info[2]));
                 if (mpscp.obj_name) delete[] mpscp.obj_name;
@@ -547,7 +550,7 @@ namespace NodeGLPK {
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
-            V8CHECK(lp->thread, "an async operation is inprogress");
+            V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
             ReadMpsWorker *worker = new ReadMpsWorker(callback, lp, info[0]->Int32Value(), V8TOCSTRING(info[2]));
@@ -573,7 +576,7 @@ namespace NodeGLPK {
               
               Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
               V8CHECK(!lp->handle, "object deleted");
-              V8CHECK(lp->thread, "an async operation is inprogress");
+              V8CHECK(lp->thread.load(), "an async operation is inprogress");
                           
               info.GetReturnValue().Set(glp_write_mps(lp->handle, info[0]->Int32Value(), &mpscp, V8TOCSTRING(info[2])));
             )
@@ -619,7 +622,7 @@ namespace NodeGLPK {
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
-            V8CHECK(lp->thread, "an async operation is inprogress");
+            V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
             WriteMpsWorker *worker = new WriteMpsWorker(callback, lp, info[0]->Int32Value(), V8TOCSTRING(info[2]));
@@ -749,7 +752,7 @@ namespace NodeGLPK {
                       
                       Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
                       V8CHECK(!lp->handle, "object deleted");
-                      V8CHECK(lp->thread, "an async operation is inprogress");
+                      V8CHECK(lp->thread.load(), "an async operation is inprogress");
                           
                       glp_intopt(lp->handle, &iocp);
                       if (iocp.cb_info) delete (Nan::Callback*)iocp.cb_info;
@@ -826,7 +829,7 @@ namespace NodeGLPK {
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
-            V8CHECK(lp->thread, "an async operation is inprogress");
+            V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
             IntoptWorker *worker = new IntoptWorker(callback, lp);
@@ -844,7 +847,7 @@ namespace NodeGLPK {
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
-            V8CHECK(lp->thread, "an async operation is inprogress");
+            V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
             info.GetReturnValue().Set(glp_read_lp(lp->handle, NULL, V8TOCSTRING(info[0])));
         }
@@ -883,7 +886,7 @@ namespace NodeGLPK {
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
-            V8CHECK(lp->thread, "an async operation is inprogress");
+            V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
             ReadLpWorker *worker = new ReadLpWorker(callback, lp, V8TOCSTRING(info[0]));
@@ -897,7 +900,7 @@ namespace NodeGLPK {
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
-            V8CHECK(lp->thread, "an async operation is inprogress");
+            V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
             GLP_CATCH_RET(info.GetReturnValue().Set(glp_write_lp(lp->handle, NULL, V8TOCSTRING(info[0])));)
         }
@@ -935,7 +938,7 @@ namespace NodeGLPK {
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
-            V8CHECK(lp->thread, "an async operation is inprogress");
+            V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
             WriteLpWorker *worker = new WriteLpWorker(callback, lp, V8TOCSTRING(info[0]));
@@ -949,7 +952,7 @@ namespace NodeGLPK {
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
-            V8CHECK(lp->thread, "an async operation is inprogress");
+            V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
             double ae_max, re_max;
             int ae_ind, re_ind;
@@ -974,7 +977,7 @@ namespace NodeGLPK {
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
-            V8CHECK(lp->thread, "an async operation is inprogress");
+            V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
             uint32_t count = 0;
             int* plist = NULL;
@@ -1041,7 +1044,7 @@ namespace NodeGLPK {
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
-            V8CHECK(lp->thread, "an async operation is inprogress");
+            V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
             size_t len = 0;
             Local<Int32Array> list;
@@ -1064,7 +1067,7 @@ namespace NodeGLPK {
         static NAN_METHOD(GetBfcp) {
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
-            V8CHECK(lp->thread, "an async operation is inprogress");
+            V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
             GLP_CATCH_RET(
                 glp_bfcp bfcp;
@@ -1088,7 +1091,7 @@ namespace NodeGLPK {
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
-            V8CHECK(lp->thread, "an async operation is inprogress");
+            V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
             GLP_CATCH_RET(
                       glp_bfcp bfcp;
@@ -1161,7 +1164,7 @@ namespace NodeGLPK {
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
-            V8CHECK(lp->thread, "an async operation is inprogress");
+            V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
             ScaleWorker *worker = new ScaleWorker(callback, lp, info[0]->Int32Value());
@@ -1201,7 +1204,7 @@ namespace NodeGLPK {
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
-            V8CHECK(lp->thread, "an async operation is inprogress");
+            V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[0].As<Function>());
             FactorizeWorker *worker = new FactorizeWorker(callback, lp);
@@ -1437,9 +1440,11 @@ namespace NodeGLPK {
         
         
         static Nan::Persistent<FunctionTemplate> constructor;
+
+        std::shared_ptr<EventEmitter> emitter_;
     public:
         glp_prob *handle;
-        bool thread;
+        std::atomic<bool> thread;
     };
     
     Nan::Persistent<FunctionTemplate> Problem::constructor;
