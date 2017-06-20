@@ -25,7 +25,6 @@
 		"eventemitter.hpp",
 		"eventemitter.cpp",
 		"shared_ringbuffer.hpp",
-		"threadpool.hpp",
 	  ]
 	}
   ]

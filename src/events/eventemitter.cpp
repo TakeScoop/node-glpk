@@ -30,17 +30,10 @@ bool EventEmitter::emit(const std::string& ev, const std::string& value) {
 }
 
 /*******************************************************************************/
-// Class EventEmitter::Receiver::Worker
-void EventEmitter::Receiver::Worker::HandleOKCallback() {
-    v8::Local<v8::Value> info[] = {Nan::New<v8::String>(value_).ToLocalChecked()};
-    callback->Call(1, info);
-}
-
-/*******************************************************************************/
 // Class EventEmitter::Receiver
 void EventEmitter::Receiver::notify(const std::string& value) {
-    Worker* worker = new Worker(callback_, value);
-    Nan::AsyncQueueWorker(worker);
+    v8::Local<v8::Value> info[] = {Nan::New<v8::String>(value).ToLocalChecked()};
+    callback_->Call(1, info);
 }
 
 /*******************************************************************************/
@@ -55,20 +48,6 @@ void EventEmitter::ReceiverList::emit(const std::string& value) {
     for (auto& receiver : receivers_list_) {
         receiver->notify(value);
     }
-}
-
-/*******************************************************************************/
-// Class AsyncEventEmittingWorker
-void AsyncEventEmittingCWorker::HandleProgressCallback(const ProgressReport* report, size_t) {
-    emitter_->emit(report->first, report->second);
-    delete report;
-}
-
-void AsyncEventEmittingCWorker::Execute(const ExecutionProgress& p) {
-    // XXX(jrb): This will not work if the C library is multithreaded, as the c_emitter_func_ will be uninitialized in
-    // any threads other than the one we're running in right now
-    c_emitter_func_ = [&p](const char* ev, const char* val) { p.Send(new ProgressReport{ev, val}, 0); };
-    ExecuteWithEmitter(this->emit);
 }
 
 }  // namespace NodeGLPK
