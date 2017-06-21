@@ -19,10 +19,10 @@
 #include "cemitter.h"
 #include "shared_ringbuffer.hpp"
 
-// TODO(jrb):
-// - Implement testing (gtest/gmock)
-
 namespace NodeEvent {
+#ifndef UNUSED
+#define UNUSED(x) (void)(x)
+#endif
 
 /// A type for implementing things that behave like EventEmitter in node
 class EventEmitter {
@@ -119,15 +119,21 @@ class EventEmitter {
 
 typedef std::pair<std::string, std::string> ProgressReport;
 
-// Unfortunately, the AsyncProgressWorker in NAN uses a single element which it populates and notifies the handler to
-// check. If lots of things happen quickly, that element will be overwritten before the handler has a chance to notice,
-// and events will be lost. This version of AsynProgressWorker provides a ringbuffer (to avoid
-// reallocations and poor locality of reference)
+/// Unfortunately, the AsyncProgressWorker in NAN uses a single element which it populates and notifies the handler to
+/// check. If lots of things happen quickly, that element will be overwritten before the handler has a chance to notice,
+/// and events will be lost.
+///
+/// AsyncQueuedProgressWorker provides a ringbuffer (to avoid reallocations and poor locality of reference) to help
+/// prevent lost progress
 template <class T, size_t SIZE>
 class AsyncQueuedProgressWorker : public Nan::AsyncWorker {
  public:
     class ExecutionProgressSender {
      public:
+        /// Send enqueus data to the AsyncQueuedProgressWorker bound to this instance.
+        ///
+        /// @param[in] data - data to send, must be array (because it will be free'd via delete[])
+        /// @param[in] count - size of array
         void Send(const T* data, size_t count) const { worker_.SendProgress(data, count); }
 
      private:
@@ -137,12 +143,16 @@ class AsyncQueuedProgressWorker : public Nan::AsyncWorker {
         AsyncQueuedProgressWorker& worker_;
     };
 
+    /// @param[in] callback - the callback to invoke after Execute completes. (unless overridden, is called from
+    ///                      HandleOKCallback with no arguments, and called from HandleErrorCallback with the errors
+    ///                      reported (if any)
     explicit AsyncQueuedProgressWorker(Nan::Callback* callback) : AsyncWorker(callback), buffer_() {
         async_ = new uv_async_t();
         uv_async_init(uv_default_loop(), async_, asyncNotifyProgressQueue);
         async_->data = this;
     }
 
+    /// same as AsyncWorker's, except checks if callback is set first
     virtual void HandleOKCallback() override {
         Nan::HandleScope scope;
         if (callback) {
@@ -150,6 +160,7 @@ class AsyncQueuedProgressWorker : public Nan::AsyncWorker {
         }
     }
 
+    /// same as AsyncWorker's, except checks if callback is set first
     virtual void HandleErrorCallback() override {
         Nan::HandleScope scope;
 
@@ -159,12 +170,7 @@ class AsyncQueuedProgressWorker : public Nan::AsyncWorker {
         }
     }
 
-    void HandleProgressQueue() {
-        std::pair<const T*, size_t> elem;
-        while (this->buffer_.dequeue_nonblocking(elem)) {
-            HandleProgressCallback(elem.first, elem.second);
-        }
-    }
+    /// close our async_t handle and free resources (via AsyncClose method)
     virtual void Destroy() override {
         // Destroy happens in the v8 main loop; so we can flush out the Progress queue here before destroying
         if (this->buffer_.available()) {
@@ -174,10 +180,28 @@ class AsyncQueuedProgressWorker : public Nan::AsyncWorker {
         uv_close(reinterpret_cast<uv_handle_t*>(async_), AsyncClose);
     }
 
+    /// Will receive a progress sender, which you can "Send" to.
+    ///
+    /// @param[in] progress - an ExecutionProgressSender bound to this instance
     virtual void Execute(const ExecutionProgressSender& progress) = 0;
+
+    /// Should be set to handle progress reports as they become available
+    ///
+    /// @param[in] data - The data (must be an array, is free'd with delete[], consistent with the Nan API)
+    /// @param[in] size - size of the array
     virtual void HandleProgressCallback(const T* data, size_t size) = 0;
 
  private:
+    void HandleProgressQueue() {
+        std::pair<const T*, size_t> elem;
+        while (this->buffer_.dequeue_nonblocking(elem)) {
+            HandleProgressCallback(elem.first, elem.second);
+            if (elem.second > 0) {
+                delete[] elem.first;
+            }
+        }
+    }
+
     void Execute() final override {
         ExecutionProgressSender sender{*this};
         Execute(sender);
@@ -189,15 +213,18 @@ class AsyncQueuedProgressWorker : public Nan::AsyncWorker {
         uv_async_send(async_);
     }
 
-    // This now runs this instances HandleProgressQueue() in the v8-safe thread asynchronously
+    // This is invoked as an effect if calling uv_async_send(async_), so executes on the thread that the default loop is
+    // running on, so it can safely touch v8 data structures
     static NAUV_WORK_CB(asyncNotifyProgressQueue) {
         auto worker = static_cast<AsyncQueuedProgressWorker*>(async->data);
         worker->HandleProgressQueue();
     }
 
+    // This is invoked after Destroy(), which executes on the thread that the default loop is running on, and so can
+    // touch v8 data structures
     static void AsyncClose(uv_handle_t* handle) {
         auto worker = static_cast<AsyncQueuedProgressWorker*>(handle->data);
-        // TODO(jrb): see note for async_
+        // TODO(jrb): see note for async_ as a raw pointer
         // NOTABUG: this is how Nan does it...
         delete reinterpret_cast<uv_async_t*>(handle);
         delete worker;
@@ -212,23 +239,38 @@ class AsyncQueuedProgressWorker : public Nan::AsyncWorker {
     uv_async_t* async_;
 };
 
+/// AsyncEventEmittingCWorker is a specialization of an AsyncQueuedProgressWorker which is suitable for invoking
+/// single-threaded C library code, and passing to those C functions an emitter which can report back events as they
+/// happen. The emitter will enqueue the events to be picked up and handled by the v8 thread, and so will not block the
+/// worker thread for longer than 3 mutex acquires. If the number of queued events exceeds SIZE, subsequent events will
+/// be silently discarded.
 template <size_t SIZE>
 class AsyncEventEmittingCWorker : public AsyncQueuedProgressWorker<ProgressReport, SIZE> {
  public:
-    AsyncEventEmittingCWorker(Nan::Callback* cb, std::shared_ptr<EventEmitter> emitter)
-        : AsyncQueuedProgressWorker<ProgressReport, SIZE>(cb), emitter_(emitter) {}
+    /// @param[in] callback - the callback to invoke after Execute completes. (unless overridden, is called from
+    ///                      HandleOKCallback with no arguments, and called from HandleErrorCallback with the errors
+    ///                      reported (if any)
+    /// @param[in] emitter - The emitter object to use for notifying JS callbacks for given events.
+    AsyncEventEmittingCWorker(Nan::Callback* callback, std::shared_ptr<EventEmitter> emitter)
+        : AsyncQueuedProgressWorker<ProgressReport, SIZE>(callback), emitter_(emitter) {}
 
-    virtual void ExecuteWithEmitter(eventemitter_fn) = 0;
+    /// The work you need to happen in a worker thread
+    /// @param[in] fn - Function suitable for passing to single-threaded C code (uses a thread_local static)
+    virtual void ExecuteWithEmitter(eventemitter_fn fn) = 0;
 
+    /// emit the ProgressReport as an event via the given emitter, ignores whether or not the emit is successful
+    ///
+    /// @param[in] report - an array (of size 1) of a ProgressReport (which is a pair, where first is the "key" and
+    ///                     second is the "value")
+    /// @param[in] size - size of the array (should always be 1)
     virtual void HandleProgressCallback(const ProgressReport* report, size_t size) override {
+        UNUSED(size);
         Nan::HandleScope scope;
 
         emitter_->emit(report[0].first, report[0].second);
-        if (size > 0) {
-            delete[] report;
-        }
     }
 
+ private:
     virtual void Execute(const typename AsyncQueuedProgressWorker<ProgressReport, SIZE>::ExecutionProgressSender&
                              sender) final override {
         // XXX(jrb): This will not work if the C library is multithreaded, as the c_emitter_func_ will be uninitialized
@@ -243,7 +285,6 @@ class AsyncEventEmittingCWorker : public AsyncQueuedProgressWorker<ProgressRepor
         ExecuteWithEmitter(this->emit);
     }
 
- private:
     static std::function<void(const char*, const char*)> emitterFunc(std::function<void(const char*, const char*)> fn) {
         // XXX(jrb): This will not work if the C library is multithreaded
         static thread_local std::function<void(const char*, const char*)> c_emitter_func_ = nullptr;
