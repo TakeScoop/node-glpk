@@ -3,9 +3,11 @@
 #define _GLPK_EVENTEMITTER_H
 
 #include <functional>
+#include <iostream>
 #include <memory>
 #include <shared_mutex>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include <vector>
 
@@ -20,9 +22,9 @@
 // TODO(jrb):
 // - Implement testing (gtest/gmock)
 
-namespace NodeGLPK {
+namespace NodeEvent {
 
-/// A base-class for thing that behave like EventEmitter in node
+/// A type for implementing things that behave like EventEmitter in node
 class EventEmitter {
  public:
     /// An error indicating the event name is not known
@@ -38,7 +40,18 @@ class EventEmitter {
     ///
     /// @param[in] ev - event name
     /// @param[in] cb - callback
-    virtual void on(const std::string& ev, Nan::Callback* cb);
+    virtual void on(const std::string& ev, Nan::Callback* cb) {
+        std::unique_lock<std::shared_timed_mutex> master_lock{receivers_lock_};
+        auto it = receivers_.find(ev);
+
+        if (it == receivers_.end()) {
+            receivers_.emplace(ev, std::make_shared<ReceiverList>());
+            it = receivers_.find(ev);
+        }
+        master_lock.unlock();
+
+        it->second->emplace_back(cb);
+    }
 
     /// Emit a value to any registered callbacks for the event
     ///
@@ -46,7 +59,17 @@ class EventEmitter {
     /// @param[in] value - a string to emit
     ///
     /// @returns true if the event has listeners, false otherwise
-    virtual bool emit(const std::string& ev, const std::string& value);
+    virtual bool emit(const std::string& ev, const std::string& value) {
+        std::shared_lock<std::shared_timed_mutex> master_lock{receivers_lock_};
+        auto it = receivers_.find(ev);
+        if (it == receivers_.end()) {
+            return false;
+        }
+        master_lock.unlock();
+
+        it->second->emit(value);
+        return true;
+    }
 
  private:
     /// Receiver represents a callback that will receive events that are fired
@@ -57,7 +80,10 @@ class EventEmitter {
         /// notify the callback by building an AsyncWorker and scheduling it via Nan::AsyncQueueWorker()
         ///
         /// @param[in] value - the string value to send to the callback
-        void notify(const std::string& value);
+        void notify(const std::string& value) {
+            v8::Local<v8::Value> info[] = {Nan::New<v8::String>(value).ToLocalChecked()};
+            callback_->Call(1, info);
+        }
 
      private:
         /// A worker is an implementation of Nan::AsyncWorker that uses the HandleOKCallback method (which is guaranteed
@@ -71,16 +97,24 @@ class EventEmitter {
     class ReceiverList {
      public:
         ReceiverList() : receivers_list_(), receivers_list_lock_() {}
-        void emplace_back(Nan::Callback* cb);
-        void emit(const std::string& value);
+        void emplace_back(Nan::Callback* cb) {
+            std::lock_guard<std::shared_timed_mutex> guard{receivers_list_lock_};
+            receivers_list_.emplace_back(std::make_shared<Receiver>(cb));
+        }
+        void emit(const std::string& value) {
+            std::lock_guard<std::shared_timed_mutex> guard{receivers_list_lock_};
+            for (auto& receiver : receivers_list_) {
+                receiver->notify(value);
+            }
+        }
 
      private:
-        std::vector<std::shared_ptr<Receiver> > receivers_list_;
+        std::vector<std::shared_ptr<Receiver>> receivers_list_;
         std::shared_timed_mutex receivers_list_lock_;
     };
 
     std::shared_timed_mutex receivers_lock_;
-    std::unordered_map<std::string, std::shared_ptr<ReceiverList> > receivers_;
+    std::unordered_map<std::string, std::shared_ptr<ReceiverList>> receivers_;
 };
 
 typedef std::pair<std::string, std::string> ProgressReport;
@@ -109,19 +143,33 @@ class AsyncQueuedProgressWorker : public Nan::AsyncWorker {
         async_->data = this;
     }
 
+    virtual void HandleOKCallback() override {
+        Nan::HandleScope scope;
+        if (callback) {
+            callback->Call(0, NULL);
+        }
+    }
+
+    virtual void HandleErrorCallback() override {
+        Nan::HandleScope scope;
+
+        if (callback) {
+            v8::Local<v8::Value> argv[] = {v8::Exception::Error(Nan::New<v8::String>(ErrorMessage()).ToLocalChecked())};
+            callback->Call(1, argv);
+        }
+    }
+
     void HandleProgressQueue() {
         std::pair<const T*, size_t> elem;
         while (this->buffer_.dequeue_nonblocking(elem)) {
-            if (callback) {
-                HandleProgressCallback(elem.first, elem.second);
-            } else {
-                // XXX(jrb) using delete[] because AsyncProgressWorkerBase does the same, and so the presumption is
-                // apparently that all data will be an array
-                delete[] elem.first;
-            }
+            HandleProgressCallback(elem.first, elem.second);
         }
     }
     virtual void Destroy() override {
+        // Destroy happens in the v8 main loop; so we can flush out the Progress queue here before destroying
+        if (this->buffer_.available()) {
+            HandleProgressQueue();
+        }
         // NOTABUG: this is how Nan does it...
         uv_close(reinterpret_cast<uv_handle_t*>(async_), AsyncClose);
     }
@@ -138,6 +186,7 @@ class AsyncQueuedProgressWorker : public Nan::AsyncWorker {
     void SendProgress(const T* data, size_t size) {
         // use non_blocking and just drop any excessive items
         buffer_.enqueue_nonblocking({data, size});
+        uv_async_send(async_);
     }
 
     // This now runs this instances HandleProgressQueue() in the v8-safe thread asynchronously
@@ -172,6 +221,8 @@ class AsyncEventEmittingCWorker : public AsyncQueuedProgressWorker<ProgressRepor
     virtual void ExecuteWithEmitter(eventemitter_fn) = 0;
 
     virtual void HandleProgressCallback(const ProgressReport* report, size_t size) override {
+        Nan::HandleScope scope;
+
         emitter_->emit(report[0].first, report[0].second);
         if (size > 0) {
             delete[] report;
@@ -182,23 +233,30 @@ class AsyncEventEmittingCWorker : public AsyncQueuedProgressWorker<ProgressRepor
                              sender) final override {
         // XXX(jrb): This will not work if the C library is multithreaded, as the c_emitter_func_ will be uninitialized
         // in any threads other than the one we're running in right now
-        c_emitter_func_ = [&sender](const char* ev, const char* val) {
+        emitterFunc([&sender](const char* ev, const char* val) {
             // base class uses delete[], so we have to make sure we use new[]
             auto reports = new ProgressReport[1];
             reports[0] = {ev, val};
 
             sender.Send(reports, 1);
-        };
+        });
         ExecuteWithEmitter(this->emit);
     }
 
  private:
-    static void emit(const char* ev, const char* val) { c_emitter_func_(ev, val); }
-    std::shared_ptr<EventEmitter> emitter_;
+    static std::function<void(const char*, const char*)> emitterFunc(std::function<void(const char*, const char*)> fn) {
+        // XXX(jrb): This will not work if the C library is multithreaded
+        static thread_local std::function<void(const char*, const char*)> c_emitter_func_ = nullptr;
+        if (fn != nullptr) {
+            c_emitter_func_ = fn;
+        }
+        return c_emitter_func_;
+    }
     // XXX(jrb): This will not work if the C library is multithreaded
-    static thread_local std::function<void(const char*, const char*)> c_emitter_func_;
+    static void emit(const char* ev, const char* val) { emitterFunc(nullptr)(ev, val); }
+    std::shared_ptr<EventEmitter> emitter_;
 };
 
-}  // end namespace NodeGLPK
+}  // namespace NodeEvent
 
 #endif

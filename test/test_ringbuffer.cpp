@@ -62,14 +62,14 @@ TEST_F(RingbufferTest, WriteQueueDequeueBlocking) {
 
     std::unique_lock<std::mutex> guard{lock};
     std::condition_variable cond;
-    auto writer = std::thread([this, &buf, &guard, &next, &cond]() {
+    auto writer = std::thread([this, &buf, &next, &cond]() {
         buf.enqueue("Test 1");  // doesn't block
         buf.enqueue("Test 2");  // doesn't block
-        next = true;
+        next.store(true, std::memory_order_release);
         cond.notify_one();
 
         buf.enqueue("Test 3");  // blocks
-        this->write_done = true;
+        this->write_done.store(true, std::memory_order_release);
         cond.notify_one();
     });
 
@@ -77,32 +77,32 @@ TEST_F(RingbufferTest, WriteQueueDequeueBlocking) {
     auto now = std::chrono::steady_clock::now();
 
     auto timer = std::thread([&cond]() {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         cond.notify_one();
     });
     timer.detach();
 
-    while (!(next.load()) && (now - start < std::chrono::seconds(1))) {
+    while (!(next.load(std::memory_order_acquire)) && (now - start < std::chrono::seconds(1))) {
         cond.wait(guard);
         now = std::chrono::steady_clock::now();
     }
     EXPECT_EQ(false, this->write_done.load());
+
+    start = std::chrono::steady_clock::now();
+    now = std::chrono::steady_clock::now();
+
+    timer = std::thread([&cond]() {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        cond.notify_one();
+    });
+    timer.detach();
 
     std::string out;
     bool success = buf.dequeue_nonblocking(out);
     EXPECT_EQ(true, success);
     EXPECT_EQ("Test 1", out);
 
-    start = std::chrono::steady_clock::now();
-    now = std::chrono::steady_clock::now();
-
-    timer = std::thread([&cond]() {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-        cond.notify_one();
-    });
-    timer.detach();
-
-    while (!(this->write_done.load()) && (now - start < std::chrono::seconds(1))) {
+    while (!(this->write_done.load(std::memory_order_acquire)) && (now - start < std::chrono::seconds(1))) {
         cond.wait(guard);
         now = std::chrono::steady_clock::now();
     }
@@ -122,7 +122,7 @@ TEST_F(RingbufferTest, ReadQueueDequeueBlocking) {
     auto reader = std::thread([this, &buf, &cond]() {
         string v = buf.dequeue();
         EXPECT_EQ("Test 1", v);
-        this->read_done = true;
+        this->read_done.store(true, std::memory_order_acq_rel);
         cond.notify_one();
     });
 
@@ -140,7 +140,7 @@ TEST_F(RingbufferTest, ReadQueueDequeueBlocking) {
     });
     timer.detach();
 
-    while (!(read_done.load()) && (now - start < std::chrono::seconds(1))) {
+    while (!(read_done.load(std::memory_order_acq_rel)) && (now - start < std::chrono::seconds(1))) {
         cond.wait(guard);
         now = std::chrono::steady_clock::now();
     }
