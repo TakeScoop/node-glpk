@@ -28,6 +28,25 @@ class TestWorker : public AsyncEventEmittingCWorker<1024> {
     int32_t n_;
 };
 
+class TestReentrantWorker : public AsyncEventEmittingReentrantCWorker<1024> {
+ public:
+    TestReentrantWorker(Nan::Callback* callback, std::shared_ptr<EventEmitter> emitter, size_t n)
+        : AsyncEventEmittingReentrantCWorker(callback, emitter), n_(n) {}
+
+    virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r emitter) override {
+        for (int32_t i = 0; i < n_; ++i) {
+            stringstream ss;
+            ss << "Test" << i;
+            emitter((void*)sender, "test", ss.str().c_str());
+            emitter((void*)sender, "test2", ss.str().c_str());
+            emitter((void*)sender, "test3", ss.str().c_str());
+        }
+    }
+
+ private:
+    int32_t n_;
+};
+
 class EmittingThing : public Nan::ObjectWrap {
  public:
     static NAN_MODULE_INIT(Init) {
@@ -39,6 +58,7 @@ class EmittingThing : public Nan::ObjectWrap {
 
         Nan::SetPrototypeMethod(constructor, "on", On);
         Nan::SetPrototypeMethod(constructor, "run", Run);
+        Nan::SetPrototypeMethod(constructor, "runReentrant", RunReentrant);
 
         Nan::Set(target, clsName, Nan::GetFunction(constructor).ToLocalChecked());
     };
@@ -80,6 +100,23 @@ class EmittingThing : public Nan::ObjectWrap {
         auto thing = Nan::ObjectWrap::Unwrap<EmittingThing>(info.Holder());
 
         TestWorker* worker = new TestWorker(nullptr, thing->emitter_, n);
+        Nan::AsyncQueueWorker(worker);
+    }
+
+    static NAN_METHOD(RunReentrant) {
+        if (info.Length() != 1) {
+            info.GetIsolate()->ThrowException(Nan::TypeError("Wrong number of arguments"));
+            return;
+        }
+        if (!info[0]->IsNumber()) {
+            info.GetIsolate()->ThrowException(Nan::TypeError("First argument must be number"));
+            return;
+        }
+
+        int32_t n = info[0]->Int32Value();
+        auto thing = Nan::ObjectWrap::Unwrap<EmittingThing>(info.Holder());
+
+        TestReentrantWorker* worker = new TestReentrantWorker(nullptr, thing->emitter_, n);
         Nan::AsyncQueueWorker(worker);
     }
 

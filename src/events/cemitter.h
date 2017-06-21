@@ -4,7 +4,7 @@
 
 extern "C" {
 typedef void (*eventemitter_fn)(const char*, const char*);
+typedef void (*eventemitter_fn_r)(void* sender, const char*, const char*);
 };
-
 
 #endif

@@ -20,11 +20,11 @@
     "nan": "^2.1.0"
   },
   "devDependencies": {
-    "bindings": "~1.2.1",
-    "glob": "^5.0.14",
-    "node-gyp": "~3.0.1",
+    "@cplusplus/gtest": "0.0.1",
     "chai": "^4.0.2",
-    "mocha": "^3.4.2"
+    "glob": "^5.0.14",
+    "mocha": "^3.4.2",
+    "node-gyp": "~3.0.1"
   },
   "scripts": {
     "configure": "node-gyp configure",
@@ -32,7 +32,6 @@
     "build": "node-gyp build",
     "test": "cd test; make",
     "jstests": "cd test; node-gyp configure && node-gyp rebuild && mocha ./js/*-test.js"
-
   },
   "engines": {
     "node": ">=0.11.0",
