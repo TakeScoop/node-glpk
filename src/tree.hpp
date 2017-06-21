@@ -1,9 +1,13 @@
-
+#pragma once
+#ifndef _GLPK_TREE_HPP
+#define _GLPK_TREE_HPP
 #include <node.h>
 #include <node_object_wrap.h>
 #include "glpk/glpk.h"
 #include "common.h"
 #include "stdlib.h"
+
+#define UNUSED(x) (void)(x)
 
 namespace NodeGLPK {
 
@@ -12,6 +16,7 @@ namespace NodeGLPK {
     class Tree : public node::ObjectWrap {
     public:
         static void Init(Handle<Object> exports){
+            UNUSED(exports);
             // Prepare constructor template
             Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
             tpl->SetClassName(Nan::New("Tree").ToLocalChecked());
@@ -188,4 +193,5 @@ namespace NodeGLPK {
     
     Nan::Persistent<FunctionTemplate> Tree::constructor;
 }
- 
+
+#endif
