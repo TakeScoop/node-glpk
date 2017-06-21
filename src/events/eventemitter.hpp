@@ -5,9 +5,7 @@
 #include <functional>
 #include <iostream>
 #include <memory>
-#include <shared_mutex>
 #include <string>
-#include <thread>
 #include <unordered_map>
 #include <vector>
 
@@ -23,6 +21,83 @@ namespace NodeEvent {
 #ifndef UNUSED
 #define UNUSED(x) (void)(x)
 #endif
+
+/// To avoid requiring c++14, using an adaptor for uv locks to make them behave like std::mutex so they can be used with
+/// std::lock_guard and std::unique_lock and std:shared_lock (but not using std::shared_lock to avoid c++14)
+class uv_rwlock {
+ public:
+    uv_rwlock() { uv_rwlock_init(&lock_); }
+    ~uv_rwlock() noexcept { uv_rwlock_destroy(&lock_); }
+
+    uv_rwlock(const uv_rwlock& other) = delete;
+    uv_rwlock& operator=(const uv_rwlock& other) = delete;
+
+    uv_rwlock(uv_rwlock&& other) {
+        // move other to us
+        swap(other);
+    }
+
+    uv_rwlock& operator=(uv_rwlock& other) {
+        swap(other);
+        return *this;
+    }
+
+    void swap(uv_rwlock& other) { std::swap(this->lock_, other.lock_); }
+
+    void lock() { uv_rwlock_wrlock(&lock_); }
+    void unlock() { uv_rwlock_wrunlock(&lock_); }
+    bool try_lock() { return uv_rwlock_trywrlock(&lock_); }
+    void lock_shared() { uv_rwlock_rdlock(&lock_); }
+    void unlock_shared() { uv_rwlock_rdunlock(&lock_); }
+    bool try_lock_shared() { return uv_rwlock_tryrdlock(&lock_); }
+
+ private:
+    uv_rwlock_t lock_;
+};
+}  // namespace NodeEvent
+
+namespace std {
+template <>
+void swap<NodeEvent::uv_rwlock&>(NodeEvent::uv_rwlock& lhs, NodeEvent::uv_rwlock& rhs) {
+    lhs.swap(rhs);
+}
+}  // namespace std
+
+namespace NodeEvent {
+
+template <class T>
+class shared_lock {
+ public:
+    explicit shared_lock(T& shared_mutex) : shared_lock_(shared_mutex) { shared_lock_.lock_shared(); }
+    ~shared_lock() noexcept { shared_lock_.unlock_shared(); }
+
+    shared_lock(const shared_lock<T>& other) = delete;
+    shared_lock& operator=(const shared_lock<T>& other) = delete;
+
+    shared_lock(shared_lock<T>&& other) { swap(other); }
+    shared_lock& operator=(shared_lock<T>&& other) {
+        swap(other);
+        return *this;
+    }
+    void swap(shared_lock<T>& other) { std::swap(this->shared_lock_, other.shared_lock_); }
+
+    inline void lock() { shared_lock_.lock_shared(); }
+    inline void unlock() { shared_lock_.unlock_shared(); }
+    inline void try_lock() { shared_lock_.try_lock_shared(); }
+
+ private:
+    T& shared_lock_;
+};
+}  // namespace NodeEvent
+
+namespace std {
+template <class T>
+void swap(NodeEvent::shared_lock<T>& lhs, NodeEvent::shared_lock<T>& rhs) {
+    lhs.swap(rhs);
+}
+}  // namespace std
+
+namespace NodeEvent {
 
 /// A type for implementing things that behave like EventEmitter in node
 class EventEmitter {
@@ -41,7 +116,7 @@ class EventEmitter {
     /// @param[in] ev - event name
     /// @param[in] cb - callback
     virtual void on(const std::string& ev, Nan::Callback* cb) {
-        std::unique_lock<std::shared_timed_mutex> master_lock{receivers_lock_};
+        std::unique_lock<uv_rwlock> master_lock{receivers_lock_};
         auto it = receivers_.find(ev);
 
         if (it == receivers_.end()) {
@@ -60,7 +135,7 @@ class EventEmitter {
     ///
     /// @returns true if the event has listeners, false otherwise
     virtual bool emit(const std::string& ev, const std::string& value) {
-        std::shared_lock<std::shared_timed_mutex> master_lock{receivers_lock_};
+        shared_lock<uv_rwlock> master_lock{receivers_lock_};
         auto it = receivers_.find(ev);
         if (it == receivers_.end()) {
             return false;
@@ -86,9 +161,9 @@ class EventEmitter {
         }
 
      private:
-        /// A worker is an implementation of Nan::AsyncWorker that uses the HandleOKCallback method (which is guaranteed
-        /// to execute in the thread that can access v8 structures) to invoke the callback passed in with the string
-        /// value passed to the constructor
+        /// A worker is an implementation of Nan::AsyncWorker that uses the HandleOKCallback method (which is
+        /// guaranteed to execute in the thread that can access v8 structures) to invoke the callback passed in with
+        /// the string value passed to the constructor
 
         Nan::Callback* callback_;
     };
@@ -98,11 +173,11 @@ class EventEmitter {
      public:
         ReceiverList() : receivers_list_(), receivers_list_lock_() {}
         void emplace_back(Nan::Callback* cb) {
-            std::lock_guard<std::shared_timed_mutex> guard{receivers_list_lock_};
+            std::lock_guard<std::mutex> guard{receivers_list_lock_};
             receivers_list_.emplace_back(std::make_shared<Receiver>(cb));
         }
         void emit(const std::string& value) {
-            std::lock_guard<std::shared_timed_mutex> guard{receivers_list_lock_};
+            std::lock_guard<std::mutex> guard{receivers_list_lock_};
             for (auto& receiver : receivers_list_) {
                 receiver->notify(value);
             }
@@ -110,18 +185,19 @@ class EventEmitter {
 
      private:
         std::vector<std::shared_ptr<Receiver>> receivers_list_;
-        std::shared_timed_mutex receivers_list_lock_;
+        std::mutex receivers_list_lock_;
     };
 
-    std::shared_timed_mutex receivers_lock_;
+    uv_rwlock receivers_lock_;
+    // std::shared_timed_mutex receivers_lock_;
     std::unordered_map<std::string, std::shared_ptr<ReceiverList>> receivers_;
 };
 
 typedef std::pair<std::string, std::string> ProgressReport;
 
-/// Unfortunately, the AsyncProgressWorker in NAN uses a single element which it populates and notifies the handler to
-/// check. If lots of things happen quickly, that element will be overwritten before the handler has a chance to notice,
-/// and events will be lost.
+/// Unfortunately, the AsyncProgressWorker in NAN uses a single element which it populates and notifies the handler
+/// to check. If lots of things happen quickly, that element will be overwritten before the handler has a chance to
+/// notice, and events will be lost.
 ///
 /// AsyncQueuedProgressWorker provides a ringbuffer (to avoid reallocations and poor locality of reference) to help
 /// prevent lost progress
@@ -213,8 +289,8 @@ class AsyncQueuedProgressWorker : public Nan::AsyncWorker {
         uv_async_send(async_);
     }
 
-    // This is invoked as an effect if calling uv_async_send(async_), so executes on the thread that the default loop is
-    // running on, so it can safely touch v8 data structures
+    // This is invoked as an effect if calling uv_async_send(async_), so executes on the thread that the default
+    // loop is running on, so it can safely touch v8 data structures
     static NAUV_WORK_CB(asyncNotifyProgressQueue) {
         auto worker = static_cast<AsyncQueuedProgressWorker*>(async->data);
         worker->HandleProgressQueue();
@@ -232,18 +308,18 @@ class AsyncQueuedProgressWorker : public Nan::AsyncWorker {
 
     RingBuffer<std::pair<const T*, size_t>, SIZE> buffer_;
     // TODO(jrb): std::unique_ptr<uv_async_t> async_;
-    // unsure of the lifetime of the object; in several places it looks like leaks of workers would be made far worse
-    // due to leaking the underlying handle too; so probably best to delete the handle via Destroy and then go around
-    // and try to find all the leaks of the Worker's themselves and delete (or smart-pointer them) them so their DTOR's
-    // do get called
+    // unsure of the lifetime of the object; in several places it looks like leaks of workers would be made far
+    // worse due to leaking the underlying handle too; so probably best to delete the handle via Destroy and then go
+    // around and try to find all the leaks of the Worker's themselves and delete (or smart-pointer them) them so
+    // their DTOR's do get called
     uv_async_t* async_;
 };
 
 /// AsyncEventEmittingCWorker is a specialization of an AsyncQueuedProgressWorker which is suitable for invoking
 /// single-threaded C library code, and passing to those C functions an emitter which can report back events as they
-/// happen. The emitter will enqueue the events to be picked up and handled by the v8 thread, and so will not block the
-/// worker thread for longer than 3 mutex acquires. If the number of queued events exceeds SIZE, subsequent events will
-/// be silently discarded.
+/// happen. The emitter will enqueue the events to be picked up and handled by the v8 thread, and so will not block
+/// the worker thread for longer than 3 mutex acquires. If the number of queued events exceeds SIZE, subsequent
+/// events will be silently discarded.
 template <size_t SIZE>
 class AsyncEventEmittingCWorker : public AsyncQueuedProgressWorker<ProgressReport, SIZE> {
  public:
@@ -273,8 +349,8 @@ class AsyncEventEmittingCWorker : public AsyncQueuedProgressWorker<ProgressRepor
  private:
     virtual void Execute(const typename AsyncQueuedProgressWorker<ProgressReport, SIZE>::ExecutionProgressSender&
                              sender) final override {
-        // XXX(jrb): This will not work if the C library is multithreaded, as the c_emitter_func_ will be uninitialized
-        // in any threads other than the one we're running in right now
+        // XXX(jrb): This will not work if the C library is multithreaded, as the c_emitter_func_ will be
+        // uninitialized in any threads other than the one we're running in right now
         emitterFunc([&sender](const char* ev, const char* val) {
             // base class uses delete[], so we have to make sure we use new[]
             auto reports = new ProgressReport[1];
