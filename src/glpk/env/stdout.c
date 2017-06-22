@@ -27,7 +27,7 @@
 
 #ifndef HAVE_ENV
 static void (*_term_hook_)(const char *) = NULL;
-#endif;
+#endif
 
 /***********************************************************************
 *  NAME
@@ -143,6 +143,7 @@ void glp_vprintf(const char *fmt, va_list arg)
       assert(strlen(env->term_buf) < TBUF_SIZE);
       /* write the formatted output on the terminal */
       glp_puts(env->term_buf);
+skip: return;
 #else
     char term_buf[TBUF_SIZE];
     // if terminal output is disabled, do nothing

@@ -1,9 +1,15 @@
+#pragma once
+#ifndef _GLPK_TREE_H
+#define _GLPK_TREE_H
+
+#include <eventemitter.hpp>
 
 #include <node.h>
 #include <node_object_wrap.h>
 #include "glpk/glpk.h"
 #include "common.h"
 #include "stdlib.h"
+#include "nodeglpk.hpp"
 
 namespace NodeGLPK {
 
@@ -11,7 +17,7 @@ namespace NodeGLPK {
     
     class Tree : public node::ObjectWrap {
     public:
-        static void Init(Handle<Object> exports){
+        static void Init(Handle<Object>){
             // Prepare constructor template
             Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
             tpl->SetClassName(Nan::New("Tree").ToLocalChecked());
@@ -52,7 +58,7 @@ namespace NodeGLPK {
             return ret;
         }
     private:
-        explicit Tree(): node::ObjectWrap(){};
+        explicit Tree(): node::ObjectWrap(), emitter_(std::make_shared<NodeEvent::EventEmitter>()), info_{emitter_,nullptr,nullptr} {}
         ~Tree(){};
         
         static NAN_METHOD(New) {
@@ -72,8 +78,9 @@ namespace NodeGLPK {
         static NAN_METHOD(TreeSize) {
             Tree* host = ObjectWrap::Unwrap<Tree>(info.Holder());
             V8CHECK(!host->handle, "object deleted");
-            V8CHECK(host->thread, "an async operation is inprogress");
-            
+            V8CHECK(host->thread.load(), "an async operation is inprogress");
+          
+            TermHookGuard hookguard{&host->info_};
             int a_cnt, n_cnt, t_cnt;
             GLP_CATCH_RET(glp_ios_tree_size(host->handle, &a_cnt, &n_cnt, &t_cnt);)
             Local<Object> ret = Nan::New<Object>();
@@ -106,8 +113,9 @@ namespace NodeGLPK {
             
             Tree* host = ObjectWrap::Unwrap<Tree>(info.Holder());
             V8CHECK(!host->handle, "object deleted");
-            V8CHECK(host->thread, "an async operation is inprogress");
+            V8CHECK(host->thread.load(), "an async operation is inprogress");
             
+            TermHookGuard hookguard{&host->info_};
             glp_attr attr;
             GLP_CATCH_RET(glp_ios_row_attr(host->handle, info[0]->Int32Value(), &attr);)
             
@@ -128,8 +136,10 @@ namespace NodeGLPK {
             
             Tree* tree = ObjectWrap::Unwrap<Tree>(info.Holder());
             V8CHECK(!tree->handle, "object deleted");
-            V8CHECK(tree->thread, "an async operation is inprogress");
+            V8CHECK(tree->thread.load(), "an async operation is inprogress");
             
+            TermHookGuard hookguard{&tree->info_};
+
             Local<Int32Array> ind = Local<Int32Array>::Cast(info[3]);
             Local<Float64Array> val = Local<Float64Array>::Cast(info[4]);
             
@@ -168,8 +178,9 @@ namespace NodeGLPK {
         
             Tree* tree = ObjectWrap::Unwrap<Tree>(info.Holder());
             V8CHECK(!tree->handle, "object deleted");
-            V8CHECK(tree->thread, "an async operation is inprogress");
+            V8CHECK(tree->thread.load(), "an async operation is inprogress");
             
+            TermHookGuard hookguard{&tree->info_};
             Local<Float64Array> x = Local<Float64Array>::Cast(info[0]);
             
             int count = (int)x->Length();
@@ -180,12 +191,17 @@ namespace NodeGLPK {
             GLP_CATCH(info.GetReturnValue().Set(glp_ios_heur_sol(tree->handle, px));)
             free(px);
         }
+    private:
+        std::shared_ptr<NodeEvent::EventEmitter> emitter_;
+        HookInfo info_;
+        
     public:
         static Nan::Persistent<FunctionTemplate> constructor;
         glp_tree *handle;
-        bool thread;
+        std::atomic<bool> thread;
     };
     
     Nan::Persistent<FunctionTemplate> Tree::constructor;
 }
- 
+
+#endif

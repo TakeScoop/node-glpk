@@ -1,38 +1,56 @@
+#include <atomic>
 
+#include <eventemitter.hpp>
 #include <node.h>
 #include "tree.hpp"
 #include "problem.hpp"
 #include "mathprog.hpp"
 #include "common.h"
-#include "glpk/glpk.h"
+
+#include "nodeglpk.hpp"
 
 using namespace v8;
 using namespace NodeGLPK;
 
+std::vector<term_hook_fn> TermHookManager::term_hooks_;
+static std::atomic<bool> term_output{false};
+
+int stdoutTermHook(void*, const char *s) {
+    if(term_output.load()) {
+        std::cout << s;
+        std::cout.flush();
+    }
+    return 0;
+}
+
+int eventTermHook(void* info, const char *s) {
+    if (info) {
+        auto emitInfo = static_cast<HookInfo*>(info);
+        if(emitInfo->emitter) {
+            emitInfo->emitter->emit("log", s);
+        } else if(emitInfo->fn && emitInfo->sender) {
+            emitInfo->fn(static_cast<const void*>(emitInfo->sender), "log", s);
+        }
+    }
+    return 0;
+}
+
+void _ErrorHook(void *s){
+    throw std::string(static_cast<const char *>(s));
+}
+
 extern "C" {
     
-    void _ErrorHook(const char *s){
-        throw std::string(s);
-    }
-
-    void _TermHook(const char *s){
-        fputs(s, stdout);
-        fflush(stdout);
-    }
-
     NAN_METHOD(TermOutput) {
         V8CHECK(info.Length() != 1, "Wrong number of arguments");
         V8CHECK(!info[0]->IsBoolean(), "Wrong arguments");
         
-        if (info[0]->BooleanValue()) {
-            GLP_CATCH_RET(glp_term_hook(_TermHook);)
-        } else {
-            GLP_CATCH_RET(glp_term_hook(NULL);)
-        }
+        term_output = info[0]->BooleanValue();
     }
+
     
     void Init(Handle<Object> exports) {
-        glp_error_hook(_ErrorHook);
+        TermHookManager::ThreadInitDefaultHooks(nullptr);
 
         exports->Set(Nan::New<String>("termOutput").ToLocalChecked(), Nan::New<FunctionTemplate>(TermOutput)->GetFunction());
         

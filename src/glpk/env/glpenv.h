@@ -31,7 +31,9 @@ typedef struct ENV ENV;
 typedef struct MBD MBD;
 #endif
 
+#ifndef SIZE_T_MAX
 #define SIZE_T_MAX (~(size_t)0)
+#endif
 /* largest value of size_t type */
 
 
