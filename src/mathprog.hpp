@@ -25,6 +25,7 @@ namespace NodeGLPK {
             tpl->InstanceTemplate()->SetInternalFieldCount(1);
  
             // prototypes
+            Nan::SetPrototypeMethod(tpl, "on", On);
             Nan::SetPrototypeMethod(tpl, "readModelSync", ReadModelSync);
             Nan::SetPrototypeMethod(tpl, "readModel", ReadModel);
             Nan::SetPrototypeMethod(tpl, "readDataSync", ReadDataSync);
@@ -61,7 +62,19 @@ namespace NodeGLPK {
                       info.GetReturnValue().Set(info.This());
             );
         }
-        
+
+        static NAN_METHOD(On) {
+            V8CHECK(info.Length() != 2, "Wrong number of arguments");
+            V8CHECK(!(info[0]->IsString() || !info[1]->IsFunction()), "Wrong arguments");
+
+            Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(info.Holder());
+            V8CHECK(!mp->handle, "object deleted");
+
+            auto s = std::string(*v8::String::Utf8Value(info[0]->ToString()));
+            Nan::Callback* callback = new Nan::Callback(info[1].As<Function>());
+
+            mp->emitter_->on(s, callback);
+        }
         
         class ReadModelWorker : public ReentrantCWorker {
         public:

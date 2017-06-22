@@ -24,6 +24,7 @@ namespace NodeGLPK {
             tpl->InstanceTemplate()->SetInternalFieldCount(1);
             
             // prototypes
+            Nan::SetPrototypeMethod(tpl, "on", On);
             Nan::SetPrototypeMethod(tpl, "reason", Reason);
             Nan::SetPrototypeMethod(tpl, "terminate", Terminate);
             Nan::SetPrototypeMethod(tpl, "treeSize", TreeSize);
@@ -69,6 +70,19 @@ namespace NodeGLPK {
                       obj->Wrap(info.This());
                       info.GetReturnValue().Set(info.This());
             )
+        }
+
+        static NAN_METHOD(On) {
+            V8CHECK(info.Length() != 2, "Wrong number of arguments");
+            V8CHECK(!(info[0]->IsString() || !info[1]->IsFunction()), "Wrong arguments");
+
+            Tree* tree = ObjectWrap::Unwrap<Tree>(info.Holder());
+            V8CHECK(!tree->handle, "object deleted");
+
+            auto s = std::string(*v8::String::Utf8Value(info[0]->ToString()));
+            Nan::Callback* callback = new Nan::Callback(info[1].As<Function>());
+
+            tree->emitter_->on(s, callback);
         }
         
         GLP_BIND_VALUE(Tree, Reason, glp_ios_reason);

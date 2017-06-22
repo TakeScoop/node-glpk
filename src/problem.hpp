@@ -29,6 +29,7 @@ namespace NodeGLPK {
             tpl->InstanceTemplate()->SetInternalFieldCount(1);
             
             // Prototype
+            Nan::SetPrototypeMethod(tpl, "on", On);
             Nan::SetPrototypeMethod(tpl, "setProbName", SetProbName);
             Nan::SetPrototypeMethod(tpl, "getProbName", GetProbName);
             Nan::SetPrototypeMethod(tpl, "setObjDir", SetObjDir);
@@ -239,7 +240,19 @@ namespace NodeGLPK {
                       obj->Wrap(info.This());
                       info.GetReturnValue().Set(info.This());
             );
+        }
 
+        static NAN_METHOD(On) {
+            V8CHECK(info.Length() != 2, "Wrong number of arguments");
+            V8CHECK(!(info[0]->IsString() || !info[1]->IsFunction()), "Wrong arguments");
+
+            Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
+            V8CHECK(!lp->handle, "object deleted");
+
+            auto s = std::string(*v8::String::Utf8Value(info[0]->ToString()));
+            Nan::Callback* callback = new Nan::Callback(info[1].As<Function>());
+
+            lp->emitter_->on(s, callback);
         }
 
         static NAN_METHOD(LoadMatrix) {
