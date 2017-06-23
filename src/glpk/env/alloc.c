@@ -247,7 +247,7 @@ void glp_mem_limit(int limit)
 *  *tpeak is the peak value of *total reached since the initialization
 *  of the GLPK library envirionment. */
 
-void glp_mem_usage(int *count, int *cpeak, size_t *total,
+void glp_mem_usage(size_t *count, size_t *cpeak, size_t *total,
       size_t *tpeak)
 {  
 #ifndef GLOBAL_MEM_STATS
