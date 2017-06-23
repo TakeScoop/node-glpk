@@ -53,8 +53,10 @@ void glp_puts(const char *s)
             goto skip;
       }
       /* write the string on the terminal */
-      fputs(s, stdout);
-      fflush(stdout);
+      /* term_hook does this; don't write twice.
+       * fputs(s, stdout);
+       * fflush(stdout);
+      */
       /* write the string on the tee file, if required */
       if (env->tee_file != NULL)
       {  fputs(s, env->tee_file);

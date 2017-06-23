@@ -5,7 +5,9 @@
       "type": "static_library",
 	  "defines": [
 		"HAVE_GETTIMEOFDAY",
-		"HAVE_ENV"
+		"HAVE_ENV",
+		"HAVE_ATOMIC",
+		"GLOBAL_MEM_STATS",
       ],
       "conditions": [
 		['OS=="linux"', {

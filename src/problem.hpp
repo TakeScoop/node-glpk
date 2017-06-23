@@ -826,7 +826,6 @@ namespace NodeGLPK {
                 glp_init_iocp(&parm);
                 glp_init_mip_ctx(&ctx);
                 ctx.parm = &parm;
-                state = 0;
             }
             
             ~IntoptWorker(){
@@ -835,56 +834,36 @@ namespace NodeGLPK {
             }
 
             virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
-                hookinfo_ = {nullptr, sender, fn};
-                TermHookGuard hookguard{&hookinfo_};
+                HookInfo info = {nullptr, sender, fn};
+                TermHookGuard hookguard{&info};
                 try {
-                    if (state) {
+                    glp_intopt_start(lp->handle, &ctx);
+                    while(!ctx.done) {
+                        parm.cb_func(ctx.tree, parm.cb_info);
                         glp_intopt_run(&ctx);
-                    } else {
-                        state = 1;
-                        glp_intopt_start(lp->handle, &ctx);
                     }
+                    glp_intopt_stop(lp->handle, &ctx);
                 } catch (std::string s){
-                    ctx.done = 1;
                     SetErrorMessage(s.c_str());
                 }
             }
 
             virtual void WorkComplete() override {
-                TermHookGuard hookguard{&hookinfo_};
                 lp->thread = false;
-                Nan::HandleScope scope;
-                if (ctx.done) {
-                    state = 2;
-                    glp_intopt_stop(lp->handle, &ctx);
-                    if (ErrorMessage() == NULL)
-                        HandleOKCallback();
-                    else
-                        HandleErrorCallback();
-                    
-                    delete callback;
-                    callback = NULL;
-                } else {
-                    parm.cb_func(ctx.tree, parm.cb_info);
-                    lp->thread = true;
-                    Nan::AsyncQueueWorker(this);
-                }
                 ReentrantCWorker::WorkComplete();
+            }
+
+            virtual void HandleErrorCallback() override {
+                ReentrantCWorker::HandleErrorCallback();
             }
             
             virtual void HandleOKCallback() override {
-                Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ctx.ret)};
-                callback->Call(2, info);
+                if(callback) {
+                    Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ctx.ret)};
+                    callback->Call(2, info);
+                }
             }
-            
-            virtual void Destroy() override {
-                ReentrantCWorker::Destroy();
-                if (state == 2) delete this;
-            }
-        private:
-            HookInfo hookinfo_;
         public:
-            int state;
             Problem *lp;
             glp_iocp parm;
             glp_mip_ctx ctx;

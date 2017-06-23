@@ -52,6 +52,95 @@ typedef struct MBD MBD;
 #define GLP_OFF 0
 
 #ifdef HAVE_ENV
+
+#ifdef GLOBAL_MEM_STATS
+/* dynamic memory allocation */
+extern volatile size_t mem_limit;
+/* maximal amount of memory, in bytes, available for dynamic
+ * allocation */
+extern volatile size_t mem_count;
+/* total number of currently allocated memory blocks */
+extern volatile size_t mem_cpeak;
+/* peak value of mem_count */
+extern volatile size_t mem_total;
+/* total amount of currently allocated memory, in bytes; it is
+ * the sum of the size field over all memory block descriptors */
+extern volatile size_t mem_tpeak;
+/* peak value of mem_total */
+
+#ifdef HAVE_ATOMIC
+
+#define add_mem_limit(x) __atomic_add_fetch(&mem_limit, x, __ATOMIC_CONSUME)
+#define add_mem_count(x) __atomic_add_fetch(&mem_count, x, __ATOMIC_CONSUME)
+#define add_mem_cpeak(x) __atomic_add_fetch(&mem_cpeak, x, __ATOMIC_CONSUME)
+#define add_mem_total(x) __atomic_add_fetch(&mem_total, x, __ATOMIC_CONSUME)
+#define add_mem_tpeak(x) __atomic_add_fetch(&mem_tpeak, x, __ATOMIC_CONSUME)
+
+#define _cmpxchg(DEST, CMP, SRC) __atomic_compare_exchange_n(DEST, &CMP, SRC, 0, __ATOMIC_RELEASE, __ATOMIC_RELAXED)
+
+#elif HAVE_SYNC // ifdef HAVE_ATOMIC
+
+#define add_mem_limit(x) __sync_add_and_fetch(&mem_limit, x)
+#define add_mem_count(x) __sync_add_and_fetch(&mem_count, x)
+#define add_mem_cpeak(x) __sync_add_and_fetch(&mem_cpeak, x)
+#define add_mem_total(x) __sync_add_and_fetch(&mem_total, x)
+#define add_mem_tpeak(x) __sync_add_and_fetch(&mem_tpeak, x)
+
+#define _cmpxchg(DEST, CMP, SRC) __sync_val_compare_and_swap(DEST, CMP, SRC)
+
+#else  // ifdef HAVE_ATOMIC elif HAVE_SYNC
+
+#define add_mem_limit(x) (mem_limit += x)
+#define add_mem_count(x) (mem_count += x)
+#define add_mem_cpeak(x) (mem_cpeak += x)
+#define add_mem_total(x) (mem_total += x)
+#define add_mem_tpeak(x) (mem_tpeak += x)
+
+
+#endif // ifdef HAVE_ATOMIC elif HAVE_SYNC
+
+#define _set_peak(VALUE, PEAK)                                              \
+    do {                                                                    \
+        size_t oldpeak = get_mem_##PEAK();                                  \
+        while (VALUE > oldpeak && !_cmpxchg(&mem_##PEAK, oldpeak, VALUE)) { \
+            oldpeak = get_mem_##PEAK();                                     \
+        }                                                                   \
+    } while (0)
+
+#define set_mem_limit(VALUE)                                                                   \
+    do {                                                                                       \
+        size_t limit = get_mem_limit();                                                        \
+        while (limit != VALUE && !_cmpxchg(&mem_total, limit, VALUE)) limit = get_mem_limit(); \
+    } while (0)
+
+#else // #ifdef GLOBAL_MEM_STATS 
+
+#define add_mem_limit(x) (env->mem_limit += x)
+#define add_mem_count(x) (env->mem_count += x)
+#define add_mem_cpeak(x) (env->mem_cpeak += x)
+#define add_mem_total(x) (env->mem_total += x)
+#define add_mem_tpeak(x) (env->mem_tpeak += x)
+
+#define _set_peak(VALUE, PEAK)                                \
+    do {                                                      \
+        if (VALUE > env->mem_##PEAK) env->mem_##PEAK = VALUE; \
+    } while (0)
+
+#define set_mem_limit(VALUE) (env->mem_limit = VALUE)
+
+#endif // #ifdef GLOBAL_MEM_STATS
+
+#define set_mem_tpeak(TOTAL) _set_peak(TOTAL, tpeak)
+#define set_mem_cpeak(COUNT) _set_peak(COUNT, cpeak)
+
+#define get_mem_limit() add_mem_limit(0)
+#define get_mem_count() add_mem_count(0)
+#define get_mem_cpeak() add_mem_cpeak(0)
+#define get_mem_total() add_mem_total(0)
+#define get_mem_tpeak() add_mem_tpeak(0)
+
+
+
 struct ENV
 {     /* GLPK environment block */
       char version[7+1];
@@ -88,20 +177,22 @@ struct ENV
       /* buffer to store error messages (used by I/O routines) */
       /*--------------------------------------------------------------*/
       /* dynamic memory allocation */
+#ifndef GLOBAL_MEM_STATS
       size_t mem_limit;
       /* maximal amount of memory, in bytes, available for dynamic
        * allocation */
       MBD *mem_ptr;
       /* pointer to the linked list of allocated memory blocks */
-      int mem_count;
+      size_t mem_count;
       /* total number of currently allocated memory blocks */
-      int mem_cpeak;
+      size_t mem_cpeak;
       /* peak value of mem_count */
       size_t mem_total;
       /* total amount of currently allocated memory, in bytes; it is
        * the sum of the size field over all memory block descriptors */
       size_t mem_tpeak;
       /* peak value of mem_total */
+#endif
       /*--------------------------------------------------------------*/
       /* dynamic linking support (optional) */
       void *h_odbc;

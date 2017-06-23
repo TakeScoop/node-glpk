@@ -10,10 +10,10 @@
 
 #include "glpk/glpk.h"
 
-namespace NodeGLPK {
 
+namespace NodeGLPK {
 typedef int (*term_hook_fn)(void* info, const char* s);
-typedef NodeEvent::AsyncEventEmittingReentrantCWorker<128> ReentrantCWorker;
+typedef NodeEvent::AsyncEventEmittingReentrantCWorker<32> ReentrantCWorker;
 
 /// The state information passed to all term_hooks. 
 struct HookInfo {

@@ -6,7 +6,7 @@
   "authors": [
     "Henri Gourvest <hgourvest@progdigy.com>"
   ],
-   "repository": {
+  "repository": {
     "type": "git",
     "url": "git://github.com/hgourvest/node-glpk.git"
   },
@@ -14,7 +14,7 @@
   "description": "Node.js native module for GLPK.",
   "keywords": [
     "glpk"
-    ],
+  ],
   "dependencies": {
     "nan": "^2.1.0",
     "bindings": "^1.2.1",
@@ -24,5 +24,11 @@
     "configure": "node-gyp configure",
     "build": "node-gyp build"
   },
-  "engines" : { "node" : ">=0.11.0", "iojs": "*" }
+  "engines": {
+    "node": ">=0.11.0",
+    "iojs": "*"
+  },
+  "devDependencies": {
+    "node-gyp": "^3.6.2"
+  }
 }

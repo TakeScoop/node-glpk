@@ -12,7 +12,11 @@
 using namespace v8;
 using namespace NodeGLPK;
 
+namespace NodeGLPK {
 std::vector<term_hook_fn> TermHookManager::term_hooks_;
+thread_local HookInfo* TermHookManager::info_;
+NodeEvent::uv_rwlock TermHookManager::lock_;
+
 static std::atomic<bool> term_output{false};
 
 int stdoutTermHook(void*, const char *s) {
@@ -39,13 +43,15 @@ void _ErrorHook(void *s){
     throw std::string(static_cast<const char *>(s));
 }
 
+} // namespace NodeGLPK
+
 extern "C" {
     
     NAN_METHOD(TermOutput) {
         V8CHECK(info.Length() != 1, "Wrong number of arguments");
         V8CHECK(!info[0]->IsBoolean(), "Wrong arguments");
         
-        term_output = info[0]->BooleanValue();
+        NodeGLPK::term_output = info[0]->BooleanValue();
     }
 
     
