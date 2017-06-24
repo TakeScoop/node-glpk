@@ -1551,7 +1551,7 @@ static void delete_prob(glp_prob *lp)
       if (lp->parms != NULL) xfree(lp->parms);
 #endif
 #endif
-      xassert(lp->tree == NULL);
+      xassert(lp->tree == NULL || lp->tree->reason == 0);
 #if 0
       if (lp->cwa != NULL) xfree(lp->cwa);
 #endif
