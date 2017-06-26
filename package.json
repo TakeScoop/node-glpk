@@ -29,6 +29,9 @@
     "iojs": "*"
   },
   "devDependencies": {
-    "node-gyp": "^3.6.2"
+    "chai": "^4.0.2",
+    "mocha": "^3.4.2",
+    "node-gyp": "^3.6.2",
+    "temp": "^0.8.3"
   }
 }
