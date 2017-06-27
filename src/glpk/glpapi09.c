@@ -275,6 +275,7 @@ static void solve_mip_stop(glp_prob *P, glp_mip_ctx *ctx,
 
       /* delete the branch-and-bound tree */
       ios_delete_tree(T);
+      ctx->tree = NULL;
       /* analyze exit code reported by the mip driver */
       if (ret == 0)
       {  if (P->mip_stat == GLP_FEAS)
@@ -481,12 +482,17 @@ start:
       }
       /* postprocess solution from the transformed MIP */
 post: npp_postprocess(ctx->presolve.npp, ctx->presolve.mip);
+#ifndef HAVE_ENV /* using env means we have dmp_delete_pool coming up *;
       /* the transformed MIP is no longer needed */
       glp_delete_prob(ctx->presolve.mip), ctx->presolve.mip = NULL;
+#endif
       /* store solution to the original problem */
       npp_unload_sol(ctx->presolve.npp, P);
-done: /* delete the transformed MIP, if it exists */
+done: 
+#ifndef HAVE_ENV /* using env means we have dmp_delete_pool coming up */
+      /* delete the transformed MIP, if it exists */
       if (ctx->presolve.mip != NULL) glp_delete_prob(ctx->presolve.mip);
+#endif
       /* delete preprocessor workspace */
       npp_delete_wksp(ctx->presolve.npp);
 }
