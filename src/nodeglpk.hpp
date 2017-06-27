@@ -119,7 +119,7 @@ class TermHookGuard {
             oldinfo_ = TermHookManager::SetInfo(info);
         }
     }
-    ~TermHookGuard() noexcept { TermHookManager::SetInfo(oldinfo_); }
+    ~TermHookGuard() noexcept { TermHookManager::SetInfo(oldinfo_); glp_free_env(); }
 
  private:
     std::shared_ptr<HookInfo> oldinfo_;
