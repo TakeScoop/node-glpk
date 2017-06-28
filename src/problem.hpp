@@ -321,7 +321,7 @@ namespace NodeGLPK {
 
             virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
                 HookInfo info {nullptr, sender, fn};
-                TermHookGuard hookguard{&info};
+                TermHookThreadGuard hookguard{&info};
                 try {
                     glp_simplex(lp->handle, &smcp);
                 } catch (std::string s){
@@ -386,7 +386,7 @@ namespace NodeGLPK {
 
             virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
                 HookInfo info {nullptr, sender, fn};
-                TermHookGuard hookguard{&lp->info_};
+                TermHookThreadGuard hookguard{&lp->info_};
                 try {
                     glp_exact(lp->handle, &smcp);
                 } catch (std::string s){
@@ -473,7 +473,7 @@ namespace NodeGLPK {
             }
             virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
                 HookInfo info {nullptr, sender, fn};
-                TermHookGuard hookguard{&lp->info_};
+                TermHookThreadGuard hookguard{&lp->info_};
                 try {
                     glp_interior(lp->handle, &iptcp);
                 } catch (std::string s){
@@ -573,7 +573,7 @@ namespace NodeGLPK {
             }
             virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
                 HookInfo info {nullptr, sender, fn};
-                TermHookGuard hookguard{&lp->info_};
+                TermHookThreadGuard hookguard{&lp->info_};
                 try {
                     ret = glp_read_mps(lp->handle, fmt, &mpscp, file.c_str());
                 } catch (std::string s){
@@ -651,7 +651,7 @@ namespace NodeGLPK {
             }
             virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
                 HookInfo info {nullptr, sender, fn};
-                TermHookGuard hookguard{&lp->info_};
+                TermHookThreadGuard hookguard{&lp->info_};
                 try {
                     ret = glp_write_mps(lp->handle, fmt, &mpscp, file.c_str());
                 } catch (std::string s){
@@ -835,7 +835,7 @@ namespace NodeGLPK {
 
             virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
                 HookInfo info = {nullptr, sender, fn};
-                TermHookGuard hookguard{&info};
+                TermHookThreadGuard hookguard{&info};
                 try {
                     glp_intopt_start(lp->handle, &ctx);
                     while(!ctx.done) {
@@ -913,7 +913,7 @@ namespace NodeGLPK {
 
             virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
                 HookInfo info {nullptr, sender, fn};
-                TermHookGuard hookguard{&lp->info_};
+                TermHookThreadGuard hookguard{&lp->info_};
                 try {
                     ret = glp_read_lp(lp->handle, NULL, file.c_str());
                 } catch (std::string s){
@@ -971,7 +971,7 @@ namespace NodeGLPK {
 
             virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
                 HookInfo info {nullptr, sender, fn};
-                TermHookGuard hookguard{&lp->info_};
+                TermHookThreadGuard hookguard{&lp->info_};
                 try {
                     ret = glp_write_lp(lp->handle, NULL, file.c_str());
                 } catch (std::string s){
@@ -1084,7 +1084,7 @@ namespace NodeGLPK {
 
             virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
                 HookInfo info {nullptr, sender, fn};
-                TermHookGuard hookguard{&lp->info_};
+                TermHookThreadGuard hookguard{&lp->info_};
                 try {
                     ret = glp_print_ranges(lp->handle, len, list, flags, file.c_str());
                 } catch (std::string s){
@@ -1215,7 +1215,7 @@ namespace NodeGLPK {
 
             virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
                 HookInfo info {nullptr, sender, fn};
-                TermHookGuard hookguard{&lp->info_};
+                TermHookThreadGuard hookguard{&lp->info_};
                 try {
                     glp_scale_prob(lp->handle, param);
                 } catch (std::string s){
@@ -1254,7 +1254,7 @@ namespace NodeGLPK {
             }
             virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
                 HookInfo info {nullptr, sender, fn};
-                TermHookGuard hookguard{&lp->info_};
+                TermHookThreadGuard hookguard{&lp->info_};
                 try {
                     ret = glp_factorize(lp->handle);
                 } catch (std::string s){

@@ -122,10 +122,26 @@ class TermHookGuard {
             oldinfo_ = TermHookManager::SetInfo(info);
         }
     }
-    ~TermHookGuard() noexcept { TermHookManager::SetInfo(oldinfo_); glp_free_env(); }
+    ~TermHookGuard() noexcept { TermHookManager::SetInfo(oldinfo_); }
 
  private:
     HookInfo* oldinfo_;
+};
+
+/// TermHookThreadGuard is similar to TermHookGuard but instead of restoring the prior info, deletes the environment of
+/// the thread. This guard is suitable for the worker-thread method, where cleanup should happen when the thread
+/// completes.
+class TermHookThreadGuard {
+ public:
+    explicit TermHookThreadGuard(HookInfo* info) {
+        // Ensure this thread's env is setup and has our hooks
+        TermHookManager::ThreadInitDefaultHooks(nullptr);  
+        if (info && TermHookManager::Current() != info) {
+            TermHookManager::SetInfo(info);
+        }
+    }
+
+    ~TermHookThreadGuard() noexcept { glp_free_env(); }
 };
 
 }  // namespace NodeGLPK

@@ -21,6 +21,7 @@
     "cpp-eventemitter": "^0.0.1"
   },
   "scripts": {
+    "test": "node-gyp configure --debug; node-gyp build --debug; mocha test/*-test.js",
     "configure": "node-gyp configure",
     "build": "node-gyp build"
   },

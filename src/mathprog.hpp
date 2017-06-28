@@ -89,7 +89,7 @@ namespace NodeGLPK {
 
             virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
                 HookInfo info {nullptr, sender, fn};
-                TermHookGuard hookguard{&info};
+                TermHookThreadGuard hookguard{&info};
                 try {
                     ret = glp_mpl_read_model(mp->handle, file.c_str(), parm);
                 } catch (std::string s){
@@ -135,7 +135,7 @@ namespace NodeGLPK {
             }
             virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
                 HookInfo info {nullptr, sender, fn};
-                TermHookGuard hookguard{&info};
+                TermHookThreadGuard hookguard{&info};
                 try {
                     ret = glp_mpl_read_data(mp->handle, file.c_str());
                 } catch (std::string s){
@@ -181,7 +181,7 @@ namespace NodeGLPK {
             }
             virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
                 HookInfo info {nullptr, sender, fn};
-                TermHookGuard hookguard{&info};
+                TermHookThreadGuard hookguard{&info};
                 try {
                     if (file.length() > 0)
                         ret = glp_mpl_generate(mp->handle, file.c_str());
@@ -250,7 +250,7 @@ namespace NodeGLPK {
             }
             virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
                 HookInfo info {nullptr, sender, fn};
-                TermHookGuard hookguard{&info};
+                TermHookThreadGuard hookguard{&info};
                 try {
                     glp_mpl_build_prob(mp->handle, lp->handle);
                 } catch (std::string s){
@@ -311,7 +311,7 @@ namespace NodeGLPK {
             }
             virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
                 HookInfo info {nullptr, sender, fn};
-                TermHookGuard hookguard{&info};
+                TermHookThreadGuard hookguard{&info};
                 try {
                     ret = glp_mpl_postsolve(mp->handle, lp->handle, parm);
                 } catch (std::string s){

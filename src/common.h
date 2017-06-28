@@ -340,7 +340,7 @@ NAME##Worker(Nan::Callback *callback, CLASS *lp, std::string file)\
 }\
 virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override { \
     HookInfo info {nullptr, sender, fn}; \
-    TermHookGuard hookguard{&info}; \
+    TermHookThreadGuard hookguard{&info}; \
     try {\
         ret = API(lp->handle, file.c_str());\
     } catch (std::string s) {\
@@ -390,7 +390,7 @@ public:\
     }\
     virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override { \
         HookInfo info {nullptr, sender, fn}; \
-        TermHookGuard hookguard{&info}; \
+        TermHookThreadGuard hookguard{&info}; \
         try {\
             ret = API(lp->handle, flags, file.c_str());\
         } catch (std::string s) {\
@@ -436,7 +436,7 @@ public:\
     }\
     virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override { \
         HookInfo info {nullptr, sender, fn}; \
-        TermHookGuard hookguard{&info}; \
+        TermHookThreadGuard hookguard{&info}; \
         try {\
             API(lp->handle);\
         } catch (std::string s) {\
