@@ -839,8 +839,10 @@ namespace NodeGLPK {
                 try {
                     glp_intopt_start(lp->handle, &ctx);
                     while(!ctx.done) {
-                        parm.cb_func(ctx.tree, parm.cb_info);
                         glp_intopt_run(&ctx);
+                        if(!ctx.done) {
+                            parm.cb_func(ctx.tree, parm.cb_info);
+                        }
                     }
                     glp_intopt_stop(lp->handle, &ctx);
                 } catch (std::string s){
