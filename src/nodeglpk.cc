@@ -14,8 +14,8 @@ using namespace v8;
 using namespace NodeGLPK;
 
 namespace NodeGLPK {
-std::vector<term_hook_fn> TermHookManager::term_hooks_;
-thread_local HookInfo* TermHookManager::info_;
+std::vector<term_hook_fn> TermHookManager::term_hooks_{stdoutTermHook, eventTermHook}; 
+thread_local HookInfo* TermHookManager::info_{nullptr};
 NodeEvent::uv_rwlock TermHookManager::lock_;
 
 static std::atomic<bool> term_output{false};
