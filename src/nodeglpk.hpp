@@ -100,6 +100,12 @@ class TermHookManager {
     /// @returns the current info
     static HookInfo* Current() { return info_; }
 
+    /// free the environment of the current thread
+    static void ClearEnv() {
+        glp_free_env();
+        info_ = nullptr;
+    }
+
  private:
     static std::vector<term_hook_fn> term_hooks_;
     static NodeEvent::uv_rwlock lock_;
@@ -137,7 +143,7 @@ class TermHookThreadGuard {
         }
     }
 
-    ~TermHookThreadGuard() noexcept { glp_free_env(); }
+    ~TermHookThreadGuard() noexcept { TermHookManager::ClearEnv(); }
 };
 
 /// EventEmitterDecorator decorates a Nan::AsyncWorker so that the Execute() method is wrapped with a TermHookThreadGuard
