@@ -100,6 +100,12 @@ class TermHookManager {
         info_ = nullptr;
     }
 
+    /// free the environment of the current thread
+    static void ClearEnv() {
+        glp_free_env();
+        info_ = nullptr;
+    }
+
  private:
     static std::vector<term_hook_fn> term_hooks_;
     static NodeEvent::uv_rwlock lock_;
