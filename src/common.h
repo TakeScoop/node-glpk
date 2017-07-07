@@ -332,31 +332,29 @@ OBJ->Set(Nan::New<String>(KEY).ToLocalChecked(), Nan::New<Number>(VALUE));
 
 
 #define GLP_ASYNC_INT32_STR(CLASS, NAME, API)\
-class NAME##Worker : public ReentrantCWorker {\
+class NAME##Worker : public Nan::AsyncWorker {\
 public:\
 NAME##Worker(Nan::Callback *callback, CLASS *lp, std::string file)\
-: ReentrantCWorker(callback, lp->emitter_), lp(lp), file(file){\
+: Nan::AsyncWorker(callback), lp(lp), file(file){\
     \
 }\
-virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override { \
-    HookInfo info {nullptr, sender, fn}; \
-    TermHookThreadGuard hookguard{&info}; \
+\
+void Execute () {\
     try {\
         ret = API(lp->handle, file.c_str());\
     } catch (std::string s) {\
         Nan::ThrowError(s.c_str());\
     }\
 }\
-virtual void WorkComplete() override {\
+void WorkComplete() {\
     lp->thread = false;\
-    ReentrantCWorker::WorkComplete();\
+    Nan::AsyncWorker::WorkComplete();\
 }\
-virtual void HandleOKCallback() override {\
+virtual void HandleOKCallback() {\
     Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};\
     callback->Call(2, info);\
 }\
 \
-private:\
 public:\
     int ret;\
     CLASS *lp;\
@@ -374,23 +372,22 @@ static NAN_METHOD(NAME) {\
     Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());\
     NAME##Worker *worker = new NAME##Worker(callback, lp, V8TOCSTRING(info[0]));\
     lp->thread = true;\
-    Nan::AsyncQueueWorker(worker);\
+    EventEmitterDecorator* decorated = new EventEmitterDecorator(worker, lp->emitter_); \
+    Nan::AsyncQueueWorker(decorated);\
 }\
 
 #define GLP_ASYNC_INT32_INT32_STR(CLASS, NAME, API)\
-class NAME##Worker : public ReentrantCWorker {\
+class NAME##Worker : public Nan::AsyncWorker {\
 public:\
     NAME##Worker(Nan::Callback *callback, CLASS *lp, int flags, std::string file)\
-    : ReentrantCWorker(callback, lp->emitter_), flags(flags), lp(lp), file(file){\
+    : Nan::AsyncWorker(callback), flags(flags), lp(lp), file(file){\
         \
     }\
-    virtual void WorkComplete() override {\
+    void WorkComplete() {\
         lp->thread = false;\
-        ReentrantCWorker::WorkComplete();\
+        Nan::AsyncWorker::WorkComplete();\
     }\
-    virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override { \
-        HookInfo info {nullptr, sender, fn}; \
-        TermHookThreadGuard hookguard{&info}; \
+    void Execute () {\
         try {\
             ret = API(lp->handle, flags, file.c_str());\
         } catch (std::string s) {\
@@ -398,12 +395,11 @@ public:\
         }\
     }\
     \
-    virtual void HandleOKCallback() override {\
+    virtual void HandleOKCallback() {\
         Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};\
         callback->Call(2, info);\
     }\
     \
-private:\
 public:\
     int ret, flags;\
     CLASS *lp;\
@@ -421,29 +417,27 @@ static NAN_METHOD(NAME) {\
     Nan::Callback *callback = new Nan::Callback(info[2].As<Function>());\
     NAME##Worker *worker = new NAME##Worker(callback, lp, info[0]->Int32Value(), V8TOCSTRING(info[1]));\
     lp->thread = true;\
-    Nan::AsyncQueueWorker(worker);\
+    EventEmitterDecorator* decorated = new EventEmitterDecorator(worker, lp->emitter_); \
+    Nan::AsyncQueueWorker(decorated);\
 }\
 
 #define GLP_ASYNC_VOID(CLASS, NAME, API)\
-class NAME##Worker : public ReentrantCWorker {\
+class NAME##Worker : public Nan::AsyncWorker {\
 public:\
     NAME##Worker(Nan::Callback *callback, CLASS *lp)\
-    : ReentrantCWorker(callback, lp->emitter_), lp(lp) {\
+    : Nan::AsyncWorker(callback), lp(lp) {\
     }\
-    virtual void WorkComplete() override {\
+    void WorkComplete() {\
         lp->thread = false;\
-        ReentrantCWorker::WorkComplete();\
+        Nan::AsyncWorker::WorkComplete();\
     }\
-    virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override { \
-        HookInfo info {nullptr, sender, fn}; \
-        TermHookThreadGuard hookguard{&info}; \
+    void Execute () {\
         try {\
             API(lp->handle);\
         } catch (std::string s) {\
             Nan::ThrowError(s.c_str());\
         }\
     }\
-private:\
 public:\
     CLASS *lp;\
 };\
@@ -459,7 +453,8 @@ static NAN_METHOD(NAME) {\
     Nan::Callback *callback = new Nan::Callback(info[0].As<Function>());\
     NAME##Worker *worker = new NAME##Worker(callback, lp);\
     lp->thread = true;\
-    Nan::AsyncQueueWorker(worker);\
+    EventEmitterDecorator* decorated = new EventEmitterDecorator(worker, lp->emitter_); \
+    Nan::AsyncQueueWorker(decorated);\
 }\
 
 

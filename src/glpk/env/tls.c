@@ -42,7 +42,7 @@
 # endif
 #endif
 
-thread_local static void *tls = NULL;
+static thread_local void *tls = NULL;
 
 /***********************************************************************
 *  NAME

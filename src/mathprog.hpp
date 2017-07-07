@@ -76,31 +76,28 @@ namespace NodeGLPK {
             mp->emitter_->on(s, callback);
         }
         
-        class ReadModelWorker : public ReentrantCWorker {
+        class ReadModelWorker : public Nan::AsyncWorker {
         public:
             ReadModelWorker(Nan::Callback *callback, Mathprog *mp, char *file, int parm)
-            : ReentrantCWorker(callback, mp->emitter_), mp(mp), file(file), parm(parm){
+            : Nan::AsyncWorker(callback), mp(mp), file(file), parm(parm){
                 
             }
-            void WorkComplete() override {
+            void WorkComplete() {
                 mp->thread = false;
-                ReentrantCWorker::WorkComplete();
+                Nan::AsyncWorker::WorkComplete();
             }
 
-            virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
-                HookInfo info {nullptr, sender, fn};
-                TermHookThreadGuard hookguard{&info};
+            void Execute () {
                 try {
                     ret = glp_mpl_read_model(mp->handle, file.c_str(), parm);
                 } catch (std::string s){
                     SetErrorMessage(s.c_str());
                 }
             }
-            virtual void HandleOKCallback() override {
+            virtual void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
                 callback->Call(2, info);
             }
-            private:
             public:
                 Mathprog *mp;
                 std::string file;
@@ -118,35 +115,33 @@ namespace NodeGLPK {
             Nan::Callback *callback = new Nan::Callback(info[2].As<Function>());
             ReadModelWorker *worker = new ReadModelWorker(callback, mp, V8TOCSTRING(info[0]), info[1]->Int32Value());
             mp->thread = true;
-            Nan::AsyncQueueWorker(worker);
+            EventEmitterDecorator* decorated = new EventEmitterDecorator(worker, mp->emitter_);
+            Nan::AsyncQueueWorker(decorated);
         }
   
         GLP_BIND_VALUE_STR_INT32(Mathprog, ReadModelSync, glp_mpl_read_model);
         
-        class ReadDataWorker : public ReentrantCWorker {
+        class ReadDataWorker : public Nan::AsyncWorker {
         public:
             ReadDataWorker(Nan::Callback *callback, Mathprog *mp, char *file)
-            : ReentrantCWorker(callback, mp->emitter_), mp(mp), file(file){
+            : Nan::AsyncWorker(callback), mp(mp), file(file){
                 
             }
-            void WorkComplete() override {
+            void WorkComplete() {
                 mp->thread = false;
-                ReentrantCWorker::WorkComplete();
+                Nan::AsyncWorker::WorkComplete();
             }
-            virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
-                HookInfo info {nullptr, sender, fn};
-                TermHookThreadGuard hookguard{&info};
+            void Execute () {
                 try {
                     ret = glp_mpl_read_data(mp->handle, file.c_str());
                 } catch (std::string s){
                     SetErrorMessage(s.c_str());
                 }
             }
-            virtual void HandleOKCallback() override {
+            virtual void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
                 callback->Call(2, info);
             }
-        private:
         public:
             Mathprog *mp;
             std::string file;
@@ -164,24 +159,23 @@ namespace NodeGLPK {
             Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
             ReadDataWorker *worker = new ReadDataWorker(callback, mp, V8TOCSTRING(info[0]));
             mp->thread = true;
-            Nan::AsyncQueueWorker(worker);
+            EventEmitterDecorator* decorated = new EventEmitterDecorator(worker, mp->emitter_);
+            Nan::AsyncQueueWorker(decorated);
         }
         
         GLP_BIND_VALUE_STR(Mathprog, ReadDataSync, glp_mpl_read_data);
         
-        class GenerateWorker : public ReentrantCWorker {
+        class GenerateWorker : public Nan::AsyncWorker {
         public:
             GenerateWorker(Nan::Callback *callback, Mathprog *mp, char *file)
-            : ReentrantCWorker(callback, mp->emitter_), mp(mp){
+            : Nan::AsyncWorker(callback), mp(mp){
                 if (file) this->file = file;
             }
-            virtual void WorkComplete() override {
+            void WorkComplete() {
                 mp->thread = false;
-                ReentrantCWorker::WorkComplete();
+                Nan::AsyncWorker::WorkComplete();
             }
-            virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
-                HookInfo info {nullptr, sender, fn};
-                TermHookThreadGuard hookguard{&info};
+            void Execute () {
                 try {
                     if (file.length() > 0)
                         ret = glp_mpl_generate(mp->handle, file.c_str());
@@ -191,12 +185,11 @@ namespace NodeGLPK {
                     SetErrorMessage(s.c_str());
                 }
             }
-            virtual void HandleOKCallback() override {
+            virtual void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
                 callback->Call(2, info);
             }
             
-        private:
         public:
             Mathprog *mp;
             std::string file;
@@ -218,7 +211,8 @@ namespace NodeGLPK {
             else
                 worker = new GenerateWorker(callback, mp, NULL);
             mp->thread = true;
-            Nan::AsyncQueueWorker(worker);
+            EventEmitterDecorator* decorated = new EventEmitterDecorator(worker, mp->emitter_);
+            Nan::AsyncQueueWorker(decorated);
         }
         
         static NAN_METHOD(GenerateSync) {
@@ -237,27 +231,24 @@ namespace NodeGLPK {
             )
         }
         
-        class BuildProbWorker : public ReentrantCWorker {
+        class BuildProbWorker : public Nan::AsyncWorker {
         public:
             BuildProbWorker(Nan::Callback *callback, Mathprog *mp, Problem *lp)
-            : ReentrantCWorker(callback, mp->emitter_), mp(mp), lp(lp){
+            : Nan::AsyncWorker(callback), mp(mp), lp(lp){
                 
             }
-            virtual void WorkComplete() override {
+            void WorkComplete() {
                 mp->thread = false;
                 lp->thread = false;
-                ReentrantCWorker::WorkComplete();
+                Nan::AsyncWorker::WorkComplete();
             }
-            virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
-                HookInfo info {nullptr, sender, fn};
-                TermHookThreadGuard hookguard{&info};
+            void Execute () {
                 try {
                     glp_mpl_build_prob(mp->handle, lp->handle);
                 } catch (std::string s){
                     SetErrorMessage(s.c_str());
                 }
             }
-        private:
         public:
             Mathprog *mp;
             Problem *lp;
@@ -280,7 +271,8 @@ namespace NodeGLPK {
             BuildProbWorker *worker = new BuildProbWorker(callback, mp, lp);
             mp->thread = true;
             lp->thread = true;
-            Nan::AsyncQueueWorker(worker);
+            EventEmitterDecorator* decorated = new EventEmitterDecorator(worker, mp->emitter_);
+            Nan::AsyncQueueWorker(decorated);
         }
         
         static NAN_METHOD(BuildProbSync){
@@ -298,31 +290,28 @@ namespace NodeGLPK {
             GLP_CATCH_RET(glp_mpl_build_prob(mp->handle, lp->handle);)
         }
 
-        class PostsolveWorker : public ReentrantCWorker {
+        class PostsolveWorker : public Nan::AsyncWorker {
         public:
             PostsolveWorker(Nan::Callback *callback, Mathprog *mp, Problem *lp, int parm)
-            : ReentrantCWorker(callback, mp->emitter_), mp(mp), lp(lp), parm(parm){
+            : Nan::AsyncWorker(callback), mp(mp), lp(lp), parm(parm){
                 
             }
-            virtual void WorkComplete() override {
+            void WorkComplete() {
                 mp->thread = false;
                 lp->thread = false;
-                ReentrantCWorker::WorkComplete();
+                Nan::AsyncWorker::WorkComplete();
             }
-            virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
-                HookInfo info {nullptr, sender, fn};
-                TermHookThreadGuard hookguard{&info};
+            void Execute () {
                 try {
                     ret = glp_mpl_postsolve(mp->handle, lp->handle, parm);
                 } catch (std::string s){
                     SetErrorMessage(s.c_str());
                 }
             }
-            virtual void HandleOKCallback() override {
+            virtual void HandleOKCallback() {
                 Local<Value> info[] = {Nan::Null(), Nan::New<Int32>(ret)};
                 callback->Call(2, info);
             }
-        private:
         public:
             Mathprog *mp;
             Problem *lp;
@@ -344,7 +333,8 @@ namespace NodeGLPK {
             Nan::Callback *callback = new Nan::Callback(info[2].As<Function>());
             PostsolveWorker *worker = new PostsolveWorker(callback, mp, lp, info[1]->Int32Value());
             mp->thread = true;
-            Nan::AsyncQueueWorker(worker);
+            EventEmitterDecorator* decorated = new EventEmitterDecorator(worker, mp->emitter_);
+            Nan::AsyncQueueWorker(decorated);
         }
         
         static NAN_METHOD(PostsolveSync){

@@ -5,6 +5,7 @@
 #include <memory>
 #include <thread>
 #include <vector>
+#include <iostream>
 
 #include <eventemitter.hpp>
 
@@ -143,6 +144,37 @@ class TermHookThreadGuard {
 
     ~TermHookThreadGuard() noexcept { glp_free_env(); }
 };
+
+/// EventEmitterDecorator decorates a Nan::AsyncWorker so that the Execute() method is wrapped with a TermHookThreadGuard
+class EventEmitterDecorator : public ReentrantCWorker {
+ public:
+    EventEmitterDecorator(Nan::AsyncWorker* decorated, std::shared_ptr<NodeEvent::EventEmitter> emitter)
+        : ReentrantCWorker(nullptr, emitter), decorated_(decorated) {}
+
+    virtual void HandleOKCallback() override { }
+    virtual void HandleErrorCallback() override { } 
+
+    virtual void WorkComplete() override {
+        decorated_->WorkComplete();
+        ReentrantCWorker::WorkComplete();
+    }
+
+    virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
+        HookInfo info = {nullptr, sender, fn};
+        TermHookThreadGuard hookguard{&info};
+        decorated_->Execute();
+    }
+
+    virtual void Destroy() override {
+        decorated_->Destroy();
+        ReentrantCWorker::Destroy();
+    }
+
+ private:
+     Nan::AsyncWorker* decorated_;
+};
+
+
 
 }  // namespace NodeGLPK
 #endif
