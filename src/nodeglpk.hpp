@@ -62,8 +62,6 @@ class TermHookManager {
         if (info) {
             TermHookManager::SetInfo(info);
         }
-        TermHookManager::AddHook(stdoutTermHook);
-        TermHookManager::AddHook(eventTermHook);
     }
 
     /// Add a hook to the list of hooks that will be run. Duplicate hooks will be ignored (must be a C compatible
@@ -117,8 +115,6 @@ class TermHookManager {
 class TermHookGuard {
  public:
     explicit TermHookGuard(HookInfo* info) : oldinfo_(nullptr) {
-        // Ensure this thread's env is setup and has our hooks
-        TermHookManager::ThreadInitDefaultHooks(nullptr);  
         if (info && TermHookManager::Current() != info) {
             oldinfo_ = TermHookManager::SetInfo(info);
         }
@@ -136,9 +132,8 @@ class TermHookThreadGuard {
  public:
     explicit TermHookThreadGuard(HookInfo* info) {
         // Ensure this thread's env is setup and has our hooks
-        TermHookManager::ThreadInitDefaultHooks(nullptr);  
-        if (info && TermHookManager::Current() != info) {
-            TermHookManager::SetInfo(info);
+        if(info && TermHookManager::Current() != info) { 
+            TermHookManager::ThreadInitDefaultHooks(info);  
         }
     }
 
