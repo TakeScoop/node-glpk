@@ -57,8 +57,6 @@ extern "C" {
 
     
     void Init(Handle<Object> exports) {
-        TermHookManager::ThreadInitDefaultHooks(nullptr);
-
         exports->Set(Nan::New<String>("termOutput").ToLocalChecked(), Nan::New<FunctionTemplate>(TermOutput)->GetFunction());
         
         GLP_DEFINE_CONSTANT(exports, GLP_MAJOR_VERSION, MAJOR_VERSION);

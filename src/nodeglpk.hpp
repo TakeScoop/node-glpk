@@ -53,17 +53,6 @@ class TermHookManager {
         return ret;
     }
 
-    /// An Idempotent function for ensuring that the thread-local env is setup
-    /// Pass in info to set it for the thread (ignoring any prior values)
-    ///
-    /// @param[in] info - A hook info that will be valid for the life of the thread or until set to nullptr
-    static void ThreadInitDefaultHooks(HookInfo* info) {
-        glp_error_hook(_ErrorHook, info);
-        if (info) {
-            TermHookManager::SetInfo(info);
-        }
-    }
-
     /// Add a hook to the list of hooks that will be run. Duplicate hooks will be ignored (must be a C compatible
     /// function (ugly style function pointer) that can have it's address taken)
     ///
@@ -93,6 +82,7 @@ class TermHookManager {
     static HookInfo* SetInfo(HookInfo* info) {
         auto oldInfo = info_;
         info_ = info;
+        glp_error_hook(_ErrorHook, static_cast<void*>(info));
         glp_term_hook(NodeHookCallback, static_cast<void*>(info_));
         return oldInfo;
     }
@@ -139,7 +129,7 @@ class TermHookThreadGuard {
     explicit TermHookThreadGuard(HookInfo* info) {
         // Ensure this thread's env is setup and has our hooks
         if(info && TermHookManager::Current() != info) { 
-            TermHookManager::ThreadInitDefaultHooks(info);  
+            TermHookManager::SetInfo(info);  
         }
     }
 
