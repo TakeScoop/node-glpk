@@ -44,10 +44,13 @@ namespace NodeGLPK {
             exports->Set(Nan::New<String>("Mathprog").ToLocalChecked(), tpl->GetFunction());
         }
     private:
-        explicit Mathprog(): node::ObjectWrap(), emitter_(std::make_shared<NodeEvent::EventEmitter>()), info_{emitter_,nullptr,nullptr} {
-            TermHookGuard hookguard{&info_};
-            handle = glp_mpl_alloc_wksp();
-            thread = false;
+       explicit Mathprog()
+           : node::ObjectWrap(),
+             emitter_(std::make_shared<NodeEvent::EventEmitter>()),
+             info_{std::make_shared<HookInfo>(emitter_, nullptr, nullptr)} {
+           TermHookGuard hookguard{info_};
+           handle = glp_mpl_alloc_wksp();
+           thread = false;
         };
         ~Mathprog(){
             if(handle) glp_mpl_free_wksp(handle);
@@ -222,7 +225,7 @@ namespace NodeGLPK {
             V8CHECK(!host->handle, "object deleted");
             V8CHECK(host->thread.load(), "an async operation is inprogress");
             
-            TermHookGuard hookguard{&host->info_};
+            TermHookGuard hookguard{host->info_};
             GLP_CATCH_RET(
                 if ((info.Length() == 1) && (!info[0]->IsString()))
                     info.GetReturnValue().Set(glp_mpl_generate(host->handle, V8TOCSTRING(info[0])));
@@ -286,7 +289,7 @@ namespace NodeGLPK {
             Problem* lp = ObjectWrap::Unwrap<Problem>(info[0]->ToObject());
             V8CHECK(!lp || !lp->handle, "invalid problem");
             
-            TermHookGuard hookguard{&mp->info_};
+            TermHookGuard hookguard{mp->info_};
             GLP_CATCH_RET(glp_mpl_build_prob(mp->handle, lp->handle);)
         }
 
@@ -348,7 +351,7 @@ namespace NodeGLPK {
             Problem* lp = ObjectWrap::Unwrap<Problem>(info[0]->ToObject());
             V8CHECK(!lp || !lp->handle, "invalid problem");
             
-            TermHookGuard hookguard{&mp->info_};
+            TermHookGuard hookguard{mp->info_};
             GLP_CATCH_RET(info.GetReturnValue().Set(glp_mpl_postsolve(mp->handle, lp->handle, info[1]->Int32Value()));)
         }
         
@@ -369,7 +372,7 @@ namespace NodeGLPK {
             V8CHECK(!mp->handle, "object deleted");
             V8CHECK(mp->thread.load(), "an async operation is inprogress");
 
-            TermHookGuard hookguard{&mp->info_};
+            TermHookGuard hookguard{mp->info_};
 
             char * msg = glp_mpl_getlasterror(mp->handle);
             if (msg)
@@ -386,7 +389,7 @@ namespace NodeGLPK {
 
     private:
         std::shared_ptr<NodeEvent::EventEmitter> emitter_;
-        HookInfo info_;
+        std::shared_ptr<HookInfo> info_;
     };
     
     Nan::Persistent<FunctionTemplate> Mathprog::constructor;

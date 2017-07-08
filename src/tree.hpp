@@ -59,7 +59,10 @@ namespace NodeGLPK {
             return ret;
         }
     private:
-        explicit Tree(): node::ObjectWrap(), emitter_(std::make_shared<NodeEvent::EventEmitter>()), info_{emitter_,nullptr,nullptr} {}
+       explicit Tree()
+           : node::ObjectWrap(),
+             emitter_(std::make_shared<NodeEvent::EventEmitter>()),
+             info_{std::make_shared<HookInfo>(emitter_, nullptr, nullptr)} {}
         ~Tree(){};
         
         static NAN_METHOD(New) {
@@ -94,7 +97,7 @@ namespace NodeGLPK {
             V8CHECK(!host->handle, "object deleted");
             V8CHECK(host->thread.load(), "an async operation is inprogress");
           
-            TermHookGuard hookguard{&host->info_};
+            TermHookGuard hookguard{host->info_};
             int a_cnt, n_cnt, t_cnt;
             GLP_CATCH_RET(glp_ios_tree_size(host->handle, &a_cnt, &n_cnt, &t_cnt);)
             Local<Object> ret = Nan::New<Object>();
@@ -129,7 +132,7 @@ namespace NodeGLPK {
             V8CHECK(!host->handle, "object deleted");
             V8CHECK(host->thread.load(), "an async operation is inprogress");
             
-            TermHookGuard hookguard{&host->info_};
+            TermHookGuard hookguard{host->info_};
             glp_attr attr;
             GLP_CATCH_RET(glp_ios_row_attr(host->handle, info[0]->Int32Value(), &attr);)
             
@@ -152,7 +155,7 @@ namespace NodeGLPK {
             V8CHECK(!tree->handle, "object deleted");
             V8CHECK(tree->thread.load(), "an async operation is inprogress");
             
-            TermHookGuard hookguard{&tree->info_};
+            TermHookGuard hookguard{tree->info_};
 
             Local<Int32Array> ind = Local<Int32Array>::Cast(info[3]);
             Local<Float64Array> val = Local<Float64Array>::Cast(info[4]);
@@ -194,7 +197,7 @@ namespace NodeGLPK {
             V8CHECK(!tree->handle, "object deleted");
             V8CHECK(tree->thread.load(), "an async operation is inprogress");
             
-            TermHookGuard hookguard{&tree->info_};
+            TermHookGuard hookguard{tree->info_};
             Local<Float64Array> x = Local<Float64Array>::Cast(info[0]);
             
             int count = (int)x->Length();
@@ -207,7 +210,7 @@ namespace NodeGLPK {
         }
     private:
         std::shared_ptr<NodeEvent::EventEmitter> emitter_;
-        HookInfo info_;
+        std::shared_ptr<HookInfo> info_;
         
     public:
         static Nan::Persistent<FunctionTemplate> constructor;

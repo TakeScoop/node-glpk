@@ -18,6 +18,10 @@ typedef NodeEvent::AsyncEventEmittingReentrantCWorker<32> ReentrantCWorker;
 
 /// The state information passed to all term_hooks. 
 struct HookInfo {
+    HookInfo(std::shared_ptr<NodeEvent::EventEmitter> emit, const ReentrantCWorker::ExecutionProgressSender* send,
+             eventemitter_fn_r func)
+        : emitter(emit), sender(send), fn(func) {}
+
     /// An emitter. Will be used if not-null, ignoring anything else.
     std::shared_ptr<NodeEvent::EventEmitter> emitter;
 
@@ -79,16 +83,16 @@ class TermHookManager {
     /// @param[in] info - The info to set for this thread
     ///
     /// @returns the prior info, use this to restore the prior info back when you're done
-    static HookInfo* SetInfo(HookInfo* info) {
+    static std::shared_ptr<HookInfo> SetInfo(std::shared_ptr<HookInfo> info) {
         auto oldInfo = info_;
         info_ = info;
-        glp_error_hook(_ErrorHook, static_cast<void*>(info));
-        glp_term_hook(NodeHookCallback, static_cast<void*>(info_));
+        glp_error_hook(_ErrorHook, static_cast<void*>(info.get()));
+        glp_term_hook(NodeHookCallback, static_cast<void*>(info_.get()));
         return oldInfo;
     }
 
     /// @returns the current info
-    static HookInfo* Current() { return info_; }
+    static std::shared_ptr<HookInfo> Current() { return info_; }
 
     /// free the environment of the current thread
     static void ClearEnv() {
@@ -99,7 +103,7 @@ class TermHookManager {
  private:
     static std::vector<term_hook_fn> term_hooks_;
     static NodeEvent::uv_rwlock lock_;
-    static thread_local HookInfo* info_;
+    static thread_local std::shared_ptr<HookInfo> info_;
 };
 
 /// TermHookGuard is an RAII container for HookInfo management. Ensures the prior info is restored regardless of how you
@@ -110,7 +114,7 @@ class TermHookManager {
 /// pointers.
 class TermHookGuard {
  public:
-    explicit TermHookGuard(HookInfo* info) : oldinfo_(nullptr) {
+    explicit TermHookGuard(std::shared_ptr<HookInfo> info) : oldinfo_(nullptr) {
         if (info && TermHookManager::Current() != info) {
             oldinfo_ = TermHookManager::SetInfo(info);
         }
@@ -118,7 +122,7 @@ class TermHookGuard {
     ~TermHookGuard() noexcept { TermHookManager::SetInfo(oldinfo_); }
 
  private:
-    HookInfo* oldinfo_;
+    std::shared_ptr<HookInfo> oldinfo_;
 };
 
 /// TermHookThreadGuard is similar to TermHookGuard but instead of restoring the prior info, deletes the environment of
@@ -126,7 +130,7 @@ class TermHookGuard {
 /// completes.
 class TermHookThreadGuard {
  public:
-    explicit TermHookThreadGuard(HookInfo* info) {
+    explicit TermHookThreadGuard(std::shared_ptr<HookInfo> info) {
         // Ensure this thread's env is setup and has our hooks
         if(info && TermHookManager::Current() != info) { 
             TermHookManager::SetInfo(info);  
@@ -151,8 +155,8 @@ class EventEmitterDecorator : public ReentrantCWorker {
     }
 
     virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
-        HookInfo info = {nullptr, sender, fn};
-        TermHookThreadGuard hookguard{&info};
+        auto info = std::make_shared<HookInfo>(nullptr, sender, fn);
+        TermHookThreadGuard hookguard{info};
         decorated_->Execute();
     }
 
