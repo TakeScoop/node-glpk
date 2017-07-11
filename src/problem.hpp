@@ -834,9 +834,8 @@ namespace NodeGLPK {
                ctx.parm = &parm;
 
 
-               auto async = new uv_async_t;
-               uv_async_init(uv_default_loop(), async, IntoptWorker::parmCallbackAsyncRun);
-               parm_cb_async_ = std::unique_ptr<uv_async_t>(async);
+               parm_cb_async_ = std::unique_ptr<uv_async_t>(new uv_async_t);
+               uv_async_init(uv_default_loop(), parm_cb_async_.get(), IntoptWorker::parmCallbackAsyncRun);
                parm_cb_async_->data = this;
             }
             
