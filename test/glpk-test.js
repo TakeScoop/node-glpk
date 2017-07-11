@@ -13,53 +13,61 @@ function nearly(n, magnitude) {
     return [ n - 1/magnitude, n + 1/magnitude ]
 }
 
+function setupSimplexLP() {
+    // LP inspired by sample.c in the glpk distribution
+    let lp = new glp.Problem()
+    lp.setProbName("sample")
+    lp.setObjDir(glp.MAX)
+
+    lp.addRows(3)
+    lp.setRowName(1, "p")
+    lp.setRowBnds(1, glp.UP, 0.0, 100.0)
+    lp.setRowName(2, "q")
+    lp.setRowBnds(2, glp.UP, 0.0, 600.0)
+    lp.setRowName(3, "r")
+    lp.setRowBnds(3, glp.UP, 0.0, 300.0) 
+
+    lp.addCols(3)
+    lp.setColName(1, "x1")
+    lp.setColBnds(1, glp.LO, 0.0, 0.0);
+    lp.setObjCoef(1, 10.0)
+    lp.setColName(2, "x2")
+    lp.setColBnds(2, glp.LO, 0.0, 0.0);
+    lp.setObjCoef(2, 6.0)
+    lp.setColName(3, "x2")
+    lp.setColBnds(3, glp.LO, 0.0, 0.0);
+    lp.setObjCoef(3, 4.0)
+
+    let ia = new Int32Array(10);
+    let ja = new Int32Array(10);
+    let ar = new Float64Array(10);
+
+    ia[1] = 1; ja[1] = 1; ar[1] = 1.0;
+    ia[2] = 1; ja[2] = 2; ar[2] = 1.0;
+    ia[3] = 1; ja[3] = 3; ar[3] = 1.0;
+    ia[4] = 2; ja[4] = 1; ar[4] = 10.0;
+    ia[5] = 3; ja[5] = 1; ar[5] = 2.0;
+    ia[6] = 2; ja[6] = 2; ar[6] = 4.0;
+    ia[7] = 3; ja[7] = 2; ar[7] = 2.0;
+    ia[8] = 2; ja[8] = 3; ar[8] = 5.0;
+    ia[9] = 3; ja[9] = 3; ar[9] = 6.0;
+
+    lp.loadMatrix(9, ia, ja, ar)
+
+    return lp
+}
+
 describe("Simplex problem tests", function() {
     it('should get the correct answer', function(done) {
         this.timeout(10000)
-        let lp = new glp.Problem()
-        lp.setProbName("sample")
-        lp.setObjDir(glp.MAX)
-
-        lp.addRows(3)
-        lp.setRowName(1, "p")
-        lp.setRowBnds(1, glp.UP, 0.0, 100.0)
-        lp.setRowName(2, "q")
-        lp.setRowBnds(2, glp.UP, 0.0, 600.0)
-        lp.setRowName(3, "r")
-        lp.setRowBnds(3, glp.UP, 0.0, 300.0) 
-
-        lp.addCols(3)
-        lp.setColName(1, "x1")
-        lp.setColBnds(1, glp.LO, 0.0, 0.0);
-        lp.setObjCoef(1, 10.0)
-        lp.setColName(2, "x2")
-        lp.setColBnds(2, glp.LO, 0.0, 0.0);
-        lp.setObjCoef(2, 6.0)
-        lp.setColName(3, "x2")
-        lp.setColBnds(3, glp.LO, 0.0, 0.0);
-        lp.setObjCoef(3, 4.0)
-
-        let ia = new Int32Array(10);
-        let ja = new Int32Array(10);
-        let ar = new Float64Array(10);
-        
-        ia[1] = 1; ja[1] = 1; ar[1] = 1.0;
-        ia[2] = 1; ja[2] = 2; ar[2] = 1.0;
-        ia[3] = 1; ja[3] = 3; ar[3] = 1.0;
-        ia[4] = 2; ja[4] = 1; ar[4] = 10.0;
-        ia[5] = 3; ja[5] = 1; ar[5] = 2.0;
-        ia[6] = 2; ja[6] = 2; ar[6] = 4.0;
-        ia[7] = 3; ja[7] = 2; ar[7] = 2.0;
-        ia[8] = 2; ja[8] = 3; ar[8] = 5.0;
-        ia[9] = 3; ja[9] = 3; ar[9] = 6.0;
-
-        lp.loadMatrix(9, ia, ja, ar)
+        lp = setupSimplexLP()
         lp.simplex({}, function() {
             let z = lp.getObjVal()
             let x1 = lp.getColPrim(1)
             let x2 = lp.getColPrim(2)
             let x3 = lp.getColPrim(3)
 
+            expect(lp.getStatus()).to.equal(glp.OPT)
             expect(z).to.be.within(...(nearly(733 + 1/3)))
             expect(x1).to.be.within(...(nearly(33 + 1/3)))
             expect(x2).to.be.within(...(nearly(66 + 2/3)))
@@ -72,50 +80,14 @@ describe("Simplex problem tests", function() {
 describe("Exact problem tests", function() {
     it('should get the correct answer', function(done) {
         this.timeout(10000)
-        let lp = new glp.Problem()
-        lp.setProbName("sample")
-        lp.setObjDir(glp.MAX)
-
-        lp.addRows(3)
-        lp.setRowName(1, "p")
-        lp.setRowBnds(1, glp.UP, 0.0, 100.0)
-        lp.setRowName(2, "q")
-        lp.setRowBnds(2, glp.UP, 0.0, 600.0)
-        lp.setRowName(3, "r")
-        lp.setRowBnds(3, glp.UP, 0.0, 300.0) 
-
-        lp.addCols(3)
-        lp.setColName(1, "x1")
-        lp.setColBnds(1, glp.LO, 0.0, 0.0);
-        lp.setObjCoef(1, 10.0)
-        lp.setColName(2, "x2")
-        lp.setColBnds(2, glp.LO, 0.0, 0.0);
-        lp.setObjCoef(2, 6.0)
-        lp.setColName(3, "x2")
-        lp.setColBnds(3, glp.LO, 0.0, 0.0);
-        lp.setObjCoef(3, 4.0)
-
-        let ia = new Int32Array(10);
-        let ja = new Int32Array(10);
-        let ar = new Float64Array(10);
-        
-        ia[1] = 1; ja[1] = 1; ar[1] = 1.0;
-        ia[2] = 1; ja[2] = 2; ar[2] = 1.0;
-        ia[3] = 1; ja[3] = 3; ar[3] = 1.0;
-        ia[4] = 2; ja[4] = 1; ar[4] = 10.0;
-        ia[5] = 3; ja[5] = 1; ar[5] = 2.0;
-        ia[6] = 2; ja[6] = 2; ar[6] = 4.0;
-        ia[7] = 3; ja[7] = 2; ar[7] = 2.0;
-        ia[8] = 2; ja[8] = 3; ar[8] = 5.0;
-        ia[9] = 3; ja[9] = 3; ar[9] = 6.0;
-
-        lp.loadMatrix(9, ia, ja, ar)
+        let lp = setupSimplexLP()
         lp.exact({}, function() {
             let z = lp.getObjVal()
             let x1 = lp.getColPrim(1)
             let x2 = lp.getColPrim(2)
             let x3 = lp.getColPrim(3)
 
+            expect(lp.getStatus()).to.equal(glp.OPT)
             expect(z).to.equal(733 + 1/3)
             expect(x1).to.equal(33 + 1/3)
             expect(x2).to.equal(66 + 2/3)
@@ -129,6 +101,8 @@ describe("Exact problem tests", function() {
 describe("Intopt problem tests", function() {
     it('should get the correct answer', function(done) {
         this.timeout(10000)
+        // LP inspired by sample.c in the glpk distribution
+        // modified for MIP; sets 2 columns to integer values
         let lp = new glp.Problem()
         lp.setProbName("sample")
         lp.setObjDir(glp.MAX)
@@ -176,6 +150,7 @@ describe("Intopt problem tests", function() {
                 let x2 = lp.mipColVal(2)
                 let x3 = lp.mipColVal(3)
 
+                expect(lp.mipStatus()).to.equal(glp.OPT)
                 expect(z).to.equal(706)
                 expect(x1).to.be.within(...(nearly(31.8)))
                 expect(x2).to.equal(58)
@@ -189,50 +164,16 @@ describe("Intopt problem tests", function() {
 describe("Interior point problem tests", function() {
     it('should get the correct answer', function(done) {
         this.timeout(10000)
-        let lp = new glp.Problem()
-        lp.setProbName("sample")
-        lp.setObjDir(glp.MAX)
-
-        lp.addRows(3)
-        lp.setRowName(1, "p")
-        lp.setRowBnds(1, glp.UP, 0.0, 100.0)
-        lp.setRowName(2, "q")
-        lp.setRowBnds(2, glp.UP, 0.0, 600.0)
-        lp.setRowName(3, "r")
-        lp.setRowBnds(3, glp.UP, 0.0, 300.0) 
-
-        lp.addCols(3)
-        lp.setColName(1, "x1")
-        lp.setColBnds(1, glp.LO, 0.0, 0.0);
-        lp.setObjCoef(1, 10.0)
-        lp.setColName(2, "x2")
-        lp.setColBnds(2, glp.LO, 0.0, 0.0);
-        lp.setObjCoef(2, 6.0)
-        lp.setColName(3, "x2")
-        lp.setColBnds(3, glp.LO, 0.0, 0.0);
-        lp.setObjCoef(3, 4.0)
-
-        let ia = new Int32Array(10);
-        let ja = new Int32Array(10);
-        let ar = new Float64Array(10);
-        
-        ia[1] = 1; ja[1] = 1; ar[1] = 1.0;
-        ia[2] = 1; ja[2] = 2; ar[2] = 1.0;
-        ia[3] = 1; ja[3] = 3; ar[3] = 1.0;
-        ia[4] = 2; ja[4] = 1; ar[4] = 10.0;
-        ia[5] = 3; ja[5] = 1; ar[5] = 2.0;
-        ia[6] = 2; ja[6] = 2; ar[6] = 4.0;
-        ia[7] = 3; ja[7] = 2; ar[7] = 2.0;
-        ia[8] = 2; ja[8] = 3; ar[8] = 5.0;
-        ia[9] = 3; ja[9] = 3; ar[9] = 6.0;
-
-        lp.loadMatrix(9, ia, ja, ar)
+        // LP inspired by sample.c in the glpk distribution
+        // Same as simplex LP
+        let lp = setupSimplexLP()
         lp.interior({}, function() {
             let z = lp.iptObjVal()
             let x1 = lp.iptColPrim(1)
             let x2 = lp.iptColPrim(2)
             let x3 = lp.iptColPrim(3)
 
+            expect(lp.iptStatus()).to.equal(glp.OPT)
             expect(z).to.be.within(...nearly(733 + 1/3, 10000))
             expect(x1).to.be.within(...(nearly(33 + 1/3, 10000)))
             expect(x2).to.be.within(...(nearly(66 + 2/3, 10000)))
@@ -245,44 +186,8 @@ describe("Interior point problem tests", function() {
 describe("Factorize problem tests", function() {
     it('should get the correct answer', function(done) {
         this.timeout(10000)
-        let lp = new glp.Problem()
-        lp.setProbName("sample")
-        lp.setObjDir(glp.MAX)
-
-        lp.addRows(3)
-        lp.setRowName(1, "p")
-        lp.setRowBnds(1, glp.UP, 0.0, 100.0)
-        lp.setRowName(2, "q")
-        lp.setRowBnds(2, glp.UP, 0.0, 600.0)
-        lp.setRowName(3, "r")
-        lp.setRowBnds(3, glp.UP, 0.0, 300.0) 
-
-        lp.addCols(3)
-        lp.setColName(1, "x1")
-        lp.setColBnds(1, glp.LO, 0.0, 0.0);
-        lp.setObjCoef(1, 10.0)
-        lp.setColName(2, "x2")
-        lp.setColBnds(2, glp.LO, 0.0, 0.0);
-        lp.setObjCoef(2, 6.0)
-        lp.setColName(3, "x2")
-        lp.setColBnds(3, glp.LO, 0.0, 0.0);
-        lp.setObjCoef(3, 4.0)
-
-        let ia = new Int32Array(10);
-        let ja = new Int32Array(10);
-        let ar = new Float64Array(10);
-        
-        ia[1] = 1; ja[1] = 1; ar[1] = 1.0;
-        ia[2] = 1; ja[2] = 2; ar[2] = 1.0;
-        ia[3] = 1; ja[3] = 3; ar[3] = 1.0;
-        ia[4] = 2; ja[4] = 1; ar[4] = 10.0;
-        ia[5] = 3; ja[5] = 1; ar[5] = 2.0;
-        ia[6] = 2; ja[6] = 2; ar[6] = 4.0;
-        ia[7] = 3; ja[7] = 2; ar[7] = 2.0;
-        ia[8] = 2; ja[8] = 3; ar[8] = 5.0;
-        ia[9] = 3; ja[9] = 3; ar[9] = 6.0;
-
-        lp.loadMatrix(9, ia, ja, ar)
+        // LP inspired by sample.c in the glpk distribution
+        let lp = setupSimplexLP()
         expect(lp.bfExists()).to.equal(0);
         lp.factorize(function() {
             expect(lp.bfExists()).to.equal(1);
