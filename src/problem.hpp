@@ -2,6 +2,10 @@
 #ifndef _NODE_GLPK_PROBLEM_HPP
 #define _NODE_GLPK_PROBLEM_HPP
 #include <atomic>
+#include <condition_variable>
+#include <memory>
+#include <mutex>
+
 
 #include <node.h>
 #include <node_object_wrap.h>
@@ -815,12 +819,25 @@ namespace NodeGLPK {
         
         class IntoptWorker : public Nan::AsyncWorker {
         public:
-            IntoptWorker(Nan::Callback *callback, Problem *lp)
-            : Nan::AsyncWorker(callback), lp(lp){
-                TermHookGuard hookguard{lp->info_};
-                glp_init_iocp(&parm);
-                glp_init_mip_ctx(&ctx);
-                ctx.parm = &parm;
+           IntoptWorker(Nan::Callback* callback, Problem* lp)
+               : Nan::AsyncWorker(callback),
+                 parm_cb_done_{false},
+                 notifier_(),
+                 notify_lock_(),
+                 parm_cb_async_(nullptr),
+                 lp(lp),
+                 parm(),
+                 ctx() {
+               TermHookGuard hookguard{lp->info_};
+               glp_init_iocp(&parm);
+               glp_init_mip_ctx(&ctx);
+               ctx.parm = &parm;
+
+
+               auto async = new uv_async_t;
+               uv_async_init(uv_default_loop(), async, IntoptWorker::parmCallbackAsyncRun);
+               parm_cb_async_ = std::unique_ptr<uv_async_t>(async);
+               parm_cb_async_->data = this;
             }
             
             ~IntoptWorker(){
@@ -832,7 +849,16 @@ namespace NodeGLPK {
                 try {
                     glp_intopt_start(lp->handle, &ctx);
                     while(!ctx.done) {
-                        parm.cb_func(ctx.tree, parm.cb_info);
+                        std::unique_lock<std::mutex> guard{notify_lock_};
+
+                        // parm_cb has to be called on main loop thread, so we uv_async_send, and condwait for it.
+                        parm_cb_done_ = false;
+                        uv_async_send(parm_cb_async_.get());
+
+                        while(!parm_cb_done_.load()) {
+                            notifier_.wait(guard);
+                        }
+                        // parm_cb is done now, go ahead and run next iteration
                         glp_intopt_run(&ctx);
                     }
                     glp_intopt_stop(lp->handle, &ctx);
@@ -856,6 +882,37 @@ namespace NodeGLPK {
                     callback->Call(2, info);
                 }
             }
+
+            virtual void Destroy() override {
+                // NOTABUG: Nan uses reinterpret_cast to pass uv_async_t around
+                uv_close(reinterpret_cast<uv_handle_t*>(parm_cb_async_.get()), IntoptWorker::ParmAsyncClose);
+            }
+           
+        private:
+            void RunCallback() {
+                std::lock_guard<std::mutex> guard{notify_lock_};
+
+                if (parm.cb_func && parm.cb_info) {
+                    parm.cb_func(ctx.tree, parm.cb_info);
+                }
+                parm_cb_done_ = true;
+                notifier_.notify_one();
+            }
+
+            static NAUV_WORK_CB(parmCallbackAsyncRun) {
+                auto worker = static_cast<IntoptWorker*>(async->data);
+                worker->RunCallback();
+            }
+
+            static void ParmAsyncClose(uv_handle_t* handle) {
+                 auto worker = static_cast<IntoptWorker*>(handle->data);
+                 delete worker;
+            }
+
+            std::atomic<bool> parm_cb_done_;
+            std::condition_variable notifier_;
+            std::mutex notify_lock_;
+            std::unique_ptr<uv_async_t> parm_cb_async_;
         public:
             Problem *lp;
             glp_iocp parm;
