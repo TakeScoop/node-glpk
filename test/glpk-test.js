@@ -201,7 +201,7 @@ describe("Factorize problem tests", function() {
 describe("Test glp_intopt_start, glp_intopt_run, glp_intopt_stop flow", function() {
     it("should invoke the callback iteratively toward solution", function(done) {
         this.timeout(10000)
-        temp.open('mathprog_test_tempfile', function(err, info) {
+        temp.open('glp_intopt_test_input', function(err, info) {
             fs.write(info.fd,
                 'Maximize\n' + 
                 'obj: + 786433 x1 + 655361 x2 + 589825 x3 + 557057 x4\n' + 
