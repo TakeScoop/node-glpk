@@ -846,8 +846,11 @@ namespace NodeGLPK {
 
             void Execute() override {
                 try {
+                    // TODO(jrb): this whole start/run/stop thing depends on cb_func being set, but that's optional. It
+                    // might be better to just make this use the glp_intopt if cb_func is unset; going to check for
+                    // cb_func/cb_info before going into the wait loop
                     glp_intopt_start(lp->handle, &ctx);
-                    while(!ctx.done) {
+                    while(!ctx.done && parm.cb_func && parm.cb_info) {
                         std::unique_lock<std::mutex> guard{notify_lock_};
 
                         // parm_cb has to be called on main loop thread, so we uv_async_send, and condwait for it.
@@ -888,8 +891,9 @@ namespace NodeGLPK {
             }
            
         private:
-            void RunCallback() {
+            void RunCallback() noexcept { 
                 std::lock_guard<std::mutex> guard{notify_lock_};
+                Nan::HandleScope scope;
 
                 if (parm.cb_func && parm.cb_info) {
                     parm.cb_func(ctx.tree, parm.cb_info);

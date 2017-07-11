@@ -3,6 +3,8 @@
 const expect = require('chai').expect
 const testRoot = require('path').resolve(__dirname, '..')
 const glp = require('bindings')({ module_root: testRoot, bindings: 'glpk' })
+const temp = require('temp').track()
+const fs = require('fs')
 
 glp.termOutput(false)
 
@@ -193,5 +195,87 @@ describe("Factorize problem tests", function() {
             expect(lp.bfExists()).to.equal(1);
             done()
         })
+    });
+})
+
+describe("Test glp_intopt_start, glp_intopt_run, glp_intopt_stop flow", function() {
+    it("should invoke the callback iteratively toward sollution", function(done) {
+        this.timeout(30000)
+        temp.open('mathprog_test_tempfile', function(err, info) {
+            fs.write(info.fd,
+                'Maximize\n' + 
+                'obj: + 786433 x1 + 655361 x2 + 589825 x3 + 557057 x4\n' + 
+                '+ 540673 x5 + 532481 x6 + 528385 x7 + 526337 x8 + 525313 x9\n' + 
+                '+ 524801 x10 + 524545 x11 + 524417 x12 + 524353 x13\n' + 
+                '+ 524321 x14 + 524305 x15\n' + 
+                '\n' + 
+                'Subject To\n' + 
+                'cap: + 786433 x1 + 655361 x2 + 589825 x3 + 557057 x4\n' + 
+                '+ 540673 x5 + 532481 x6 + 528385 x7 + 526337 x8 + 525313 x9\n' + 
+                '+ 524801 x10 + 524545 x11 + 524417 x12 + 524353 x13\n' + 
+                '+ 524321 x14 + 524305 x15 <= 4194303.5\n' + 
+                '\n' + 
+                'Bounds\n' + 
+                '0 <= x1 <= 1\n' + 
+                '0 <= x2 <= 1\n' + 
+                '0 <= x3 <= 1\n' + 
+                '0 <= x4 <= 1\n' + 
+                '0 <= x5 <= 1\n' + 
+                '0 <= x6 <= 1\n' + 
+                '0 <= x7 <= 1\n' + 
+                '0 <= x8 <= 1\n' + 
+                '0 <= x9 <= 1\n' + 
+                '0 <= x10 <= 1\n' + 
+                '0 <= x11 <= 1\n' + 
+                '0 <= x12 <= 1\n' + 
+                '0 <= x13 <= 1\n' + 
+                '0 <= x14 <= 1\n' + 
+                '0 <= x15 <= 1\n' + 
+                '\n' + 
+                'Generals\n' + 
+                'x1\n' + 
+                'x2\n' + 
+                'x3\n' + 
+                'x4\n' + 
+                'x5\n' + 
+                'x6\n' + 
+                'x7\n' + 
+                'x8\n' + 
+                'x9\n' + 
+                'x10\n' + 
+                'x11\n' + 
+                'x12\n' + 
+                'x13\n' + 
+                'x14\n' + 
+                'x15\n' + 
+                '\n' + 
+                'End\n'
+            )
+            let lp = new glp.Problem();
+
+            lp.readLp(info.path, function(err, ret){
+                let calledCallback = false
+
+                lp.scale(glp.SF_AUTO, function(err){
+                    expect(err).to.be.undefined
+
+                    lp.simplex({presolve: glp.ON}, function(err){
+                        expect(err).to.be.undefined
+                        if (lp.getNumInt() > 0){
+                            function callback(tree){
+                                calledCallback = true
+                            }
+
+                            lp.intopt({cbFunc: callback}, function(err, ret){
+                                expect(err).to.be.null
+                                expect(lp.mipObjVal()).to.equal(4190215)
+                                expect(calledCallback).to.be.true
+                                done()
+                            });
+                        }
+                    });
+                });
+            });
+        });
     });
 })
