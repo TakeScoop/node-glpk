@@ -16,7 +16,7 @@ using namespace NodeGLPK;
 
 namespace NodeGLPK {
 std::vector<term_hook_fn> TermHookManager::term_hooks_{stdoutTermHook, eventTermHook}; 
-thread_local HookInfo* TermHookManager::info_{nullptr};
+thread_local std::shared_ptr<HookInfo> TermHookManager::info_{nullptr};
 NodeEvent::uv_rwlock TermHookManager::lock_;
 
 static std::atomic<bool> term_output{false};
@@ -74,8 +74,6 @@ extern "C" {
 #endif
     
     void Init(Handle<Object> exports) {
-        TermHookManager::ThreadInitDefaultHooks(nullptr);
-
         exports->Set(Nan::New<String>("termOutput").ToLocalChecked(), Nan::New<FunctionTemplate>(TermOutput)->GetFunction());
 #ifdef HAVE_ENV
         exports->Set(Nan::New<String>("glpMemInfo").ToLocalChecked(), Nan::New<FunctionTemplate>(glpMemInfo)->GetFunction());

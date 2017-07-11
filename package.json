@@ -18,7 +18,7 @@
   "dependencies": {
     "nan": "^2.1.0",
     "bindings": "^1.2.1",
-    "cpp-eventemitter": "^0.0.1"
+    "cpp-eventemitter": "TakeScoop/cpp-eventemitter#jamie/review_feedback"
   },
   "scripts": {
     "test": "node-gyp configure --debug; node-gyp build --debug; mocha test/*-test.js",
@@ -30,7 +30,7 @@
     "iojs": "*"
   },
   "devDependencies": {
-    "chai": "^4.0.2",
+    "code": "^4.1.0",
     "mocha": "^3.4.2",
     "node-gyp": "^3.6.2",
     "temp": "^0.8.3"

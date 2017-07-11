@@ -2,6 +2,10 @@
 #ifndef _NODE_GLPK_PROBLEM_HPP
 #define _NODE_GLPK_PROBLEM_HPP
 #include <atomic>
+#include <condition_variable>
+#include <memory>
+#include <mutex>
+
 
 #include <node.h>
 #include <node_object_wrap.h>
@@ -223,10 +227,13 @@ namespace NodeGLPK {
             return true;
         }
     private:
-        explicit Problem(): node::ObjectWrap(), emitter_(std::make_shared<NodeEvent::EventEmitter>()), info_{emitter_, nullptr, nullptr}  {
-            TermHookGuard hookguard{&info_};
-            handle = glp_create_prob();
-            thread = false;
+       explicit Problem()
+           : node::ObjectWrap(),
+             emitter_(std::make_shared<NodeEvent::EventEmitter>()),
+             info_{std::make_shared<HookInfo>(emitter_, nullptr, nullptr)} {
+           TermHookGuard hookguard{info_};
+           handle = glp_create_prob();
+           thread = false;
         }
 
         ~Problem(){
@@ -276,7 +283,7 @@ namespace NodeGLPK {
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
-            TermHookGuard hookguard{&lp->info_};
+            TermHookGuard hookguard{lp->info_};
             GLP_CATCH(glp_load_matrix(lp->handle, info[0]->Int32Value(), pia, pja, par);)
 
             
@@ -294,7 +301,7 @@ namespace NodeGLPK {
                       V8CHECK(!lp->handle, "object deleted");
                       V8CHECK(lp->thread.load(), "an async operation is inprogress");
 
-                      TermHookGuard hookguard{&lp->info_};
+                      TermHookGuard hookguard{lp->info_};
                       glp_init_smcp(&scmp);
                       if (info.Length() == 1)
                           if (!SmcpInit(&scmp, info[0])) return;
@@ -309,7 +316,7 @@ namespace NodeGLPK {
             SimplexWorker(Nan::Callback *callback, Problem *lp)
             : Nan::AsyncWorker(callback), lp(lp){
 
-                TermHookGuard hookguard{&lp->info_};
+                TermHookGuard hookguard{lp->info_};
                 glp_init_smcp(&smcp);
                 lp->emitter_->emit("initialized", "Complete");
             }
@@ -359,7 +366,7 @@ namespace NodeGLPK {
                       V8CHECK(!lp->handle, "object deleted");
                       V8CHECK(lp->thread.load(), "an async operation is inprogress");
 
-                      TermHookGuard hookguard{&lp->info_};
+                      TermHookGuard hookguard{lp->info_};
                       glp_init_smcp(&scmp);
                       if (info.Length() == 1) {
                           if (info[0]->IsObject())
@@ -375,7 +382,7 @@ namespace NodeGLPK {
         public:
             ExactWorker(Nan::Callback *callback, Problem *lp)
             : Nan::AsyncWorker(callback), lp(lp){
-                TermHookGuard hookguard{&lp->info_};
+                TermHookGuard hookguard{lp->info_};
                 glp_init_smcp(&smcp);
             }
             void WorkComplete() {
@@ -448,7 +455,7 @@ namespace NodeGLPK {
                       V8CHECK(!lp->handle, "object deleted");
                       V8CHECK(lp->thread.load(), "an async operation is inprogress");
 
-                      TermHookGuard hookguard{&lp->info_};
+                      TermHookGuard hookguard{lp->info_};
                       glp_init_iptcp(&iptcp);
                       if (info.Length() == 1)
                          if (!IptcpInit(&iptcp, info[0])) return;
@@ -461,7 +468,7 @@ namespace NodeGLPK {
         public:
             InteriorWorker(Nan::Callback *callback, Problem *lp)
             : Nan::AsyncWorker(callback), lp(lp){
-                TermHookGuard hookguard{&lp->info_};
+                TermHookGuard hookguard{lp->info_};
                 glp_init_iptcp(&iptcp);
             }
             void WorkComplete() {
@@ -540,7 +547,7 @@ namespace NodeGLPK {
                 V8CHECK(!lp->handle, "object deleted");
                 V8CHECK(lp->thread.load(), "an async operation is inprogress");
 
-                TermHookGuard hookguard{&lp->info_};
+                TermHookGuard hookguard{lp->info_};
                 glp_init_mpscp(&mpscp);
                 if (info.Length() == 1)
                     if (!MpscpInit(&mpscp, info[0])) return;
@@ -556,7 +563,7 @@ namespace NodeGLPK {
         public:
             ReadMpsWorker(Nan::Callback *callback, Problem *lp, int fmt, std::string file)
             : Nan::AsyncWorker(callback), fmt(fmt), lp(lp), file(file){
-                TermHookGuard hookguard{&lp->info_};
+                TermHookGuard hookguard{lp->info_};
                 glp_init_mpscp(&mpscp);
             }
             
@@ -618,7 +625,7 @@ namespace NodeGLPK {
               V8CHECK(!lp->handle, "object deleted");
               V8CHECK(lp->thread.load(), "an async operation is inprogress");
 
-              TermHookGuard hookguard{&lp->info_};
+              TermHookGuard hookguard{lp->info_};
               glp_init_mpscp(&mpscp);
               if (info.Length() == 1)
                 if (!MpscpInit(&mpscp, info[0])) return;
@@ -632,7 +639,7 @@ namespace NodeGLPK {
         public:
             WriteMpsWorker(Nan::Callback *callback, Problem *lp, int fmt, std::string file)
             : Nan::AsyncWorker(callback), fmt(fmt), lp(lp), file(file){
-                TermHookGuard hookguard{&lp->info_};
+                TermHookGuard hookguard{lp->info_};
                 glp_init_mpscp(&mpscp);
             }
             
@@ -798,7 +805,7 @@ namespace NodeGLPK {
                       V8CHECK(!lp->handle, "object deleted");
                       V8CHECK(lp->thread.load(), "an async operation is inprogress");
 
-                      TermHookGuard hookguard{&lp->info_};
+                      TermHookGuard hookguard{lp->info_};
                       glp_init_iocp(&iocp);
                       if (info.Length() == 1)
                           if (!IocpInit(&iocp, info[0])) return;
@@ -812,12 +819,24 @@ namespace NodeGLPK {
         
         class IntoptWorker : public Nan::AsyncWorker {
         public:
-            IntoptWorker(Nan::Callback *callback, Problem *lp)
-            : Nan::AsyncWorker(callback), lp(lp){
-                TermHookGuard hookguard{&lp->info_};
-                glp_init_iocp(&parm);
-                glp_init_mip_ctx(&ctx);
-                ctx.parm = &parm;
+           IntoptWorker(Nan::Callback* callback, Problem* lp)
+               : Nan::AsyncWorker(callback),
+                 parm_cb_done_{false},
+                 notifier_(),
+                 notify_lock_(),
+                 parm_cb_async_(nullptr),
+                 lp(lp),
+                 parm(),
+                 ctx() {
+               TermHookGuard hookguard{lp->info_};
+               glp_init_iocp(&parm);
+               glp_init_mip_ctx(&ctx);
+               ctx.parm = &parm;
+
+
+               parm_cb_async_ = std::unique_ptr<uv_async_t>(new uv_async_t);
+               uv_async_init(uv_default_loop(), parm_cb_async_.get(), IntoptWorker::parmCallbackAsyncRun);
+               parm_cb_async_->data = this;
             }
             
             ~IntoptWorker(){
@@ -827,9 +846,21 @@ namespace NodeGLPK {
 
             void Execute() override {
                 try {
+                    // TODO(jrb): this whole start/run/stop thing depends on cb_func being set, but that's optional. It
+                    // might be better to just make this use the glp_intopt if cb_func is unset; going to check for
+                    // cb_func/cb_info before going into the wait loop
                     glp_intopt_start(lp->handle, &ctx);
-                    while(!ctx.done) {
-                        parm.cb_func(ctx.tree, parm.cb_info);
+                    while(!ctx.done && parm.cb_func && parm.cb_info) {
+                        std::unique_lock<std::mutex> guard{notify_lock_};
+
+                        // parm_cb has to be called on main loop thread, so we uv_async_send, and condwait for it.
+                        parm_cb_done_ = false;
+                        uv_async_send(parm_cb_async_.get());
+
+                        while(!parm_cb_done_.load()) {
+                            notifier_.wait(guard);
+                        }
+                        // parm_cb is done now, go ahead and run next iteration
                         glp_intopt_run(&ctx);
                     }
                     glp_intopt_stop(lp->handle, &ctx);
@@ -853,6 +884,38 @@ namespace NodeGLPK {
                     callback->Call(2, info);
                 }
             }
+
+            virtual void Destroy() override {
+                // NOTABUG: Nan uses reinterpret_cast to pass uv_async_t around
+                uv_close(reinterpret_cast<uv_handle_t*>(parm_cb_async_.get()), IntoptWorker::ParmAsyncClose);
+            }
+           
+        private:
+            void RunCallback() noexcept { 
+                std::lock_guard<std::mutex> guard{notify_lock_};
+                Nan::HandleScope scope;
+
+                if (parm.cb_func && parm.cb_info) {
+                    parm.cb_func(ctx.tree, parm.cb_info);
+                }
+                parm_cb_done_ = true;
+                notifier_.notify_one();
+            }
+
+            static NAUV_WORK_CB(parmCallbackAsyncRun) {
+                auto worker = static_cast<IntoptWorker*>(async->data);
+                worker->RunCallback();
+            }
+
+            static void ParmAsyncClose(uv_handle_t* handle) {
+                 auto worker = static_cast<IntoptWorker*>(handle->data);
+                 delete worker;
+            }
+
+            std::atomic<bool> parm_cb_done_;
+            std::condition_variable notifier_;
+            std::mutex notify_lock_;
+            std::unique_ptr<uv_async_t> parm_cb_async_;
         public:
             Problem *lp;
             glp_iocp parm;
@@ -886,7 +949,7 @@ namespace NodeGLPK {
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
-            TermHookGuard hookguard{&lp->info_};
+            TermHookGuard hookguard{lp->info_};
             info.GetReturnValue().Set(glp_read_lp(lp->handle, NULL, V8TOCSTRING(info[0])));
         }
         
@@ -941,7 +1004,7 @@ namespace NodeGLPK {
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
-            TermHookGuard hookguard{&lp->info_};
+            TermHookGuard hookguard{lp->info_};
             GLP_CATCH_RET(info.GetReturnValue().Set(glp_write_lp(lp->handle, NULL, V8TOCSTRING(info[0])));)
         }
         
@@ -998,7 +1061,7 @@ namespace NodeGLPK {
             double ae_max, re_max;
             int ae_ind, re_ind;
 
-            TermHookGuard hookguard{&lp->info_};
+            TermHookGuard hookguard{lp->info_};
             GLP_CATCH_RET(glp_check_kkt(lp->handle, info[0]->Int32Value(), info[1]->Int32Value(), &ae_max, &ae_ind, &re_max, &re_ind);)
             
             Nan::Callback* cb = new Nan::Callback(Local<Function>::Cast(info[2]));
@@ -1025,7 +1088,7 @@ namespace NodeGLPK {
             uint32_t count = 0;
             int* plist = NULL;
             int ret = 0;
-            TermHookGuard hookguard{&lp->info_};
+            TermHookGuard hookguard{lp->info_};
             GLP_CATCH(
                 if (info[0]->IsInt32Array()) {
                     Local<Int32Array> list = Local<Int32Array>::Cast(info[0]);
@@ -1113,7 +1176,7 @@ namespace NodeGLPK {
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
-            TermHookGuard hookguard{&lp->info_};
+            TermHookGuard hookguard{lp->info_};
             GLP_CATCH_RET(
                 glp_bfcp bfcp;
                 glp_get_bfcp(lp->handle, &bfcp);
@@ -1138,7 +1201,7 @@ namespace NodeGLPK {
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
-            TermHookGuard hookguard{&lp->info_};
+            TermHookGuard hookguard{lp->info_};
             GLP_CATCH_RET(
                       glp_bfcp bfcp;
                       glp_get_bfcp(lp->handle, &bfcp);
@@ -1490,7 +1553,7 @@ namespace NodeGLPK {
         static Nan::Persistent<FunctionTemplate> constructor;
 
         std::shared_ptr<NodeEvent::EventEmitter> emitter_;
-        HookInfo info_;
+        std::shared_ptr<HookInfo> info_;
     public:
         glp_prob *handle;
         std::atomic<bool> thread;
