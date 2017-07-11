@@ -254,7 +254,7 @@ describe("Test glp_intopt_start, glp_intopt_run, glp_intopt_stop flow", function
             let lp = new glp.Problem();
 
             lp.readLp(info.path, function(err, ret){
-                let calledCallback = false
+                let calledCallback = 0
 
                 lp.scale(glp.SF_AUTO, function(err){
                     expect(err).to.be.undefined
@@ -263,13 +263,13 @@ describe("Test glp_intopt_start, glp_intopt_run, glp_intopt_stop flow", function
                         expect(err).to.be.undefined
                         if (lp.getNumInt() > 0){
                             function callback(tree){
-                                calledCallback = true
+                                calledCallback += 1
                             }
 
                             lp.intopt({cbFunc: callback}, function(err, ret){
                                 expect(err).to.be.null
                                 expect(lp.mipObjVal()).to.equal(4190215)
-                                expect(calledCallback).to.be.true
+                                expect(calledCallback).to.equal(27450)
                                 done()
                             });
                         }
