@@ -1,6 +1,6 @@
 'use strict;'
 
-const expect = require('chai').expect
+const expect = require('code').expect
 const testRoot = require('path').resolve(__dirname, '..')
 const glp = require('bindings')({ module_root: testRoot, bindings: 'glpk' })
 const temp = require('temp').track()
