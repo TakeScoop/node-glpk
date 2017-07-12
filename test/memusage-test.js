@@ -15,7 +15,7 @@ describe('Verify meminfo', function() {
         lp.on('log', function(msg) {
             let info = glp.glpMemInfo()
             expect(info).to.be.an.object()
-            expect(Object.keys(info)).to.include(['count','cpeak','total','tpeak'])
+            expect(info).to.include(['count','cpeak','total','tpeak'])
             expect(info.count).to.be.a.number()
             expect(info.cpeak).to.be.a.number()
             expect(info.total).to.be.a.number()
