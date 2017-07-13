@@ -40,19 +40,11 @@ int eventTermHook(void* info, const char *s) {
     }
     return 0;
 }
-<<<<<<< HEAD
 
 void _ErrorHook(void *s){
     throw std::string(static_cast<const char *>(s));
 }
 
-=======
-
-void _ErrorHook(void *s){
-    throw std::string(static_cast<const char *>(s));
-}
-
->>>>>>> master
 } // namespace NodeGLPK
 
 extern "C" {
@@ -62,7 +54,6 @@ extern "C" {
         V8CHECK(!info[0]->IsBoolean(), "Wrong arguments");
         
         NodeGLPK::term_output = info[0]->BooleanValue();
-<<<<<<< HEAD
     }
 
 #ifdef HAVE_ENV
@@ -81,10 +72,6 @@ extern "C" {
         info.GetReturnValue().Set(ret);
     }
 #endif
-=======
-    }
-
->>>>>>> master
     
     void Init(Handle<Object> exports) {
         exports->Set(Nan::New<String>("termOutput").ToLocalChecked(), Nan::New<FunctionTemplate>(TermOutput)->GetFunction());

@@ -110,8 +110,6 @@ class TermHookManager {
 /// exit a block. Declare the guard in the same scope (or nested scope) of wherever you allocate the NodeInfo you are
 /// setting to ensure you never have a dangling pointer
 ///
-/// NOTE: This container does *NOT* free an info object for you; use stack-allocated info's; or wrap them in smart
-/// pointers.
 class TermHookGuard {
  public:
     explicit TermHookGuard(std::shared_ptr<HookInfo> info) : oldinfo_(nullptr) {
