@@ -23,7 +23,6 @@
 
 #include "glpenv.h"
 
-#ifdef HAVE_ENV
 
 #define ALIGN 16
 /* some processors need data to be properly aligned, so this macro
@@ -45,8 +44,12 @@
 *  reallocating/freeing previously allocated memory blocks as well as
 *  for book-keeping the memory usage statistics. */
 
+#ifdef HAVE_ENV
 static void *dma(const char *func, void *ptr, size_t size)
-{     ENV *env = get_env_ptr();
+{
+#ifndef GLOBAL_MEM_STATS
+      ENV *env = get_env_ptr();
+#endif
       MBD *mbd;
       if (ptr == NULL)
       {  /* new memory block will be allocated */
@@ -60,6 +63,7 @@ static void *dma(const char *func, void *ptr, size_t size)
          if (mbd->self != mbd)
             xerror("%s: ptr = %p; invalid pointer\n", func, ptr);
          /* remove the block from the linked list */
+#ifndef GLOBAL_MEM_STATS
          mbd->self = NULL;
          if (mbd->prev == NULL)
             env->mem_ptr = mbd->next;
@@ -69,11 +73,12 @@ static void *dma(const char *func, void *ptr, size_t size)
             ;
          else
             mbd->next->prev = mbd->prev;
+#endif
          /* decrease usage counts */
-         if (!(env->mem_count >= 1 && env->mem_total >= mbd->size))
+         if (!(get_mem_count() >= 1 && get_mem_total() >= mbd->size))
             xerror("%s: memory allocation error\n", func);
-         env->mem_count--;
-         env->mem_total -= mbd->size;
+         add_mem_count(-1);
+         add_mem_total(-(mbd->size));
          if (size == 0)
          {  /* free the memory block */
             free(mbd);
@@ -84,9 +89,9 @@ static void *dma(const char *func, void *ptr, size_t size)
       if (size > SIZE_T_MAX - MBD_SIZE)
          xerror("%s: block too large\n", func);
       size += MBD_SIZE;
-      if (size > env->mem_limit - env->mem_total)
+      if (size > get_mem_limit() - get_mem_total())
          xerror("%s: memory allocation limit exceeded\n", func);
-      if (env->mem_count == INT_MAX)
+      if (get_mem_count() == INT_MAX)
          xerror("%s: too many memory blocks allocated\n", func);
       mbd = (mbd == NULL ? malloc(size) : realloc(mbd, size));
       if (mbd == NULL)
@@ -95,18 +100,20 @@ static void *dma(const char *func, void *ptr, size_t size)
       mbd->size = size;
       mbd->self = mbd;
       mbd->prev = NULL;
+#ifndef GLOBAL_MEM_STATS
       mbd->next = env->mem_ptr;
       /* add the block to the beginning of the linked list */
       if (mbd->next != NULL)
          mbd->next->prev = mbd;
       env->mem_ptr = mbd;
+#endif
       /* increase usage counts */
-      env->mem_count++;
-      if (env->mem_cpeak < env->mem_count)
-         env->mem_cpeak = env->mem_count;
-      env->mem_total += size;
-      if (env->mem_tpeak < env->mem_total)
-         env->mem_tpeak = env->mem_total;
+      size_t count = add_mem_count(1);
+      set_mem_cpeak(count);
+
+      size_t total = add_mem_total(size);
+      set_mem_tpeak(total);
+
       return (char *)mbd + MBD_SIZE;
 }
 
@@ -196,14 +203,17 @@ void glp_free(void *ptr)
 *  dynamic allocation (in GLPK routines) to limit megabytes. */
 
 void glp_mem_limit(int limit)
-{     ENV *env = get_env_ptr();
+{     
+#ifndef GLOBAL_MEM_STATS
+      ENV *env = get_env_ptr();
+#endif
       if (limit < 1)
          xerror("glp_mem_limit: limit = %d; invalid parameter\n",
             limit);
       if ((size_t)limit <= (SIZE_T_MAX >> 20))
-         env->mem_limit = (size_t)limit << 20;
+          set_mem_limit((size_t)limit << 20);
       else
-         env->mem_limit = SIZE_T_MAX;
+          set_mem_limit(SIZE_T_MAX);
       return;
 }
 
@@ -239,15 +249,18 @@ void glp_mem_limit(int limit)
 
 void glp_mem_usage(int *count, int *cpeak, size_t *total,
       size_t *tpeak)
-{     ENV *env = get_env_ptr();
+{  
+#ifndef GLOBAL_MEM_STATS
+      ENV *env = get_env_ptr();
+#endif
       if (count != NULL)
-         *count = env->mem_count;
+         *count = get_mem_count();
       if (cpeak != NULL)
-         *cpeak = env->mem_cpeak;
+         *cpeak = get_mem_cpeak();
       if (total != NULL)
-         *total = env->mem_total;
+         *total = get_mem_total();
       if (tpeak != NULL)
-         *tpeak = env->mem_tpeak;
+         *tpeak = get_mem_tpeak();
       return;
 }
 

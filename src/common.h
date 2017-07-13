@@ -49,8 +49,9 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
-    V8CHECK(host->thread, "an async operation is inprogress")\
+    V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
+    TermHookGuard hookguard{host->info_}; \
     GLP_CATCH_RET(API(host->handle, V8TOCSTRING(info[0]));)\
 }
 
@@ -58,8 +59,9 @@ static NAN_METHOD(NAME) {\
 static NAN_METHOD(NAME) {\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
-    V8CHECK(host->thread, "an async operation is inprogress")\
+    V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
+    TermHookGuard hookguard{host->info_}; \
     GLP_CATCH_RET(const char* name = API(host->handle);\
     if (name)\
         info.GetReturnValue().Set(Nan::New<String>(name).ToLocalChecked());\
@@ -74,8 +76,9 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
-    V8CHECK(host->thread, "an async operation is inprogress")\
+    V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
+    TermHookGuard hookguard{host->info_}; \
     GLP_CATCH_RET(API(host->handle, info[0]->Int32Value());)\
 }
 
@@ -83,8 +86,9 @@ static NAN_METHOD(NAME) {\
 static NAN_METHOD(NAME) {\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
-    V8CHECK(host->thread, "an async operation is inprogress")\
+    V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
+    TermHookGuard hookguard{host->info_}; \
     GLP_CATCH_RET(info.GetReturnValue().Set(API(host->handle));)\
 }
 
@@ -95,8 +99,9 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
-    V8CHECK(host->thread, "an async operation is inprogress")\
+    V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
+    TermHookGuard hookguard{host->info_}; \
     GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(), V8TOCSTRING(info[1]));)\
 }
 
@@ -107,8 +112,9 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
-    V8CHECK(host->thread, "an async operation is inprogress")\
+    V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
+    TermHookGuard hookguard{host->info_}; \
     GLP_CATCH_RET(const char* name = API(host->handle, info[0]->Int32Value());\
     if (name)\
         info.GetReturnValue().Set(Nan::New<String>(name).ToLocalChecked());\
@@ -124,8 +130,9 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
-    V8CHECK(host->thread, "an async operation is inprogress")\
+    V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
+    TermHookGuard hookguard{host->info_}; \
     GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(), info[1]->Int32Value(),\
                      info[2]->NumberValue(), info[3]->NumberValue());)\
 }
@@ -137,8 +144,9 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
-    V8CHECK(host->thread, "an async operation is inprogress")\
+    V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
+    TermHookGuard hookguard{host->info_}; \
     GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(), info[1]->NumberValue());)\
 }
 
@@ -149,8 +157,9 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
-    V8CHECK(host->thread, "an async operation is inprogress")\
+    V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
+    TermHookGuard hookguard{host->info_}; \
     GLP_CATCH_RET(info.GetReturnValue().Set(API(host->handle, info[0]->Int32Value()));)\
 }
 
@@ -168,7 +177,7 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
-    V8CHECK(host->thread, "an async operation is inprogress")\
+    V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
     int* pja = (int*)malloc(ja->Length() * sizeof(int));\
     double* par = (double*)malloc(ar->Length() * sizeof(double));\
@@ -176,6 +185,7 @@ static NAN_METHOD(NAME) {\
     for (size_t i = 0; i < ja->Length(); i++) pja[i] = ja->Get(i)->Int32Value();\
     for (size_t i = 0; i < ar->Length(); i++) par[i] = ar->Get(i)->NumberValue();\
     \
+    TermHookGuard hookguard{host->info_}; \
     GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(), count, pja, par);)\
     \
     free(pja);\
@@ -189,8 +199,9 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
-    V8CHECK(host->thread, "an async operation is inprogress")\
+    V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
+    TermHookGuard hookguard{host->info_}; \
     try{\
         int row = info[0]->Int32Value();\
         int count = API(host->handle, row, NULL, NULL);\
@@ -223,8 +234,9 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
-    V8CHECK(host->thread, "an async operation is inprogress")\
+    V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
+    TermHookGuard hookguard{host->info_}; \
     GLP_CATCH_RET(API(host->handle);)\
 }
 
@@ -241,9 +253,10 @@ static NAN_METHOD(NAME) {\
     for (int i = 0; i < count; i++) idx[i] = num->Get(i)->Int32Value();\
     CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
-    V8CHECK(host->thread, "an async operation is inprogress")\
+    V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
     count--;\
+    TermHookGuard hookguard{host->info_}; \
     GLP_CATCH_RET(API(host->handle, count, idx);)\
     free(idx);\
 }
@@ -255,8 +268,9 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
-    V8CHECK(host->thread, "an async operation is inprogress")\
+    V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
+    TermHookGuard hookguard{host->info_}; \
     GLP_CATCH_RET(info.GetReturnValue().Set(API(host->handle, V8TOCSTRING(info[0])));)\
 }
 
@@ -267,8 +281,9 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
-    V8CHECK(host->thread, "an async operation is inprogress")\
+    V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
+    TermHookGuard hookguard{host->info_}; \
     GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(), info[1]->Int32Value());)\
 }
 
@@ -279,8 +294,9 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
-    V8CHECK(host->thread, "an async operation is inprogress")\
+    V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
+    TermHookGuard hookguard{host->info_}; \
     GLP_CATCH_RET(info.GetReturnValue().Set(API(host->handle, info[0]->Int32Value(), V8TOCSTRING(info[1])));)\
 }
 
@@ -291,8 +307,9 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* host = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!host->handle, "object deleted");\
-    V8CHECK(host->thread, "an async operation is inprogress")\
+    V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
+    TermHookGuard hookguard{host->info_}; \
     GLP_CATCH_RET(info.GetReturnValue().Set(API(host->handle, V8TOCSTRING(info[0]), info[1]->Int32Value()));)\
 }
 
@@ -302,6 +319,7 @@ static NAN_METHOD(NAME) {\
     V8CHECK(!obj->handle, "object already deleted");\
     V8CHECK(obj->thread, "an async operation is inprogress")\
     \
+    TermHookGuard hookguard{obj->info_}; \
     GLP_CATCH_RET(API(obj->handle);)\
     obj->handle = NULL;\
 }
@@ -349,12 +367,13 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* lp = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!lp->handle, "object deleted");\
-    V8CHECK(lp->thread, "an async operation is inprogress")\
+    V8CHECK(lp->thread.load(), "an async operation is inprogress")\
     \
     Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());\
     NAME##Worker *worker = new NAME##Worker(callback, lp, V8TOCSTRING(info[0]));\
     lp->thread = true;\
-    Nan::AsyncQueueWorker(worker);\
+    EventEmitterDecorator* decorated = new EventEmitterDecorator(worker, lp->emitter_); \
+    Nan::AsyncQueueWorker(decorated);\
 }\
 
 #define GLP_ASYNC_INT32_INT32_STR(CLASS, NAME, API)\
@@ -398,7 +417,8 @@ static NAN_METHOD(NAME) {\
     Nan::Callback *callback = new Nan::Callback(info[2].As<Function>());\
     NAME##Worker *worker = new NAME##Worker(callback, lp, info[0]->Int32Value(), V8TOCSTRING(info[1]));\
     lp->thread = true;\
-    Nan::AsyncQueueWorker(worker);\
+    EventEmitterDecorator* decorated = new EventEmitterDecorator(worker, lp->emitter_); \
+    Nan::AsyncQueueWorker(decorated);\
 }\
 
 #define GLP_ASYNC_VOID(CLASS, NAME, API)\
@@ -428,12 +448,13 @@ static NAN_METHOD(NAME) {\
     \
     CLASS* lp = ObjectWrap::Unwrap<CLASS>(info.Holder());\
     V8CHECK(!lp->handle, "object deleted");\
-    V8CHECK(lp->thread, "an async operation is inprogress")\
+    V8CHECK(lp->thread.load(), "an async operation is inprogress")\
     \
     Nan::Callback *callback = new Nan::Callback(info[0].As<Function>());\
     NAME##Worker *worker = new NAME##Worker(callback, lp);\
     lp->thread = true;\
-    Nan::AsyncQueueWorker(worker);\
+    EventEmitterDecorator* decorated = new EventEmitterDecorator(worker, lp->emitter_); \
+    Nan::AsyncQueueWorker(decorated);\
 }\
 
 

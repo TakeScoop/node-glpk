@@ -48,6 +48,23 @@
 *  2 - initialization failed (insufficient memory);
 *  3 - initialization failed (unsupported programming model). */
 #ifdef HAVE_ENV
+
+#ifdef GLOBAL_MEM_STATS
+/* dynamic memory allocation */
+volatile size_t mem_limit = SIZE_T_MAX;
+/* maximal amount of memory, in bytes, available for dynamic
+ * allocation */
+volatile size_t mem_count = 0;
+/* total number of currently allocated memory blocks */
+volatile size_t mem_cpeak = 0;
+/* peak value of mem_count */
+volatile size_t mem_total = 0;
+/* total amount of currently allocated memory, in bytes; it is
+ * the sum of the size field over all memory block descriptors */
+volatile size_t mem_tpeak = 0;
+/* peak value of mem_total */
+#endif
+
 int glp_init_env(void)
 {     ENV *env;
       int ok;
@@ -88,10 +105,12 @@ int glp_init_env(void)
          return 2;
       }
       env->err_buf[0] = '\0';
+#ifndef GLOBAL_MEM_STATS
       env->mem_limit = SIZE_T_MAX;
       env->mem_ptr = NULL;
       env->mem_count = env->mem_cpeak = 0;
       env->mem_total = env->mem_tpeak = 0;
+#endif
       env->h_odbc = env->h_mysql = NULL;
       /* save pointer to the environment block */
       tls_set_ptr(env);
@@ -202,7 +221,8 @@ const char *glp_version(void)
 
 #ifdef HAVE_ENV
 int glp_free_env(void)
-{     ENV *env = tls_get_ptr();
+{
+      ENV *env = (ENV*) tls_get_ptr();
       MBD *desc;
       /* check if the environment is active */
       if (env == NULL)
@@ -218,12 +238,14 @@ int glp_free_env(void)
          xdlclose(env->h_odbc);
       if (env->h_mysql != NULL)
          xdlclose(env->h_mysql);
+#ifndef GLOBAL_MEM_STATS
       /* free memory blocks which are still allocated */
       while (env->mem_ptr != NULL)
       {  desc = env->mem_ptr;
          env->mem_ptr = desc->next;
          free(desc);
       }
+#endif
       /* close text file used for copying terminal output */
       if (env->tee_file != NULL)
          fclose(env->tee_file);

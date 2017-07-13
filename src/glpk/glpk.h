@@ -25,8 +25,11 @@
 #ifndef GLPK_H
 #define GLPK_H
 
+
 #include <stdarg.h>
 #include <stddef.h>
+
+#include <cemitter.h>
 
 #ifdef __cplusplus
 extern "C" {

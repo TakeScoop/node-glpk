@@ -4,7 +4,10 @@
       "target_name": "libglpk",
       "type": "static_library",
 	  "defines": [
-		"HAVE_GETTIMEOFDAY"
+		"HAVE_GETTIMEOFDAY",
+		"HAVE_ENV",
+		"HAVE_ATOMIC",
+		"GLOBAL_MEM_STATS",
       ],
       "conditions": [
 		['OS=="linux"', {
@@ -25,7 +28,8 @@
 		"./misc/",
 		"./proxy/",
 		"./simplex/",
-		"./zlib/"
+		"./zlib/",
+		"<!(node -e 'require(\"cpp-eventemitter\")')"
       ],
       "sources": [
  		"avl.c",

@@ -22,7 +22,7 @@
 *  along with GLPK. If not, see <http://www.gnu.org/licenses/>.
 ***********************************************************************/
 
-#include "glpenv.h"
+#include "env/glpenv.h"
 #include "glpios.h"
 #include "glpnpp.h"
 #if 0 /* 07/XI-2015 */

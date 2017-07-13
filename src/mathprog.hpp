@@ -1,8 +1,15 @@
+#pragma once
+#ifndef _NODE_GLPK_MATHPROG_HPP
+#define _NODE_GLPK_MATHPROG_HPP
+#include <eventemitter.hpp>
 
 #include <node.h>
 #include <node_object_wrap.h>
 #include "glpk/glpk.h"
 #include "common.h"
+
+#include "nodeglpk.hpp"
+#include "problem.hpp"
 
 
 namespace NodeGLPK {
@@ -18,6 +25,7 @@ namespace NodeGLPK {
             tpl->InstanceTemplate()->SetInternalFieldCount(1);
  
             // prototypes
+            Nan::SetPrototypeMethod(tpl, "on", On);
             Nan::SetPrototypeMethod(tpl, "readModelSync", ReadModelSync);
             Nan::SetPrototypeMethod(tpl, "readModel", ReadModel);
             Nan::SetPrototypeMethod(tpl, "readDataSync", ReadDataSync);
@@ -36,9 +44,13 @@ namespace NodeGLPK {
             exports->Set(Nan::New<String>("Mathprog").ToLocalChecked(), tpl->GetFunction());
         }
     private:
-        explicit Mathprog(): node::ObjectWrap(){
-            handle = glp_mpl_alloc_wksp();
-            thread = false;
+       explicit Mathprog()
+           : node::ObjectWrap(),
+             emitter_(std::make_shared<NodeEvent::EventEmitter>()),
+             info_{std::make_shared<HookInfo>(emitter_, nullptr, nullptr)} {
+           TermHookGuard hookguard{info_};
+           handle = glp_mpl_alloc_wksp();
+           thread = false;
         };
         ~Mathprog(){
             if(handle) glp_mpl_free_wksp(handle);
@@ -53,7 +65,19 @@ namespace NodeGLPK {
                       info.GetReturnValue().Set(info.This());
             );
         }
-        
+
+        static NAN_METHOD(On) {
+            V8CHECK(info.Length() != 2, "Wrong number of arguments");
+            V8CHECK(!(info[0]->IsString() || !info[1]->IsFunction()), "Wrong arguments");
+
+            Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(info.Holder());
+            V8CHECK(!mp->handle, "object deleted");
+
+            auto s = std::string(*v8::String::Utf8Value(info[0]->ToString()));
+            Nan::Callback* callback = new Nan::Callback(info[1].As<Function>());
+
+            mp->emitter_->on(s, callback);
+        }
         
         class ReadModelWorker : public Nan::AsyncWorker {
         public:
@@ -65,6 +89,7 @@ namespace NodeGLPK {
                 mp->thread = false;
                 Nan::AsyncWorker::WorkComplete();
             }
+
             void Execute () {
                 try {
                     ret = glp_mpl_read_model(mp->handle, file.c_str(), parm);
@@ -88,12 +113,13 @@ namespace NodeGLPK {
         
             Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(info.Holder());
             V8CHECK(!mp->handle, "object deleted");
-            V8CHECK(mp->thread, "an async operation is inprogress");
+            V8CHECK(mp->thread.load(), "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[2].As<Function>());
             ReadModelWorker *worker = new ReadModelWorker(callback, mp, V8TOCSTRING(info[0]), info[1]->Int32Value());
             mp->thread = true;
-            Nan::AsyncQueueWorker(worker);
+            EventEmitterDecorator* decorated = new EventEmitterDecorator(worker, mp->emitter_);
+            Nan::AsyncQueueWorker(decorated);
         }
   
         GLP_BIND_VALUE_STR_INT32(Mathprog, ReadModelSync, glp_mpl_read_model);
@@ -131,12 +157,13 @@ namespace NodeGLPK {
             
             Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(info.Holder());
             V8CHECK(!mp->handle, "object deleted");
-            V8CHECK(mp->thread, "an async operation is inprogress");
+            V8CHECK(mp->thread.load(), "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
             ReadDataWorker *worker = new ReadDataWorker(callback, mp, V8TOCSTRING(info[0]));
             mp->thread = true;
-            Nan::AsyncQueueWorker(worker);
+            EventEmitterDecorator* decorated = new EventEmitterDecorator(worker, mp->emitter_);
+            Nan::AsyncQueueWorker(decorated);
         }
         
         GLP_BIND_VALUE_STR(Mathprog, ReadDataSync, glp_mpl_read_data);
@@ -178,7 +205,7 @@ namespace NodeGLPK {
             
             Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(info.Holder());
             V8CHECK(!mp->handle, "object deleted");
-            V8CHECK(mp->thread, "an async operation is inprogress");
+            V8CHECK(mp->thread.load(), "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
             GenerateWorker *worker = NULL;
@@ -187,7 +214,8 @@ namespace NodeGLPK {
             else
                 worker = new GenerateWorker(callback, mp, NULL);
             mp->thread = true;
-            Nan::AsyncQueueWorker(worker);
+            EventEmitterDecorator* decorated = new EventEmitterDecorator(worker, mp->emitter_);
+            Nan::AsyncQueueWorker(decorated);
         }
         
         static NAN_METHOD(GenerateSync) {
@@ -195,8 +223,9 @@ namespace NodeGLPK {
 
             Mathprog* host = ObjectWrap::Unwrap<Mathprog>(info.Holder());
             V8CHECK(!host->handle, "object deleted");
-            V8CHECK(host->thread, "an async operation is inprogress");
+            V8CHECK(host->thread.load(), "an async operation is inprogress");
             
+            TermHookGuard hookguard{host->info_};
             GLP_CATCH_RET(
                 if ((info.Length() == 1) && (!info[0]->IsString()))
                     info.GetReturnValue().Set(glp_mpl_generate(host->handle, V8TOCSTRING(info[0])));
@@ -234,18 +263,19 @@ namespace NodeGLPK {
             
             Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(info.Holder());
             V8CHECK(!mp->handle, "object deleted");
-            V8CHECK(mp->thread, "an async operation is inprogress");
+            V8CHECK(mp->thread.load(), "an async operation is inprogress");
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info[0]->ToObject());
             V8CHECK(!lp || !lp->handle, "invalid problem");
-            V8CHECK(lp->thread, "an async operation is inprogress");
+            V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
             
             Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
             BuildProbWorker *worker = new BuildProbWorker(callback, mp, lp);
             mp->thread = true;
             lp->thread = true;
-            Nan::AsyncQueueWorker(worker);
+            EventEmitterDecorator* decorated = new EventEmitterDecorator(worker, mp->emitter_);
+            Nan::AsyncQueueWorker(decorated);
         }
         
         static NAN_METHOD(BuildProbSync){
@@ -254,11 +284,12 @@ namespace NodeGLPK {
             
             Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(info.Holder());
             V8CHECK(!mp->handle, "object deleted");
-            V8CHECK(mp->thread, "an async operation is inprogress");
+            V8CHECK(mp->thread.load(), "an async operation is inprogress");
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info[0]->ToObject());
             V8CHECK(!lp || !lp->handle, "invalid problem");
             
+            TermHookGuard hookguard{mp->info_};
             GLP_CATCH_RET(glp_mpl_build_prob(mp->handle, lp->handle);)
         }
 
@@ -296,16 +327,17 @@ namespace NodeGLPK {
             
             Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(info.Holder());
             V8CHECK(!mp->handle, "object deleted");
-            V8CHECK(mp->thread, "an async operation is inprogress");
+            V8CHECK(mp->thread.load(), "an async operation is inprogress");
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info[0]->ToObject());
             V8CHECK(!lp || !lp->handle, "invalid problem");
-            V8CHECK(lp->thread, "an async operation is inprogress");
+            V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[2].As<Function>());
             PostsolveWorker *worker = new PostsolveWorker(callback, mp, lp, info[1]->Int32Value());
             mp->thread = true;
-            Nan::AsyncQueueWorker(worker);
+            EventEmitterDecorator* decorated = new EventEmitterDecorator(worker, mp->emitter_);
+            Nan::AsyncQueueWorker(decorated);
         }
         
         static NAN_METHOD(PostsolveSync){
@@ -314,11 +346,12 @@ namespace NodeGLPK {
             
             Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(info.Holder());
             V8CHECK(!mp->handle, "object deleted");
-            V8CHECK(mp->thread, "an async operation is inprogress");
+            V8CHECK(mp->thread.load(), "an async operation is inprogress");
             
             Problem* lp = ObjectWrap::Unwrap<Problem>(info[0]->ToObject());
             V8CHECK(!lp || !lp->handle, "invalid problem");
             
+            TermHookGuard hookguard{mp->info_};
             GLP_CATCH_RET(info.GetReturnValue().Set(glp_mpl_postsolve(mp->handle, lp->handle, info[1]->Int32Value()));)
         }
         
@@ -327,7 +360,7 @@ namespace NodeGLPK {
             
             Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(info.Holder());
             V8CHECK(!mp->handle, "object deleted");
-            V8CHECK(mp->thread, "an async operation is inprogress");
+            V8CHECK(mp->thread.load(), "an async operation is inprogress");
             
             info.GetReturnValue().Set(*(int*)mp->handle);
         }
@@ -337,7 +370,10 @@ namespace NodeGLPK {
             
             Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(info.Holder());
             V8CHECK(!mp->handle, "object deleted");
-            V8CHECK(mp->thread, "an async operation is inprogress");
+            V8CHECK(mp->thread.load(), "an async operation is inprogress");
+
+            TermHookGuard hookguard{mp->info_};
+
             char * msg = glp_mpl_getlasterror(mp->handle);
             if (msg)
                 info.GetReturnValue().Set(Nan::New<String>(msg).ToLocalChecked());
@@ -349,8 +385,13 @@ namespace NodeGLPK {
         
         static Nan::Persistent<FunctionTemplate> constructor;
         glp_tran *handle;
-        bool thread;
+        std::atomic<bool> thread;
+
+    private:
+        std::shared_ptr<NodeEvent::EventEmitter> emitter_;
+        std::shared_ptr<HookInfo> info_;
     };
     
     Nan::Persistent<FunctionTemplate> Mathprog::constructor;
 }
+#endif
