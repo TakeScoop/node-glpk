@@ -8,6 +8,7 @@
 #include "mathprog.hpp"
 #include "common.h"
 
+#include "glpk/glpk.h"
 #include "nodeglpk.hpp"
 
 using namespace v8;
@@ -39,11 +40,19 @@ int eventTermHook(void* info, const char *s) {
     }
     return 0;
 }
+<<<<<<< HEAD
 
 void _ErrorHook(void *s){
     throw std::string(static_cast<const char *>(s));
 }
 
+=======
+
+void _ErrorHook(void *s){
+    throw std::string(static_cast<const char *>(s));
+}
+
+>>>>>>> master
 } // namespace NodeGLPK
 
 extern "C" {
@@ -53,11 +62,35 @@ extern "C" {
         V8CHECK(!info[0]->IsBoolean(), "Wrong arguments");
         
         NodeGLPK::term_output = info[0]->BooleanValue();
+<<<<<<< HEAD
     }
 
+#ifdef HAVE_ENV
+    NAN_METHOD(glpMemInfo) {
+        V8CHECK(info.Length() != 0, "Wrong number of arguments");
+        size_t count, cpeak, total, tpeak;
+
+        glp_mem_usage(&count, &cpeak, &total, &tpeak);
+
+        Local<v8::Object> ret = Nan::New<v8::Object>();
+        ret->Set(Nan::New<v8::String>("count").ToLocalChecked(), Nan::New<v8::Number>(count));
+        ret->Set(Nan::New<v8::String>("cpeak").ToLocalChecked(), Nan::New<v8::Number>(cpeak));
+        ret->Set(Nan::New<v8::String>("total").ToLocalChecked(), Nan::New<v8::Number>(total));
+        ret->Set(Nan::New<v8::String>("tpeak").ToLocalChecked(), Nan::New<v8::Number>(tpeak));
+
+        info.GetReturnValue().Set(ret);
+    }
+#endif
+=======
+    }
+
+>>>>>>> master
     
     void Init(Handle<Object> exports) {
         exports->Set(Nan::New<String>("termOutput").ToLocalChecked(), Nan::New<FunctionTemplate>(TermOutput)->GetFunction());
+#ifdef HAVE_ENV
+        exports->Set(Nan::New<String>("glpMemInfo").ToLocalChecked(), Nan::New<FunctionTemplate>(glpMemInfo)->GetFunction());
+#endif
         
         GLP_DEFINE_CONSTANT(exports, GLP_MAJOR_VERSION, MAJOR_VERSION);
         GLP_DEFINE_CONSTANT(exports, GLP_MINOR_VERSION, MINOR_VERSION);

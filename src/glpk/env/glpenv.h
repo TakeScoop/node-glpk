@@ -311,8 +311,8 @@ void glp_free(void *ptr);
 void glp_mem_limit(int limit);
 /* set memory usage limit */
 
-void glp_mem_usage(int *count, int *cpeak, size_t *total,
-      size_t *tpeak);
+void glp_mem_usage(size_t *count, size_t *cpeak,
+        size_t *total, size_t *tpeak);
 /* get memory usage information */
 
 typedef struct glp_file glp_file;
