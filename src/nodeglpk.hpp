@@ -100,12 +100,6 @@ class TermHookManager {
         info_ = nullptr;
     }
 
-    /// free the environment of the current thread
-    static void ClearEnv() {
-        glp_free_env();
-        info_ = nullptr;
-    }
-
  private:
     static std::vector<term_hook_fn> term_hooks_;
     static NodeEvent::uv_rwlock lock_;
@@ -116,8 +110,6 @@ class TermHookManager {
 /// exit a block. Declare the guard in the same scope (or nested scope) of wherever you allocate the NodeInfo you are
 /// setting to ensure you never have a dangling pointer
 ///
-/// NOTE: This container does *NOT* free an info object for you; use stack-allocated info's; or wrap them in smart
-/// pointers.
 class TermHookGuard {
  public:
     explicit TermHookGuard(std::shared_ptr<HookInfo> info) : oldinfo_(nullptr) {
@@ -125,7 +117,7 @@ class TermHookGuard {
             oldinfo_ = TermHookManager::SetInfo(info);
         }
     }
-    ~TermHookGuard() noexcept { TermHookManager::SetInfo(oldinfo_); glp_free_env(); }
+    ~TermHookGuard() noexcept { TermHookManager::SetInfo(oldinfo_); }
 
  private:
     std::shared_ptr<HookInfo> oldinfo_;
