@@ -416,7 +416,7 @@ int glp_format(glp_file *f, const char *fmt, ...)
       if (!(f->flag & IOWRT))
          xerror("glp_format: attempt to write to input stream\n");
       va_start(arg, fmt);
-      nnn = vsprintf(env->term_buf, fmt, arg);
+      nnn = vsnprintf(env->term_buf, TBUF_SIZE, fmt, arg);
       xassert(0 <= nnn && nnn < TBUF_SIZE);
       va_end(arg);
       return nnn == 0 ? 0 : glp_write(f, env->term_buf, nnn);
@@ -427,7 +427,7 @@ int glp_format(glp_file *f, const char *fmt, ...)
     if (!(f->flag & IOWRT))
         xerror("glp_format: attempt to write to input stream\n");
     va_start(arg, fmt);
-    nnn = vsprintf(term_buf, fmt, arg);
+    nnn = vsnprintf(term_buf, TBUF_SIZE, fmt, arg);
     xassert(0 <= nnn && nnn < TBUF_SIZE);
     va_end(arg);
     return nnn == 0 ? 0 : glp_write(f, term_buf, nnn);

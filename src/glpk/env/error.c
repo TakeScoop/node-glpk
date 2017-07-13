@@ -63,7 +63,7 @@ static void errfunc(const char *fmt, ...)
     va_list arg;
     // format the output
     va_start(arg, fmt);
-    vsprintf(term_buf, fmt, arg);
+    vsnprintf(term_buf, TBUF_SIZE, fmt, arg);
     va_end(arg);
 
     if (_error_hook_){
