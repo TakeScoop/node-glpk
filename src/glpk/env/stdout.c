@@ -94,9 +94,8 @@ void glp_printf(const char *fmt, ...)
          goto skip;
       /* format the output */
       va_start(arg, fmt);
-      vsprintf(env->term_buf, fmt, arg);
       /* (do not use xassert) */
-      assert(strlen(env->term_buf) < TBUF_SIZE);
+      assert(vsnprintf(env->term_buf, TBUF_SIZE, fmt, arg) < TBUF_SIZE);
       va_end(arg);
       /* write the formatted output on the terminal */
       glp_puts(env->term_buf);
@@ -108,9 +107,8 @@ skip: return;
     if (!_term_hook_) return;
     // format the output
     va_start(arg, fmt);
-    vsprintf(term_buf, fmt, arg);
     // (do not use xassert)
-    assert(strlen(term_buf) < TBUF_SIZE);
+    assert(vsnprintf(term_buf, TBUF_SIZE, fmt, arg) < TBUF_SIZE);
     va_end(arg);
     // write the formatted output on the terminal
     glp_puts(term_buf);
@@ -140,9 +138,8 @@ void glp_vprintf(const char *fmt, va_list arg)
       if (!env->term_out)
          goto skip;
       /* format the output */
-      vsprintf(env->term_buf, fmt, arg);
       /* (do not use xassert) */
-      assert(strlen(env->term_buf) < TBUF_SIZE);
+      assert(vsnprintf(env->term_buf, TBUF_SIZE, fmt, arg) < TBUF_SIZE);
       /* write the formatted output on the terminal */
       glp_puts(env->term_buf);
 skip: return;
@@ -151,9 +148,8 @@ skip: return;
     // if terminal output is disabled, do nothing
     if (!_term_hook_) return;
     // format the output
-    vsprintf(term_buf, fmt, arg);
     // (do not use xassert)
-    assert(strlen(term_buf) < TBUF_SIZE);
+    assert(vsnprintf(env->term_buf, TBUF_SIZE, fmt, arg) < TBUF_SIZE);
     // write the formatted output on the terminal
     glp_puts(term_buf);
 #endif
