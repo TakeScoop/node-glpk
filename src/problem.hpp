@@ -851,18 +851,13 @@ namespace NodeGLPK {
                     // cb_func/cb_info before going into the wait loop
                     glp_intopt_start(lp->handle, &ctx);
                     while(!ctx.done && parm.cb_func && parm.cb_info) {
-                        std::unique_lock<std::mutex> guard{notify_lock_};
-
-                        // parm_cb has to be called on main loop thread, so we uv_async_send, and condwait for it.
-                        parm_cb_done_ = false;
-                        uv_async_send(parm_cb_async_.get());
-
-                        while(!parm_cb_done_.load()) {
-                            notifier_.wait(guard);
-                        }
+                        CallParmCBFromWorker();
                         // parm_cb is done now, go ahead and run next iteration
                         glp_intopt_run(&ctx);
                     }
+                    // Call the callback when done. The intopt is done, so this would be a good place to grab the final
+                    // mipGap from the tree on this LP or similar.
+                    CallParmCBFromWorker();
                     glp_intopt_stop(lp->handle, &ctx);
                 } catch (std::string s){
                     SetErrorMessage(s.c_str());
@@ -891,6 +886,21 @@ namespace NodeGLPK {
             }
            
         private:
+            inline void CallParmCBFromWorker() {
+                if (!parm.cb_func || !parm.cb_info) {
+                    return;
+                }
+                std::unique_lock<std::mutex> guard{notify_lock_};
+
+                // parm_cb has to be called on main loop thread, so we uv_async_send, and condwait for it.
+                parm_cb_done_ = false;
+                uv_async_send(parm_cb_async_.get());
+
+                while(!parm_cb_done_.load()) {
+                    notifier_.wait(guard);
+                }
+            }
+
             void RunCallback() noexcept { 
                 std::lock_guard<std::mutex> guard{notify_lock_};
                 Nan::HandleScope scope;

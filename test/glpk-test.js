@@ -269,7 +269,8 @@ describe("Test glp_intopt_start, glp_intopt_run, glp_intopt_stop flow", function
                             lp.intopt({cbFunc: callback}, function(err, ret){
                                 expect(err).to.be.null
                                 expect(lp.mipObjVal()).to.equal(4190215)
-                                expect(calledCallback).to.equal(27450)
+                                // Called 27450 times during, and once after intopt finishes
+                                expect(calledCallback).to.equal(27451)
                                 done()
                             });
                         }
