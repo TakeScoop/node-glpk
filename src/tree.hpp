@@ -50,10 +50,11 @@ namespace NodeGLPK {
             constructor.Reset(tpl);
         }
 
-        static Local<Value> Instantiate(glp_tree* tree){
+        static Local<Value> Instantiate(glp_tree* tree, std::shared_ptr<glp_memstats> memstats) {
             Local<Function> cons = Nan::New<FunctionTemplate>(constructor)->GetFunction();
             Local<Value> ret = cons->NewInstance();
             Tree* host = ObjectWrap::Unwrap<Tree>(ret->ToObject());
+            host->memstats_ = memstats;
             host->handle = tree;
             host->thread = false;
             return ret;
@@ -96,7 +97,8 @@ namespace NodeGLPK {
             Tree* host = ObjectWrap::Unwrap<Tree>(info.Holder());
             V8CHECK(!host->handle, "object deleted");
             V8CHECK(host->thread.load(), "an async operation is inprogress");
-          
+         
+            MemStatsGuard mguard{host->memstats_}; 
             TermHookGuard hookguard{host->info_};
             int a_cnt, n_cnt, t_cnt;
             GLP_CATCH_RET(glp_ios_tree_size(host->handle, &a_cnt, &n_cnt, &t_cnt);)
@@ -132,6 +134,7 @@ namespace NodeGLPK {
             V8CHECK(!host->handle, "object deleted");
             V8CHECK(host->thread.load(), "an async operation is inprogress");
             
+            MemStatsGuard mguard{host->memstats_}; 
             TermHookGuard hookguard{host->info_};
             glp_attr attr;
             GLP_CATCH_RET(glp_ios_row_attr(host->handle, info[0]->Int32Value(), &attr);)
@@ -155,6 +158,7 @@ namespace NodeGLPK {
             V8CHECK(!tree->handle, "object deleted");
             V8CHECK(tree->thread.load(), "an async operation is inprogress");
             
+            MemStatsGuard mguard{tree->memstats_}; 
             TermHookGuard hookguard{tree->info_};
 
             Local<Int32Array> ind = Local<Int32Array>::Cast(info[3]);
@@ -197,6 +201,7 @@ namespace NodeGLPK {
             V8CHECK(!tree->handle, "object deleted");
             V8CHECK(tree->thread.load(), "an async operation is inprogress");
             
+            MemStatsGuard mguard{tree->memstats_}; 
             TermHookGuard hookguard{tree->info_};
             Local<Float64Array> x = Local<Float64Array>::Cast(info[0]);
             
@@ -210,6 +215,7 @@ namespace NodeGLPK {
         }
     private:
         std::shared_ptr<NodeEvent::EventEmitter> emitter_;
+        std::shared_ptr<glp_memstats> memstats_;
         std::shared_ptr<HookInfo> info_;
         
     public:
