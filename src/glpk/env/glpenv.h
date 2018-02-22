@@ -221,28 +221,28 @@ struct MBD
 #endif
 };
 
-inline __attribute__((always_inline)) size_t _add_mem_total_func(ENV* env, size_t x) {
+static inline __attribute__((always_inline)) size_t _add_mem_total_func(ENV* env, size_t x) {
     if(env && env->memstats) {
         env->memstats->problem_mem_total += x;
     }
     return _add_mem_total(x);
 }
 
-inline __attribute__((always_inline)) size_t _add_mem_count_func(ENV* env, size_t x) {
+static inline __attribute__((always_inline)) size_t _add_mem_count_func(ENV* env, size_t x) {
     if(env && env->memstats) {
         env->memstats->problem_mem_count += x;
     }
     return _add_mem_count(x);
 }
 
-inline __attribute__((always_inline)) void _set_mem_tpeak_func(ENV* env, size_t x) {
+static inline __attribute__((always_inline)) void _set_mem_tpeak_func(ENV* env, size_t x) {
     if(env && env->memstats && x > env->memstats->problem_mem_tpeak) {
         env->memstats->problem_mem_tpeak = x;
     }
     _set_mem_tpeak(x);
 }
 
-inline __attribute__((always_inline)) void _set_mem_cpeak_func(ENV* env, size_t x) {
+static inline __attribute__((always_inline)) void _set_mem_cpeak_func(ENV* env, size_t x) {
     if(env && env->memstats && x > env->memstats->problem_mem_cpeak) {
         env->memstats->problem_mem_cpeak = x;
     }
