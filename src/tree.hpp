@@ -97,9 +97,8 @@ namespace NodeGLPK {
             Tree* host = ObjectWrap::Unwrap<Tree>(info.Holder());
             V8CHECK(!host->handle, "object deleted");
             V8CHECK(host->thread.load(), "an async operation is inprogress");
-         
-            MemStatsGuard mguard{host->memstats_}; 
-            TermHookGuard hookguard{host->info_};
+        
+            GLP_CREATE_HOOK_GUARDS(host);
             int a_cnt, n_cnt, t_cnt;
             GLP_CATCH_RET(glp_ios_tree_size(host->handle, &a_cnt, &n_cnt, &t_cnt);)
             Local<Object> ret = Nan::New<Object>();
@@ -133,9 +132,8 @@ namespace NodeGLPK {
             Tree* host = ObjectWrap::Unwrap<Tree>(info.Holder());
             V8CHECK(!host->handle, "object deleted");
             V8CHECK(host->thread.load(), "an async operation is inprogress");
-            
-            MemStatsGuard mguard{host->memstats_}; 
-            TermHookGuard hookguard{host->info_};
+           
+            GLP_CREATE_HOOK_GUARDS(host); 
             glp_attr attr;
             GLP_CATCH_RET(glp_ios_row_attr(host->handle, info[0]->Int32Value(), &attr);)
             
@@ -157,9 +155,8 @@ namespace NodeGLPK {
             Tree* tree = ObjectWrap::Unwrap<Tree>(info.Holder());
             V8CHECK(!tree->handle, "object deleted");
             V8CHECK(tree->thread.load(), "an async operation is inprogress");
-            
-            MemStatsGuard mguard{tree->memstats_}; 
-            TermHookGuard hookguard{tree->info_};
+           
+            GLP_CREATE_HOOK_GUARDS(tree);
 
             Local<Int32Array> ind = Local<Int32Array>::Cast(info[3]);
             Local<Float64Array> val = Local<Float64Array>::Cast(info[4]);
@@ -200,9 +197,8 @@ namespace NodeGLPK {
             Tree* tree = ObjectWrap::Unwrap<Tree>(info.Holder());
             V8CHECK(!tree->handle, "object deleted");
             V8CHECK(tree->thread.load(), "an async operation is inprogress");
-            
-            MemStatsGuard mguard{tree->memstats_}; 
-            TermHookGuard hookguard{tree->info_};
+           
+            GLP_CREATE_HOOK_GUARDS(tree); 
             Local<Float64Array> x = Local<Float64Array>::Cast(info[0]);
             
             int count = (int)x->Length();
