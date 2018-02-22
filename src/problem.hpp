@@ -273,7 +273,7 @@ namespace NodeGLPK {
             V8CHECK(info.Length() != 0, "Wrong number of arguments");
 
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
-            V8CHECK(!lp->handle, "object deleted");
+            V8CHECK(!lp->memstats_, "object deleted");
 
             Local<v8::Object> ret = Nan::New<v8::Object>();
             ret->Set(Nan::New<v8::String>("count").ToLocalChecked(), Nan::New<v8::Number>(lp->memstats_->problem_mem_count));

@@ -31,7 +31,6 @@ describe('Verify problem.memStats', function() {
         })
         lp.intopt({ msgLev: glp.MSG_ALL, presolve: glp.ON }, function() {
             let info = lp.memStats()
-            let globalInfo = glp.glpMemInfo()
 
             expect(info).to.be.an.object()
             expect(info).to.include(['count','cpeak','total','tpeak'])
@@ -44,6 +43,7 @@ describe('Verify problem.memStats', function() {
             expect(info.tpeak).to.be.at.least(maxObserved)
             expect(info.tpeak).to.be.at.least(20000)
             lp.delete()
+            info = lp.memStats()
 
             done();
         })

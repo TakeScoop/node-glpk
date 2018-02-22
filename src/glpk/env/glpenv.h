@@ -221,34 +221,7 @@ struct MBD
 #endif
 };
 
-inline __attribute__((always_inline)) void print_trace (void)
-{
-  size_t size = 20;
-  void *array[size];
-  char **strings;
-  size_t i;
-
-  size = backtrace(array, size);
-  strings = backtrace_symbols(array, size);
-
-  fprintf(stderr, "Obtained %zd stack frames.\n", size);
-
-  for (i = 0; i < size; i++)
-     printf("%s\n", strings[i]);
-
-  free(strings);
-}
-
-
 inline __attribute__((always_inline)) size_t _add_mem_total_func(ENV* env, size_t x) {
-    if(!env) {
-        fprintf(stderr, "Env not set:\n");
-        print_trace();
-    }
-    if(env && !env->memstats) {
-        fprintf(stderr, "memstats not set:\n");
-        print_trace();
-    }
     if(env && env->memstats) {
         env->memstats->problem_mem_total += x;
     }
@@ -256,14 +229,6 @@ inline __attribute__((always_inline)) size_t _add_mem_total_func(ENV* env, size_
 }
 
 inline __attribute__((always_inline)) size_t _add_mem_count_func(ENV* env, size_t x) {
-    if(!env) {
-        fprintf(stderr, "Env not set:\n");
-        print_trace();
-    }
-    if(env && !env->memstats) {
-        fprintf(stderr, "memstats not set:\n");
-        print_trace();
-    }
     if(env && env->memstats) {
         env->memstats->problem_mem_count += x;
     }
@@ -271,14 +236,6 @@ inline __attribute__((always_inline)) size_t _add_mem_count_func(ENV* env, size_
 }
 
 inline __attribute__((always_inline)) void _set_mem_tpeak_func(ENV* env, size_t x) {
-    if(!env) {
-        fprintf(stderr, "Env not set:\n");
-        print_trace();
-    }
-    if(env && !env->memstats) {
-        fprintf(stderr, "memstats not set:\n");
-        print_trace();
-    }
     if(env && env->memstats && x > env->memstats->problem_mem_tpeak) {
         env->memstats->problem_mem_tpeak = x;
     }
@@ -286,14 +243,6 @@ inline __attribute__((always_inline)) void _set_mem_tpeak_func(ENV* env, size_t 
 }
 
 inline __attribute__((always_inline)) void _set_mem_cpeak_func(ENV* env, size_t x) {
-    if(!env) {
-        fprintf(stderr, "Env not set:\n");
-        print_trace();
-    }
-    if(env && !env->memstats) {
-        fprintf(stderr, "memstats not set:\n");
-        print_trace();
-    }
     if(env && env->memstats && x > env->memstats->problem_mem_cpeak) {
         env->memstats->problem_mem_cpeak = x;
     }
