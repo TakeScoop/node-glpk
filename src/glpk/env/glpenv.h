@@ -25,6 +25,8 @@
 #define ENV_H
 
 #include "stdc.h"
+#include "memstats.h"
+#include <execinfo.h>
 
 #ifdef HAVE_ENV
 typedef struct ENV ENV;
@@ -70,31 +72,31 @@ extern volatile size_t mem_tpeak;
 
 #ifdef HAVE_ATOMIC
 
-#define add_mem_limit(x) __atomic_add_fetch(&mem_limit, x, __ATOMIC_CONSUME)
-#define add_mem_count(x) __atomic_add_fetch(&mem_count, x, __ATOMIC_CONSUME)
-#define add_mem_cpeak(x) __atomic_add_fetch(&mem_cpeak, x, __ATOMIC_CONSUME)
-#define add_mem_total(x) __atomic_add_fetch(&mem_total, x, __ATOMIC_CONSUME)
-#define add_mem_tpeak(x) __atomic_add_fetch(&mem_tpeak, x, __ATOMIC_CONSUME)
+#define _add_mem_limit(x) __atomic_add_fetch(&mem_limit, x, __ATOMIC_CONSUME)
+#define _add_mem_count(x) __atomic_add_fetch(&mem_count, x, __ATOMIC_CONSUME)
+#define _add_mem_cpeak(x) __atomic_add_fetch(&mem_cpeak, x, __ATOMIC_CONSUME)
+#define _add_mem_total(x) __atomic_add_fetch(&mem_total, x, __ATOMIC_CONSUME)
+#define _add_mem_tpeak(x) __atomic_add_fetch(&mem_tpeak, x, __ATOMIC_CONSUME)
 
 #define _cmpxchg(DEST, CMP, SRC) __atomic_compare_exchange_n(DEST, &CMP, SRC, 0, __ATOMIC_RELEASE, __ATOMIC_RELAXED)
 
 #elif HAVE_SYNC // ifdef HAVE_ATOMIC
 
-#define add_mem_limit(x) __sync_add_and_fetch(&mem_limit, x)
-#define add_mem_count(x) __sync_add_and_fetch(&mem_count, x)
-#define add_mem_cpeak(x) __sync_add_and_fetch(&mem_cpeak, x)
-#define add_mem_total(x) __sync_add_and_fetch(&mem_total, x)
-#define add_mem_tpeak(x) __sync_add_and_fetch(&mem_tpeak, x)
+#define _add_mem_limit(x) __sync_add_and_fetch(&mem_limit, x)
+#define _add_mem_count(x) __sync_add_and_fetch(&mem_count, x)
+#define _add_mem_cpeak(x) __sync_add_and_fetch(&mem_cpeak, x)
+#define _add_mem_total(x) __sync_add_and_fetch(&mem_total, x)
+#define _add_mem_tpeak(x) __sync_add_and_fetch(&mem_tpeak, x)
 
 #define _cmpxchg(DEST, CMP, SRC) __sync_val_compare_and_swap(DEST, CMP, SRC)
 
 #else  // ifdef HAVE_ATOMIC elif HAVE_SYNC
 
-#define add_mem_limit(x) (mem_limit += x)
-#define add_mem_count(x) (mem_count += x)
-#define add_mem_cpeak(x) (mem_cpeak += x)
-#define add_mem_total(x) (mem_total += x)
-#define add_mem_tpeak(x) (mem_tpeak += x)
+#define _add_mem_limit(x) (mem_limit += x)
+#define _add_mem_count(x) (mem_count += x)
+#define _add_mem_cpeak(x) (mem_cpeak += x)
+#define _add_mem_total(x) (mem_total += x)
+#define _add_mem_tpeak(x) (mem_tpeak += x)
 
 
 #endif // ifdef HAVE_ATOMIC elif HAVE_SYNC
@@ -115,31 +117,34 @@ extern volatile size_t mem_tpeak;
 
 #else // #ifdef GLOBAL_MEM_STATS 
 
-#define add_mem_limit(x) (env->mem_limit += x)
-#define add_mem_count(x) (env->mem_count += x)
-#define add_mem_cpeak(x) (env->mem_cpeak += x)
-#define add_mem_total(x) (env->mem_total += x)
-#define add_mem_tpeak(x) (env->mem_tpeak += x)
+#define _add_mem_limit(x) (env->mem_limit += x)
+#define _add_mem_count(x) (env->mem_count += x)
+#define _add_mem_cpeak(x) (env->mem_cpeak += x)
+#define _add_mem_total(x) (env->mem_total += x)
+#define _add_mem_tpeak(x) (env->mem_tpeak += x)
 
 #define _set_peak(VALUE, PEAK)                                \
     do {                                                      \
         if (VALUE > env->mem_##PEAK) env->mem_##PEAK = VALUE; \
     } while (0)
 
-#define set_mem_limit(VALUE) (env->mem_limit = VALUE)
+#define _set_mem_limit(VALUE) (env->mem_limit = VALUE)
 
 #endif // #ifdef GLOBAL_MEM_STATS
 
-#define set_mem_tpeak(TOTAL) _set_peak(TOTAL, tpeak)
-#define set_mem_cpeak(COUNT) _set_peak(COUNT, cpeak)
+#define _set_mem_tpeak(TOTAL) _set_peak(TOTAL, tpeak)
+#define _set_mem_cpeak(COUNT) _set_peak(COUNT, cpeak)
 
-#define get_mem_limit() add_mem_limit(0)
-#define get_mem_count() add_mem_count(0)
-#define get_mem_cpeak() add_mem_cpeak(0)
-#define get_mem_total() add_mem_total(0)
-#define get_mem_tpeak() add_mem_tpeak(0)
+#define get_mem_limit() _add_mem_limit(0)
+#define get_mem_count() _add_mem_count(0)
+#define get_mem_cpeak() _add_mem_cpeak(0)
+#define get_mem_total() _add_mem_total(0)
+#define get_mem_tpeak() _add_mem_tpeak(0)
 
-
+#define set_mem_tpeak(TOTAL) _set_mem_tpeak_func(env, TOTAL);
+#define set_mem_cpeak(COUNT) _set_mem_cpeak_func(env, COUNT);
+#define add_mem_count(x) _add_mem_count_func(env, x);
+#define add_mem_total(x) _add_mem_total_func(env, x);
 
 struct ENV
 {     /* GLPK environment block */
@@ -193,6 +198,7 @@ struct ENV
       size_t mem_tpeak;
       /* peak value of mem_total */
 #endif
+      glp_memstats* memstats;
       /*--------------------------------------------------------------*/
       /* dynamic linking support (optional) */
       void *h_odbc;
@@ -207,11 +213,43 @@ struct MBD
       /* size of block, in bytes, including descriptor */
       MBD *self;
       /* pointer to this descriptor to check its validity */
+#ifndef GLOBAL_MEM_STATS
       MBD *prev;
       /* pointer to previous memory block descriptor */
       MBD *next;
       /* pointer to next memory block descriptor */
+#endif
 };
+
+static inline __attribute__((always_inline)) size_t _add_mem_total_func(ENV* env, size_t x) {
+    if(env && env->memstats) {
+        env->memstats->problem_mem_total += x;
+    }
+    return _add_mem_total(x);
+}
+
+static inline __attribute__((always_inline)) size_t _add_mem_count_func(ENV* env, size_t x) {
+    if(env && env->memstats) {
+        env->memstats->problem_mem_count += x;
+    }
+    return _add_mem_count(x);
+}
+
+static inline __attribute__((always_inline)) void _set_mem_tpeak_func(ENV* env, size_t x) {
+    if(env && env->memstats && x > env->memstats->problem_mem_tpeak) {
+        env->memstats->problem_mem_tpeak = x;
+    }
+    _set_mem_tpeak(x);
+}
+
+static inline __attribute__((always_inline)) void _set_mem_cpeak_func(ENV* env, size_t x) {
+    if(env && env->memstats && x > env->memstats->problem_mem_cpeak) {
+        env->memstats->problem_mem_cpeak = x;
+    }
+    _set_mem_cpeak(x);
+}
+
+
 #endif
 
 #ifdef HAVE_ENV
@@ -245,11 +283,11 @@ int glp_term_out(int flag);
 
 #ifdef HAVE_ENV
 void glp_term_hook(int (*func)(void *info, const char *s), void *info);
+
 #else
 void glp_term_hook(void (*func)(const char *s));
 #endif
 /* install hook to intercept terminal output */
-
 int glp_open_tee(const char *fname);
 /* start copying terminal output to text file */
 

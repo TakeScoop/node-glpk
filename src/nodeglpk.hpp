@@ -10,6 +10,7 @@
 #include <eventemitter.hpp>
 
 #include "glpk/glpk.h"
+#include "glpk/env/glpenv.h"
 
 
 namespace NodeGLPK {
@@ -138,6 +139,14 @@ class TermHookThreadGuard {
     ~TermHookThreadGuard() noexcept { TermHookManager::ClearEnv(); }
 };
 
+class MemStatsGuard {
+ public:
+    explicit MemStatsGuard(std::shared_ptr<glp_memstats> memstats) : memstats_(glp_set_memstats(memstats.get())) {}
+    ~MemStatsGuard() noexcept { glp_set_memstats(memstats_); }
+ private:
+     glp_memstats* memstats_;
+};
+
 /// EventEmitterDecorator decorates a Nan::AsyncWorker so that the Execute() method is wrapped with a TermHookThreadGuard
 class EventEmitterDecorator : public ReentrantCWorker {
  public:
@@ -167,6 +176,35 @@ class EventEmitterDecorator : public ReentrantCWorker {
      Nan::AsyncWorker* decorated_;
 };
 
+class MemStatsDecorator : public Nan::AsyncWorker {
+ public:
+    MemStatsDecorator(Nan::AsyncWorker* decorated, std::shared_ptr<glp_memstats> memstats)
+        : Nan::AsyncWorker(nullptr), decorated_(decorated), memstats_(memstats) {}
+
+    virtual void HandleOKCallback() override { }
+    virtual void HandleErrorCallback() override { } 
+
+    virtual void WorkComplete() override {
+        MemStatsGuard mguard{memstats_};
+        decorated_->WorkComplete();
+        Nan::AsyncWorker::WorkComplete();
+    }
+
+    virtual void Execute() override {
+        MemStatsGuard mguard{memstats_};
+        decorated_->Execute();
+    }
+
+    virtual void Destroy() override {
+        MemStatsGuard mguard{memstats_};
+        decorated_->Destroy();
+        Nan::AsyncWorker::Destroy();
+    }
+
+ private:
+     Nan::AsyncWorker* decorated_;
+     std::shared_ptr<glp_memstats> memstats_;
+};
 
 
 }  // namespace NodeGLPK

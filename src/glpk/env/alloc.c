@@ -47,9 +47,7 @@
 #ifdef HAVE_ENV
 static void *dma(const char *func, void *ptr, size_t size)
 {
-#ifndef GLOBAL_MEM_STATS
       ENV *env = get_env_ptr();
-#endif
       MBD *mbd;
       if (ptr == NULL)
       {  /* new memory block will be allocated */
@@ -99,8 +97,8 @@ static void *dma(const char *func, void *ptr, size_t size)
       /* setup the block descriptor */
       mbd->size = size;
       mbd->self = mbd;
-      mbd->prev = NULL;
 #ifndef GLOBAL_MEM_STATS
+      mbd->prev = NULL;
       mbd->next = env->mem_ptr;
       /* add the block to the beginning of the linked list */
       if (mbd->next != NULL)

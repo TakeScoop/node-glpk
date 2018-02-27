@@ -111,6 +111,7 @@ int glp_init_env(void)
       env->mem_count = env->mem_cpeak = 0;
       env->mem_total = env->mem_tpeak = 0;
 #endif
+      env->memstats = NULL;
       env->h_odbc = env->h_mysql = NULL;
       /* save pointer to the environment block */
       tls_set_ptr(env);
@@ -167,6 +168,18 @@ ENV *get_env_ptr(void)
 }
 #endif
 
+#ifdef HAVE_ENV
+glp_memstats* glp_set_memstats(glp_memstats* new_stats)
+{
+    ENV *env = get_env_ptr();
+    glp_memstats* prior = env->memstats;
+    env->memstats = new_stats;
+    return prior;
+}
+#endif
+
+
+#ifdef HAVE_ENV
 /***********************************************************************
 *  NAME
 *
@@ -182,14 +195,13 @@ ENV *get_env_ptr(void)
 *  character string, which specifies the version of the GLPK library in
 *  the form "X.Y", where X is the major version number, and Y is the
 *  minor version number, for example, "4.16". */
-
-#ifdef HAVE_ENV
 const char *glp_version(void)
 {     ENV *env = get_env_ptr();
       return env->version;
 }
 #endif
 
+#ifdef HAVE_ENV
 /***********************************************************************
 *  NAME
 *
@@ -218,8 +230,6 @@ const char *glp_version(void)
 *
 *  0 - termination successful;
 *  1 - environment is inactive (was not initialized). */
-
-#ifdef HAVE_ENV
 int glp_free_env(void)
 {
       ENV *env = (ENV*) tls_get_ptr();

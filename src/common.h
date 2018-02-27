@@ -42,6 +42,11 @@ static_cast<PropertyAttribute>(ReadOnly | DontDelete);\
 }\
 while (0)
 
+#define GLP_CREATE_HOOK_GUARDS(NAME) \
+    MemStatsGuard mguard{NAME->memstats_}; \
+    TermHookGuard hookguard{NAME->info_}
+
+
 #define GLP_BIND_VOID_STR(CLASS, NAME, API)\
 static NAN_METHOD(NAME) {\
     V8CHECK(info.Length() != 1, "Wrong number of arguments");\
@@ -51,7 +56,7 @@ static NAN_METHOD(NAME) {\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
-    TermHookGuard hookguard{host->info_}; \
+    GLP_CREATE_HOOK_GUARDS(host); \
     GLP_CATCH_RET(API(host->handle, V8TOCSTRING(info[0]));)\
 }
 
@@ -61,7 +66,7 @@ static NAN_METHOD(NAME) {\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
-    TermHookGuard hookguard{host->info_}; \
+    GLP_CREATE_HOOK_GUARDS(host); \
     GLP_CATCH_RET(const char* name = API(host->handle);\
     if (name)\
         info.GetReturnValue().Set(Nan::New<String>(name).ToLocalChecked());\
@@ -78,7 +83,7 @@ static NAN_METHOD(NAME) {\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
-    TermHookGuard hookguard{host->info_}; \
+    GLP_CREATE_HOOK_GUARDS(host); \
     GLP_CATCH_RET(API(host->handle, info[0]->Int32Value());)\
 }
 
@@ -88,7 +93,7 @@ static NAN_METHOD(NAME) {\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
-    TermHookGuard hookguard{host->info_}; \
+    GLP_CREATE_HOOK_GUARDS(host); \
     GLP_CATCH_RET(info.GetReturnValue().Set(API(host->handle));)\
 }
 
@@ -101,7 +106,7 @@ static NAN_METHOD(NAME) {\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
-    TermHookGuard hookguard{host->info_}; \
+    GLP_CREATE_HOOK_GUARDS(host); \
     GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(), V8TOCSTRING(info[1]));)\
 }
 
@@ -114,7 +119,7 @@ static NAN_METHOD(NAME) {\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
-    TermHookGuard hookguard{host->info_}; \
+    GLP_CREATE_HOOK_GUARDS(host); \
     GLP_CATCH_RET(const char* name = API(host->handle, info[0]->Int32Value());\
     if (name)\
         info.GetReturnValue().Set(Nan::New<String>(name).ToLocalChecked());\
@@ -132,7 +137,7 @@ static NAN_METHOD(NAME) {\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
-    TermHookGuard hookguard{host->info_}; \
+    GLP_CREATE_HOOK_GUARDS(host); \
     GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(), info[1]->Int32Value(),\
                      info[2]->NumberValue(), info[3]->NumberValue());)\
 }
@@ -146,7 +151,7 @@ static NAN_METHOD(NAME) {\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
-    TermHookGuard hookguard{host->info_}; \
+    GLP_CREATE_HOOK_GUARDS(host); \
     GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(), info[1]->NumberValue());)\
 }
 
@@ -159,7 +164,7 @@ static NAN_METHOD(NAME) {\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
-    TermHookGuard hookguard{host->info_}; \
+    GLP_CREATE_HOOK_GUARDS(host); \
     GLP_CATCH_RET(info.GetReturnValue().Set(API(host->handle, info[0]->Int32Value()));)\
 }
 
@@ -185,7 +190,7 @@ static NAN_METHOD(NAME) {\
     for (size_t i = 0; i < ja->Length(); i++) pja[i] = ja->Get(i)->Int32Value();\
     for (size_t i = 0; i < ar->Length(); i++) par[i] = ar->Get(i)->NumberValue();\
     \
-    TermHookGuard hookguard{host->info_}; \
+    GLP_CREATE_HOOK_GUARDS(host); \
     GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(), count, pja, par);)\
     \
     free(pja);\
@@ -201,7 +206,7 @@ static NAN_METHOD(NAME) {\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
-    TermHookGuard hookguard{host->info_}; \
+    GLP_CREATE_HOOK_GUARDS(host); \
     try{\
         int row = info[0]->Int32Value();\
         int count = API(host->handle, row, NULL, NULL);\
@@ -236,7 +241,7 @@ static NAN_METHOD(NAME) {\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
-    TermHookGuard hookguard{host->info_}; \
+    GLP_CREATE_HOOK_GUARDS(host); \
     GLP_CATCH_RET(API(host->handle);)\
 }
 
@@ -256,7 +261,7 @@ static NAN_METHOD(NAME) {\
     V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
     count--;\
-    TermHookGuard hookguard{host->info_}; \
+    GLP_CREATE_HOOK_GUARDS(host); \
     GLP_CATCH_RET(API(host->handle, count, idx);)\
     free(idx);\
 }
@@ -270,7 +275,7 @@ static NAN_METHOD(NAME) {\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
-    TermHookGuard hookguard{host->info_}; \
+    GLP_CREATE_HOOK_GUARDS(host); \
     GLP_CATCH_RET(info.GetReturnValue().Set(API(host->handle, V8TOCSTRING(info[0])));)\
 }
 
@@ -283,7 +288,7 @@ static NAN_METHOD(NAME) {\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
-    TermHookGuard hookguard{host->info_}; \
+    GLP_CREATE_HOOK_GUARDS(host); \
     GLP_CATCH_RET(API(host->handle, info[0]->Int32Value(), info[1]->Int32Value());)\
 }
 
@@ -296,7 +301,7 @@ static NAN_METHOD(NAME) {\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
-    TermHookGuard hookguard{host->info_}; \
+    GLP_CREATE_HOOK_GUARDS(host); \
     GLP_CATCH_RET(info.GetReturnValue().Set(API(host->handle, info[0]->Int32Value(), V8TOCSTRING(info[1])));)\
 }
 
@@ -309,7 +314,7 @@ static NAN_METHOD(NAME) {\
     V8CHECK(!host->handle, "object deleted");\
     V8CHECK(host->thread.load(), "an async operation is inprogress")\
     \
-    TermHookGuard hookguard{host->info_}; \
+    GLP_CREATE_HOOK_GUARDS(host); \
     GLP_CATCH_RET(info.GetReturnValue().Set(API(host->handle, V8TOCSTRING(info[0]), info[1]->Int32Value()));)\
 }
 
@@ -319,7 +324,7 @@ static NAN_METHOD(NAME) {\
     V8CHECK(!obj->handle, "object already deleted");\
     V8CHECK(obj->thread, "an async operation is inprogress")\
     \
-    TermHookGuard hookguard{obj->info_}; \
+    GLP_CREATE_HOOK_GUARDS(obj); \
     GLP_CATCH_RET(API(obj->handle);)\
     obj->handle = NULL;\
 }
@@ -372,7 +377,8 @@ static NAN_METHOD(NAME) {\
     Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());\
     NAME##Worker *worker = new NAME##Worker(callback, lp, V8TOCSTRING(info[0]));\
     lp->thread = true;\
-    EventEmitterDecorator* decorated = new EventEmitterDecorator(worker, lp->emitter_); \
+    EventEmitterDecorator* eventemitting = new EventEmitterDecorator(worker, lp->emitter_); \
+    MemStatsDecorator* decorated = new MemStatsDecorator(eventemitting, lp->memstats_); \
     Nan::AsyncQueueWorker(decorated);\
 }\
 
@@ -417,7 +423,8 @@ static NAN_METHOD(NAME) {\
     Nan::Callback *callback = new Nan::Callback(info[2].As<Function>());\
     NAME##Worker *worker = new NAME##Worker(callback, lp, info[0]->Int32Value(), V8TOCSTRING(info[1]));\
     lp->thread = true;\
-    EventEmitterDecorator* decorated = new EventEmitterDecorator(worker, lp->emitter_); \
+    EventEmitterDecorator* eventemitting = new EventEmitterDecorator(worker, lp->emitter_); \
+    MemStatsDecorator* decorated = new MemStatsDecorator(eventemitting, lp->memstats_); \
     Nan::AsyncQueueWorker(decorated);\
 }\
 
@@ -453,7 +460,8 @@ static NAN_METHOD(NAME) {\
     Nan::Callback *callback = new Nan::Callback(info[0].As<Function>());\
     NAME##Worker *worker = new NAME##Worker(callback, lp);\
     lp->thread = true;\
-    EventEmitterDecorator* decorated = new EventEmitterDecorator(worker, lp->emitter_); \
+    EventEmitterDecorator* eventemitting = new EventEmitterDecorator(worker, lp->emitter_); \
+    MemStatsDecorator* decorated = new MemStatsDecorator(eventemitting, lp->memstats_); \
     Nan::AsyncQueueWorker(decorated);\
 }\
 
