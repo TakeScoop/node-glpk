@@ -49,11 +49,11 @@ describe('Leakage check', function() {
                 expect(info.tpeak).to.be.a.number()
                 expect(info.tpeak).to.be.at.least(info.total)
                 expect(info.cpeak).to.be.at.least(info.count)
-                if(idx++ >= 5) {
-                    done = true
-                }
             })
-            lp.intopt({ msgLev: glp.MSG_ALL, presolve: glp.ON }, function() { })
+
+            lp.intopt({ msgLev: glp.MSG_ALL, presolve: glp.ON }, function() {
+                done = true
+            })
 
             const blocking = Promise.resolve(() => {
                 if(!done) {
