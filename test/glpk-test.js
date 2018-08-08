@@ -159,7 +159,7 @@ describe("Test glp_intopt_start, glp_intopt_run, glp_intopt_stop flow", function
     it("should invoke the callback iteratively toward solution", function(done) {
         this.timeout(10000)
         temp.open('glp_intopt_test_input', function(err, info) {
-            fs.write(info.fd,
+            fs.writeSync(info.fd,
                 'Maximize\n' + 
                 'obj: + 786433 x1 + 655361 x2 + 589825 x3 + 557057 x4\n' + 
                 '+ 540673 x5 + 532481 x6 + 528385 x7 + 526337 x8 + 525313 x9\n' + 

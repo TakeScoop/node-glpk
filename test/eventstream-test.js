@@ -54,7 +54,7 @@ describe('Verify eventemitter on Problem object', function() {
 describe('Verify eventemitter on mathprog', function() {
     it('should have log events fired as the prog is processed asynchronously', function(done) {
         temp.open('mathprog_test_tempfile', function(err, info) {
-            fs.write(info.fd,
+            fs.writeSync(info.fd,
                     'param e := 20;\n' +
                     'set Sample := {1..2**e-1};\n' +
                     '\n' +
@@ -93,7 +93,7 @@ describe('Verify eventemitter on mathprog', function() {
 
     it('should have log events fired as the prog is processed synchronously', function(done) {
         temp.open('mathprog_test_tempfile', function(err, info) {
-            fs.write(info.fd,
+            fs.writeSync(info.fd,
                     'param e := 20;\n' +
                     'set Sample := {1..2**e-1};\n' +
                     '\n' +
