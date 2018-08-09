@@ -7,6 +7,7 @@ const glp = require('bindings')({ module_root: testRoot, bindings: 'glpk' })
 const temp = require('temp').track()
 const fs = require('fs')
 const Promise = global.Promise
+const setupSimplexLP = require('./setup_simplex').setupSimplexLP
 
 glp.termOutput(false)
 
@@ -37,9 +38,8 @@ describe('Leakage check', function() {
         this.timeout(15000)
         return iterate.async(() => {
             return new Promise((resolve, reject) => {
-                let lp = new glp.Problem()
+                let lp = setupSimplexLP()
                 let idx = 0;
-                let done = false
                 lp.on('log', function(msg) {
                     let info = glp.glpMemInfo()
                     expect(info).to.be.an.object()
