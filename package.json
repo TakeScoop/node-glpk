@@ -18,7 +18,7 @@
   "dependencies": {
     "nan": "^2.1.0",
     "bindings": "^1.2.1",
-    "cpp-eventemitter": "TakeScoop/cpp-eventemitter#68ef2cb083ae9ea924cf1223e1ec1a3480619ec7"
+    "cpp-eventemitter": "TakeScoop/cpp-eventemitter#860880690fa9d6b29e31d6e837cfc7c3725cc887"
   },
   "scripts": {
     "test": "node-gyp configure --debug; node-gyp build --debug; mocha test/*-test.js",
