@@ -326,6 +326,7 @@ static NAN_METHOD(NAME) {\
     \
     GLP_CREATE_HOOK_GUARDS(obj); \
     GLP_CATCH_RET(API(obj->handle);)\
+    obj->emitter_->removeAllListeners();\
     obj->handle = NULL;\
 }
 
