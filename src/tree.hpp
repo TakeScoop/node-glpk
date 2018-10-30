@@ -52,7 +52,7 @@ namespace NodeGLPK {
 
         static Local<Value> Instantiate(glp_tree* tree, std::shared_ptr<glp_memstats> memstats) {
             Local<Function> cons = Nan::New<FunctionTemplate>(constructor)->GetFunction();
-            Local<Value> ret = cons->NewInstance();
+            Local<Value> ret = Nan::NewInstance(cons).ToLocalChecked();
             Tree* host = ObjectWrap::Unwrap<Tree>(ret->ToObject());
             host->memstats_ = memstats;
             host->handle = tree;
