@@ -248,14 +248,12 @@ int glp_free_env(void)
          xdlclose(env->h_odbc);
       if (env->h_mysql != NULL)
          xdlclose(env->h_mysql);
-#ifndef GLOBAL_MEM_STATS
       /* free memory blocks which are still allocated */
       while (env->mem_ptr != NULL)
       {  desc = env->mem_ptr;
          env->mem_ptr = desc->next;
          free(desc);
       }
-#endif
       /* close text file used for copying terminal output */
       if (env->tee_file != NULL)
          fclose(env->tee_file);

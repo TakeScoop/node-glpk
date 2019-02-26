@@ -182,12 +182,12 @@ struct ENV
       /* buffer to store error messages (used by I/O routines) */
       /*--------------------------------------------------------------*/
       /* dynamic memory allocation */
+      MBD *mem_ptr;
+      /* pointer to the linked list of allocated memory blocks */
 #ifndef GLOBAL_MEM_STATS
       size_t mem_limit;
       /* maximal amount of memory, in bytes, available for dynamic
        * allocation */
-      MBD *mem_ptr;
-      /* pointer to the linked list of allocated memory blocks */
       size_t mem_count;
       /* total number of currently allocated memory blocks */
       size_t mem_cpeak;
@@ -213,12 +213,10 @@ struct MBD
       /* size of block, in bytes, including descriptor */
       MBD *self;
       /* pointer to this descriptor to check its validity */
-#ifndef GLOBAL_MEM_STATS
       MBD *prev;
       /* pointer to previous memory block descriptor */
       MBD *next;
       /* pointer to next memory block descriptor */
-#endif
 };
 
 static inline __attribute__((always_inline)) size_t _add_mem_total_func(ENV* env, size_t x) {
