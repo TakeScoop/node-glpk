@@ -21,6 +21,7 @@
 *  along with GLPK. If not, see <http://www.gnu.org/licenses/>.
 ***********************************************************************/
 
+#include "stdc.h"
 #include "glpk.h"
 #include "glpenv.h"
 
@@ -63,6 +64,90 @@ volatile size_t mem_total = 0;
  * the sum of the size field over all memory block descriptors */
 volatile size_t mem_tpeak = 0;
 /* peak value of mem_total */
+
+/* Global memory allocation linked list head pointer */
+MBD *env_mem_ptr;
+
+/**
+ * Call this when a thread terminates to move allocation from this thread to a
+ * global linked list for this environment.
+ */
+void glp_env_thread_terminate(void)
+{
+    static pthread_mutex_t env_mem_ptr_lock;
+    ENV *env = tls_get_ptr();
+    MBD* last_node = env->mem_tail_ptr;
+    if (last_node == NULL) return;
+
+    /* Outside of the critical section, find the end of this thread's
+     * linked list; because last_node was set from tail_ptr, last_node->next
+     * *should* be NULL, but just in case */
+    while (last_node->next != NULL) {
+        last_node = last_node->next;
+    }
+    env->mem_ptr = NULL;
+    env->mem_tail_ptr = NULL;
+    glp_free_env();
+
+    /* In the critical section, we'll just prepend this threads linked list to
+     * the existing linked-list */
+    xassert(pthread_mutex_lock(&env_mem_ptr_lock) == 0);
+    {
+        env_mem_ptr->prev = last_node;
+        last_node->next = env_mem_ptr;
+        env_mem_ptr = last_node;
+    }
+    xassert(pthread_mutex_unlock(&env_mem_ptr_lock) == 0);
+}
+
+/**
+ * Lock for a single instance at a time, This will force us to only ever have
+ * a single problem running at once
+ */
+pthread_mutex_t env_single_instance_lock;
+
+/**
+ * Get env lock
+ */
+int global_env_lock(void)
+{
+    return pthread_mutex_lock(&env_single_instance_lock);
+}
+
+/** Free lock
+ */
+int global_env_unlock(void)
+{
+    return pthread_mutex_unlock(&env_single_instance_lock);
+}
+
+/** Reset env counters
+ */
+void global_env_reset(void)
+{
+    mem_limit = SIZE_T_MAX;
+    mem_count = mem_cpeak = mem_total = mem_tpeak = 0;
+}
+
+void glp_init_global_env(void)
+{
+    global_env_lock();
+    global_env_reset();
+}
+
+void glp_free_global_env(void)
+{
+    glp_env_thread_terminate();
+    /* free memory blocks which are still allocated */
+    while (env_mem_ptr != NULL)
+    {
+        MBD* node = env_mem_ptr;
+        env_mem_ptr = node->next;
+        free(node);
+    }
+    global_env_reset();
+    global_env_unlock();
+}
 #endif
 
 int glp_init_env(void)
@@ -105,9 +190,10 @@ int glp_init_env(void)
          return 2;
       }
       env->err_buf[0] = '\0';
+      env->mem_ptr = NULL;
+      env->mem_tail_ptr = NULL;
 #ifndef GLOBAL_MEM_STATS
       env->mem_limit = SIZE_T_MAX;
-      env->mem_ptr = NULL;
       env->mem_count = env->mem_cpeak = 0;
       env->mem_total = env->mem_tpeak = 0;
 #endif
@@ -248,16 +334,17 @@ int glp_free_env(void)
          xdlclose(env->h_odbc);
       if (env->h_mysql != NULL)
          xdlclose(env->h_mysql);
-      /* free memory blocks which are still allocated */
-      while (env->mem_ptr != NULL)
-      {  desc = env->mem_ptr;
-         env->mem_ptr = desc->next;
-         free(desc);
-      }
       /* close text file used for copying terminal output */
       if (env->tee_file != NULL)
          fclose(env->tee_file);
       /* invalidate the environment block */
+      while (env->mem_ptr != NULL)
+      {
+         desc = env->mem_ptr;
+         env->mem_ptr = desc->next;
+         free(desc);
+      }
+      env->mem_tail_ptr = NULL;
       env->self = NULL;
       /* free memory allocated to the environment block */
       free(env->term_buf);

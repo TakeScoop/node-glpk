@@ -24,6 +24,7 @@
 #ifndef STDC_H
 #define STDC_H
 
+#include <stdint.h>
 #include <ctype.h>
 #include <errno.h>
 #include <float.h>
@@ -34,8 +35,11 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include <time.h>
+#include <pthread.h>
+#include <sys/types.h>
 
 #endif
 

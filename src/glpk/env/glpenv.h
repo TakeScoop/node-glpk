@@ -134,6 +134,8 @@ extern volatile size_t mem_tpeak;
 
 #define _set_mem_tpeak(TOTAL) _set_peak(TOTAL, tpeak)
 #define _set_mem_cpeak(COUNT) _set_peak(COUNT, cpeak)
+#define _set_mem_total(TOTAL) _set_peak(TOTAL, total)
+#define _set_mem_count(COUNT) _set_peak(COUNT, count)
 
 #define get_mem_limit() _add_mem_limit(0)
 #define get_mem_count() _add_mem_count(0)
@@ -143,6 +145,8 @@ extern volatile size_t mem_tpeak;
 
 #define set_mem_tpeak(TOTAL) _set_mem_tpeak_func(env, TOTAL);
 #define set_mem_cpeak(COUNT) _set_mem_cpeak_func(env, COUNT);
+#define set_mem_total(TOTAL) _set_mem_total_func(env, TOTAL);
+#define set_mem_count(COUNT) _set_mem_count_func(env, COUNT);
 #define add_mem_count(x) _add_mem_count_func(env, x);
 #define add_mem_total(x) _add_mem_total_func(env, x);
 
@@ -183,6 +187,7 @@ struct ENV
       /*--------------------------------------------------------------*/
       /* dynamic memory allocation */
       MBD *mem_ptr;
+      MBD *mem_tail_ptr;
       /* pointer to the linked list of allocated memory blocks */
 #ifndef GLOBAL_MEM_STATS
       size_t mem_limit;
@@ -247,6 +252,19 @@ static inline __attribute__((always_inline)) void _set_mem_cpeak_func(ENV* env, 
     _set_mem_cpeak(x);
 }
 
+static inline __attribute__((always_inline)) void _set_mem_total_func(ENV* env, size_t x) {
+    if(env && env->memstats && x > env->memstats->problem_mem_total) {
+        env->memstats->problem_mem_total = x;
+    }
+    _set_mem_total(x);
+}
+
+static inline __attribute__((always_inline)) void _set_mem_count_func(ENV* env, size_t x) {
+    if(env && env->memstats && x > env->memstats->problem_mem_count) {
+        env->memstats->problem_mem_count = x;
+    }
+    _set_mem_count(x);
+}
 
 #endif
 
@@ -281,10 +299,10 @@ int glp_term_out(int flag);
 
 #ifdef HAVE_ENV
 void glp_term_hook(int (*func)(void *info, const char *s), void *info);
-
 #else
 void glp_term_hook(void (*func)(const char *s));
 #endif
+
 /* install hook to intercept terminal output */
 int glp_open_tee(const char *fname);
 /* start copying terminal output to text file */
@@ -347,9 +365,12 @@ void glp_free(void *ptr);
 void glp_mem_limit(int limit);
 /* set memory usage limit */
 
-void glp_mem_usage(size_t *count, size_t *cpeak,
-        size_t *total, size_t *tpeak);
+void glp_mem_usage(size_t *count, size_t *cpeak, size_t *total, size_t *tpeak);
 /* get memory usage information */
+
+/* Free resources associated with a thread, and migrate thread-local resources
+ * to global environment */
+void glp_env_thread_terminate(void);
 
 typedef struct glp_file glp_file;
 /* sequential stream descriptor */

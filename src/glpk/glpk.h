@@ -28,6 +28,7 @@
 
 #include <stdarg.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #include <cemitter.h>
 #include "env/memstats.h"
@@ -35,6 +36,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#include "env/glpenv.h"
     
 /* library version numbers: */
 #define GLP_MAJOR_VERSION  4
@@ -919,8 +921,7 @@ void glp_free(void *ptr);
 void glp_mem_limit(int limit);
 /* set memory usage limit */
 
-void glp_mem_usage(size_t *count, size_t *cpeak,
-        size_t *total, size_t *tpeak);
+void glp_mem_usage(size_t *count, size_t *cpeak, size_t *total, size_t *tpeak);
 /* get memory usage information */
     
 typedef struct glp_graph glp_graph;

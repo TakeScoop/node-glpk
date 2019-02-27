@@ -21,6 +21,7 @@
 *  along with GLPK. If not, see <http://www.gnu.org/licenses/>.
 ***********************************************************************/
 
+#include <stdlib.h>
 #include "glpenv.h"
 
 
@@ -61,7 +62,6 @@ static void *dma(const char *func, void *ptr, size_t size)
          if (mbd->self != mbd)
             xerror("%s: ptr = %p; invalid pointer\n", func, ptr);
          /* remove the block from the linked list */
-#ifndef GLOBAL_MEM_STATS
          mbd->self = NULL;
          if (mbd->prev == NULL)
             env->mem_ptr = mbd->next;
@@ -71,7 +71,6 @@ static void *dma(const char *func, void *ptr, size_t size)
             ;
          else
             mbd->next->prev = mbd->prev;
-#endif
          /* decrease usage counts */
          if (!(get_mem_count() >= 1 && get_mem_total() >= mbd->size))
             xerror("%s: memory allocation error\n", func);
@@ -97,14 +96,17 @@ static void *dma(const char *func, void *ptr, size_t size)
       /* setup the block descriptor */
       mbd->size = size;
       mbd->self = mbd;
-#ifndef GLOBAL_MEM_STATS
       mbd->prev = NULL;
+      // If this is the first allocation on this env, save it off as the tail
+      // pointer
+      if(!env->mem_ptr) {
+          env->mem_tail_ptr = mbd;
+      }
       mbd->next = env->mem_ptr;
       /* add the block to the beginning of the linked list */
       if (mbd->next != NULL)
          mbd->next->prev = mbd;
       env->mem_ptr = mbd;
-#endif
       /* increase usage counts */
       size_t count = add_mem_count(1);
       set_mem_cpeak(count);
@@ -284,7 +286,7 @@ void glp_mem_limit(int limit)
     
 }
 
-void glp_mem_usage(int *count, int *cpeak, size_t *total,
+void glp_mem_usage(size_t *count, size_t *cpeak, size_t *total,
                    size_t *tpeak)
 {
     if (count != NULL)
