@@ -31,7 +31,6 @@
 #include <stdint.h>
 
 #include <cemitter.h>
-#include "env/memstats.h"
 
 #ifdef __cplusplus
 extern "C" {

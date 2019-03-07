@@ -46,75 +46,141 @@
 *  for book-keeping the memory usage statistics. */
 
 #ifdef HAVE_ENV
+
+/**
+ * "Unwrap" the memory block descriptor
+ */
+static inline MBD* ptr_to_mbd(void* ptr)
+{
+    MBD* mbd = (MBD *)((char *)ptr - MBD_SIZE);
+    xassert(mbd->self == mbd);
+    return mbd;
+}
+
+/**
+ * Take the mbd off the environment. Must only ever try to remove an mdb from the environment
+ * it was allocated on
+ */
+static inline void _remove_from_env(MBD* mbd, ENV* env)
+{
+    xassert(mbd->env == env);
+
+    MBD* before = mbd->prev;
+    MBD* after = mbd->next;
+
+    /* unlink ourselves */
+    if(after) {
+        after->prev = before;
+    }
+    if(before) {
+        before->next = after;
+    } else {
+        env->mem_ptr = after;
+    }
+
+    /* update counters */
+    if (get_mem_count() < 1 || get_mem_total() < mbd->size) {
+        xerror("unlinking mbd: memory allocation error\n");
+    }
+    add_mem_count(-1);
+    add_mem_total(-(mbd->size));
+}
+
+/**
+ * Free an mbd from an env. If the mbd's env and the current env mismatch, the block will *not* be deallocated yet,
+ * instead the deallocation will be deferred until the environment is freed
+ */
+static inline void* _free_mbd(MBD* mbd, ENV* env) {
+    if(mbd->env != env) {
+        return NULL;
+    }
+    _remove_from_env(mbd, env);
+    free(mbd);
+    return NULL;
+}
+
+static inline void _check_allocation(ENV* env, size_t size) 
+{
+    if (size > SIZE_T_MAX - MBD_SIZE)
+        xerror("block too large\n");
+    if (size + MBD_SIZE > get_mem_limit() - get_mem_total())
+        xerror("memory allocation limit exceeded\n");
+    if (get_mem_count() == INT_MAX)
+        xerror("too many memory blocks allocated\n");
+}
+
+static inline void _prepend_mbd_to_env(MBD* mbd, ENV* env, size_t size)
+{
+    xassert(mbd != NULL && env != NULL);
+    mbd->self = mbd;
+    mbd->size = size;
+    mbd->env = env;
+    mbd->prev = NULL;
+    mbd->next = env->mem_ptr;
+
+    if(mbd->next == NULL) {
+        env->mem_tail_ptr = mbd;
+    } else {
+        mbd->next->prev = mbd;
+    }
+
+    env->mem_ptr = mbd;
+    add_mem_count(1);
+    set_mem_cpeak();
+
+    add_mem_total(size);
+    set_mem_tpeak();
+}
+
+/**
+ * Calloc an mbd and add it to the env
+ */
+static inline void* _calloc_mbd(ENV* env, size_t size)
+{
+    MBD* mbd = NULL;
+    if(size == 0) {
+        return NULL;
+    }
+    _check_allocation(env, size);
+    xassert((mbd = calloc(1, size + MBD_SIZE)) != NULL);
+    _prepend_mbd_to_env(mbd, env, size);
+    return mbd;
+}
+
+/**
+ * Reallocate an mdb. This can *only* work if the mbd was previously allocated in this env. 
+ * (if size is 0, will free the mbd instead)
+ */
+static inline void* _realloc_mbd(MBD* mbd, ENV* env, size_t size)
+{
+    if(size == 0) {
+        return _free_mbd(mbd, env);
+    }
+    if(mbd->env != env) {
+        xerror("%s: ptr = %p; unable to reallocate from another environment", mbd);
+    }
+    _check_allocation(env, size);
+    _remove_from_env(mbd, env);
+    xassert((mbd = realloc(mbd, size + MBD_SIZE)) != NULL);
+    _prepend_mbd_to_env(mbd, env, size);
+    return mbd;
+}
+
 static void *dma(const char *func, void *ptr, size_t size)
 {
-      ENV *env = get_env_ptr();
-      MBD *mbd;
-      if (ptr == NULL)
-      {  /* new memory block will be allocated */
-         mbd = NULL;
-      }
-      else
-      {  /* allocated memory block will be reallocated or freed */
-         /* get pointer to the block descriptor */
-         mbd = (MBD *)((char *)ptr - MBD_SIZE);
-         /* make sure that the block descriptor is valid */
-         if (mbd->self != mbd)
+      ENV* env = get_env_ptr();
+      MBD* mbd = NULL;
+      if (ptr != NULL) {  
+         if ((mbd = ptr_to_mbd(ptr)) == NULL) {
             xerror("%s: ptr = %p; invalid pointer\n", func, ptr);
-         /* remove the block from the linked list */
-         mbd->self = NULL;
-         if (mbd->prev == NULL)
-            env->mem_ptr = mbd->next;
-         else
-            mbd->prev->next = mbd->next;
-         if (mbd->next == NULL)
-            ;
-         else
-            mbd->next->prev = mbd->prev;
-         /* decrease usage counts */
-         if (!(get_mem_count() >= 1 && get_mem_total() >= mbd->size))
-            xerror("%s: memory allocation error\n", func);
-         add_mem_count(-1);
-         add_mem_total(-(mbd->size));
-         if (size == 0)
-         {  /* free the memory block */
-            free(mbd);
-            return NULL;
+         }
+         if(size > 0) {
+             return (char*)_realloc_mbd(mbd, env, size) + MBD_SIZE;
+         } else {
+             return (char*) _free_mbd(mbd, env);
          }
       }
-      /* allocate/reallocate memory block */
-      if (size > SIZE_T_MAX - MBD_SIZE)
-         xerror("%s: block too large\n", func);
-      size += MBD_SIZE;
-      if (size > get_mem_limit() - get_mem_total())
-         xerror("%s: memory allocation limit exceeded\n", func);
-      if (get_mem_count() == INT_MAX)
-         xerror("%s: too many memory blocks allocated\n", func);
-      mbd = (mbd == NULL ? malloc(size) : realloc(mbd, size));
-      if (mbd == NULL)
-         xerror("%s: no memory available\n", func);
-      /* setup the block descriptor */
-      mbd->size = size;
-      mbd->self = mbd;
-      mbd->prev = NULL;
-      // If this is the first allocation on this env, save it off as the tail
-      // pointer
-      if(!env->mem_ptr) {
-          env->mem_tail_ptr = mbd;
-      }
-      mbd->next = env->mem_ptr;
-      /* add the block to the beginning of the linked list */
-      if (mbd->next != NULL)
-         mbd->next->prev = mbd;
-      env->mem_ptr = mbd;
-      /* increase usage counts */
-      size_t count = add_mem_count(1);
-      set_mem_cpeak(count);
-
-      size_t total = add_mem_total(size);
-      set_mem_tpeak(total);
-
-      return (char *)mbd + MBD_SIZE;
+      return (char*)_calloc_mbd(env, size) + MBD_SIZE;
 }
 
 /***********************************************************************
@@ -147,7 +213,8 @@ void *glp_alloc(int n, int size)
       if ((size_t)n > SIZE_T_MAX / (size_t)size)
          xerror("glp_alloc: n = %d, size = %d; block too large\n",
             n, size);
-      return dma("glp_alloc", NULL, (size_t)n * (size_t)size);
+      ENV* env = get_env_ptr();
+      return (char*)_calloc_mbd(env, (size_t)n * (size_t)size) + MBD_SIZE;
 }
 
 /**********************************************************************/
@@ -163,7 +230,8 @@ void *glp_realloc(void *ptr, int n, int size)
       if ((size_t)n > SIZE_T_MAX / (size_t)size)
          xerror("glp_realloc: n = %d, size = %d; block too large\n",
             n, size);
-      return dma("glp_realloc", ptr, (size_t)n * (size_t)size);
+      ENV* env = get_env_ptr();
+      return (char*)_realloc_mbd(ptr_to_mbd(ptr), env, (size_t)n * (size_t)size) + MBD_SIZE;
 }
 
 /***********************************************************************
@@ -182,10 +250,13 @@ void *glp_realloc(void *ptr, int n, int size)
 *  reallocated by the routine glp_realloc. */
 
 void glp_free(void *ptr)
-{     if (ptr == NULL)
-         xerror("glp_free: ptr = %p; invalid pointer\n", ptr);
-      dma("glp_free", ptr, 0);
-      return;
+{
+    if (ptr == NULL) {
+        xerror("glp_free: ptr = %p; invalid pointer\n", ptr);
+    }
+    ENV* env = get_env_ptr();
+    _free_mbd(ptr_to_mbd(ptr), env);
+    return;
 }
 
 /***********************************************************************
@@ -204,16 +275,11 @@ void glp_free(void *ptr)
 
 void glp_mem_limit(int limit)
 {     
-#ifndef GLOBAL_MEM_STATS
       ENV *env = get_env_ptr();
-#endif
-      if (limit < 1)
-         xerror("glp_mem_limit: limit = %d; invalid parameter\n",
-            limit);
-      if ((size_t)limit <= (SIZE_T_MAX >> 20))
-          set_mem_limit((size_t)limit << 20);
-      else
-          set_mem_limit(SIZE_T_MAX);
+      if (limit < 1) {
+         xerror("glp_mem_limit: limit = %d; invalid parameter\n", limit);
+      }
+      set_mem_limit(SIZE_T_MAX);
       return;
 }
 
@@ -250,7 +316,7 @@ void glp_mem_limit(int limit)
 void glp_mem_usage(size_t *count, size_t *cpeak, size_t *total,
       size_t *tpeak)
 {  
-#ifndef GLOBAL_MEM_STATS
+#ifdef HAVE_ENV
       ENV *env = get_env_ptr();
 #endif
       if (count != NULL)

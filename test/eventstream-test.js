@@ -27,6 +27,7 @@ describe('Verify eventemitter on Problem object', function() {
             }
         })
         lp.intopt({ msgLev: glp.MSG_ALL, presolve: glp.ON }, function() {
+            lp.delete()
         })
 
     })
@@ -47,6 +48,7 @@ describe('Verify eventemitter on Problem object', function() {
         })
         lp.intoptSync({ msgLev: glp.MSG_ALL, presolve: glp.ON })
         expect(idx).to.equal(messages.length)
+        lp.delete()
         done()
     })
 })
@@ -87,6 +89,7 @@ describe('Verify eventemitter on mathprog', function() {
             })
 
             mp.readModel(info.path, 0, function() {
+                mp.delete()
             })
         })
     })
@@ -122,6 +125,7 @@ describe('Verify eventemitter on mathprog', function() {
 
             mp.readModelSync(info.path, 0)
             expect(idx).to.equal(messages.length)
+            mp.delete()
             done()
         })
     })

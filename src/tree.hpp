@@ -50,20 +50,21 @@ namespace NodeGLPK {
             constructor.Reset(tpl);
         }
 
-        static Local<Value> Instantiate(glp_tree* tree, std::shared_ptr<glp_memstats> memstats) {
+        static Local<Value> Instantiate(glp_tree* tree, std::shared_ptr<glp_environ_state_t> env_state) {
             Local<Function> cons = Nan::New<FunctionTemplate>(constructor)->GetFunction();
             Local<Value> ret = Nan::NewInstance(cons).ToLocalChecked();
             Tree* host = ObjectWrap::Unwrap<Tree>(ret->ToObject());
-            host->memstats_ = memstats;
+            host->env_state_ = env_state;
             host->handle = tree;
             host->thread = false;
             return ret;
         }
     private:
-       explicit Tree()
+        Tree()
            : node::ObjectWrap(),
              emitter_(std::make_shared<NodeEvent::EventEmitter>()),
-             info_{std::make_shared<HookInfo>(emitter_, nullptr, nullptr)} {}
+             info_{std::make_shared<HookInfo>(emitter_)},
+             env_state_(make_shared_environ_state(info_)) {}
         ~Tree(){};
         
         static NAN_METHOD(New) {
@@ -211,8 +212,8 @@ namespace NodeGLPK {
         }
     private:
         std::shared_ptr<NodeEvent::EventEmitter> emitter_;
-        std::shared_ptr<glp_memstats> memstats_;
         std::shared_ptr<HookInfo> info_;
+        std::shared_ptr<glp_environ_state_t> env_state_;
         
     public:
         static Nan::Persistent<FunctionTemplate> constructor;

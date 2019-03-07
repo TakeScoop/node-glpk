@@ -21,8 +21,8 @@
 *  along with GLPK. If not, see <http://www.gnu.org/licenses/>.
 ***********************************************************************/
 
-#ifndef STDC_H
-#define STDC_H
+#ifndef GLPK_STDC_H
+#define GLPK_STDC_H
 
 #include <stdint.h>
 #include <ctype.h>

@@ -43,8 +43,7 @@ Nan::DefineOwnProperty(target, constant_name, constant_value, constant_attribute
 while (0)
 
 #define GLP_CREATE_HOOK_GUARDS(NAME) \
-    MemStatsGuard mguard{NAME->memstats_}; \
-    TermHookGuard hookguard{NAME->info_}
+    GLPKEnvStateGuard mguard{NAME->env_state_, NAME->info_}; \
 
 
 #define GLP_BIND_VOID_STR(CLASS, NAME, API)\
@@ -378,8 +377,7 @@ static NAN_METHOD(NAME) {\
     Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());\
     NAME##Worker *worker = new NAME##Worker(callback, lp, V8TOCSTRING(info[0]));\
     lp->thread = true;\
-    EventEmitterDecorator* eventemitting = new EventEmitterDecorator(worker, lp->emitter_); \
-    MemStatsDecorator* decorated = new MemStatsDecorator(eventemitting, lp->memstats_); \
+    GLPKEnvStateDecorator* decorated = new GLPKEnvStateDecorator(worker, lp->emitter_, lp->env_state_); \
     Nan::AsyncQueueWorker(decorated);\
 }\
 
@@ -424,8 +422,7 @@ static NAN_METHOD(NAME) {\
     Nan::Callback *callback = new Nan::Callback(info[2].As<Function>());\
     NAME##Worker *worker = new NAME##Worker(callback, lp, info[0]->Int32Value(), V8TOCSTRING(info[1]));\
     lp->thread = true;\
-    EventEmitterDecorator* eventemitting = new EventEmitterDecorator(worker, lp->emitter_); \
-    MemStatsDecorator* decorated = new MemStatsDecorator(eventemitting, lp->memstats_); \
+    GLPKEnvStateDecorator* decorated = new GLPKEnvStateDecorator(worker, lp->emitter_, lp->env_state_); \
     Nan::AsyncQueueWorker(decorated);\
 }\
 
@@ -461,8 +458,7 @@ static NAN_METHOD(NAME) {\
     Nan::Callback *callback = new Nan::Callback(info[0].As<Function>());\
     NAME##Worker *worker = new NAME##Worker(callback, lp);\
     lp->thread = true;\
-    EventEmitterDecorator* eventemitting = new EventEmitterDecorator(worker, lp->emitter_); \
-    MemStatsDecorator* decorated = new MemStatsDecorator(eventemitting, lp->memstats_); \
+    GLPKEnvStateDecorator* decorated = new GLPKEnvStateDecorator(worker, lp->emitter_, lp->env_state_); \
     Nan::AsyncQueueWorker(decorated);\
 }\
 
