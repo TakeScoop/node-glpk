@@ -377,15 +377,15 @@ void glp_free_env_state(glp_environ_state_t *env_state)
 
 struct glp_memory_counters glp_counters_from_state(glp_environ_state_t* env_state)
 {
-    struct glp_memory_counters env;
+    struct glp_memory_counters counters;
     xassert(environ_state_rdlock(env_state) == 0);
     {
-        env.mem_count = env_state->env->mem_count;
-        env.mem_total = env_state->env->mem_total;
-        env.mem_cpeak = env_state->env->mem_cpeak;
-        env.mem_tpeak = env_state->env->mem_tpeak;
+        counters.mem_count = env_state->env->mem_count;
+        counters.mem_total = env_state->env->mem_total;
+        counters.mem_cpeak = env_state->env->mem_cpeak;
+        counters.mem_tpeak = env_state->env->mem_tpeak;
     }
     xassert(environ_state_unlock(env_state) == 0);
-    return env;
+    return counters;
 }
 #endif

@@ -232,7 +232,8 @@ namespace NodeGLPK {
              emitter_(std::make_shared<NodeEvent::EventEmitter>()),
              info_{std::make_shared<HookInfo>(emitter_)},
              env_state_(make_shared_environ_state(info_)),
-            thread{false} {
+             counters_{0,0,0,0},
+            thread{false}{
 
            GLPKEnvStateGuard stateguard{env_state_, info_}; 
            handle = glp_create_prob();
@@ -273,10 +274,12 @@ namespace NodeGLPK {
             V8CHECK(info.Length() != 0, "Wrong number of arguments");
 
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
-            V8CHECK(!lp->env_state_, "object deleted");
-
             Local<v8::Object> ret = Nan::New<v8::Object>();
-            struct glp_memory_counters counters = glp_counters_from_state(lp->env_state_.get());
+
+            struct glp_memory_counters counters = lp->counters_;
+            if(lp->env_state_) {
+                counters = glp_counters_from_state(lp->env_state_.get());
+            } 
             ret->Set(Nan::New<v8::String>("count").ToLocalChecked(), Nan::New<v8::Number>(counters.mem_count));
             ret->Set(Nan::New<v8::String>("cpeak").ToLocalChecked(), Nan::New<v8::Number>(counters.mem_cpeak));
             ret->Set(Nan::New<v8::String>("total").ToLocalChecked(), Nan::New<v8::Number>(counters.mem_total));
@@ -1570,6 +1573,9 @@ namespace NodeGLPK {
             GLP_CATCH_RET(glp_delete_prob(obj->handle);)
             obj->emitter_->removeAllListeners();
             obj->handle = NULL;
+            obj->counters_ = glp_counters_from_state(obj-env_state_);
+            obj->counters_.mem_count = 0; // When we set env_state_ to null, these get freed
+            obj->counters_.mem_total = 0; // When we set env_state_ to null, these get freed
             obj->env_state_ = NULL;
         }
 
@@ -1606,6 +1612,7 @@ namespace NodeGLPK {
         std::shared_ptr<NodeEvent::EventEmitter> emitter_;
         std::shared_ptr<HookInfo> info_;
         std::shared_ptr<glp_environ_state_t> env_state_;
+        struct glp_memory_counters counters_;
     public:
         glp_prob *handle;
         std::atomic<bool> thread;

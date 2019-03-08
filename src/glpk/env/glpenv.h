@@ -188,7 +188,7 @@ static inline __attribute__((always_inline)) void _set_mem_tpeak_func(ENV* env) 
 }
 
 static inline __attribute__((always_inline)) void _set_mem_cpeak_func(ENV* env) {
-    _set_peak_tls(cpeak, cpeak);
+    _set_peak_tls(count, cpeak);
     _set_peak(count, cpeak);
 }
 #endif // ifdef HAVE_ENV
