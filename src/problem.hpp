@@ -1573,7 +1573,7 @@ namespace NodeGLPK {
             GLP_CATCH_RET(glp_delete_prob(obj->handle);)
             obj->emitter_->removeAllListeners();
             obj->handle = NULL;
-            obj->counters_ = glp_counters_from_state(obj-env_state_);
+            obj->counters_ = glp_counters_from_state(obj->env_state_.get());
             obj->counters_.mem_count = 0; // When we set env_state_ to null, these get freed
             obj->counters_.mem_total = 0; // When we set env_state_ to null, these get freed
             obj->env_state_ = NULL;
