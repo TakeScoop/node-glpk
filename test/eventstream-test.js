@@ -88,9 +88,7 @@ describe('Verify eventemitter on mathprog', function() {
                 }
             })
 
-            mp.readModel(info.path, 0, function() {
-                mp.delete()
-            })
+            mp.readModel(info.path, 0, function() { })
         })
     })
 
