@@ -161,7 +161,8 @@ static inline void* _realloc_mbd(MBD* mbd, ENV* env, size_t size)
     }
     _check_allocation(env, size);
     _remove_from_env(mbd, env);
-    xassert((mbd = realloc(mbd, size + MBD_SIZE)) != NULL);
+        mbd = realloc(mbd, size + MBD_SIZE);
+        xassert(mdb != NULL);
     _prepend_mbd_to_env(mbd, env, size);
     return mbd;
 }
