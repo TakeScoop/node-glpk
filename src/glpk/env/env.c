@@ -271,7 +271,8 @@ static inline int environ_state_wrlock(glp_environ_state_t *env_state)
 {
     return pthread_rwlock_wrlock(&env_state->env_lock);
 }
-/** Free lock
+/**
+ * Free lock
  */
 static inline int environ_state_unlock(glp_environ_state_t* env_state)
 {
