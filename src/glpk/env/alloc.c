@@ -48,7 +48,7 @@
 #ifdef HAVE_ENV
 
 /**
- * "Unwrap" the memory block descriptor
+ * Return the memory block descriptor for a memory block that was allocated by glp_alloc.
  */
 static inline MBD* ptr_to_mbd(void* ptr)
 {
