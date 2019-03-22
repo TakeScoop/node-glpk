@@ -263,6 +263,7 @@ static inline int environ_state_rdlock(glp_environ_state_t *env_state)
 {
     return pthread_rwlock_rdlock(&env_state->env_lock);
 }
+
 /**
  * Get env lock
  */
