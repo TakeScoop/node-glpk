@@ -43,7 +43,7 @@ Nan::DefineOwnProperty(target, constant_name, constant_value, constant_attribute
 while (0)
 
 #define GLP_CREATE_HOOK_GUARDS(NAME) \
-    GLPKEnvStateGuard mguard{NAME->env_state_, NAME->info_}; \
+    GLPKEnvStateGuard mguard{(NAME)->env_state_, (NAME)->info_}; \
 
 
 #define GLP_BIND_VOID_STR(CLASS, NAME, API)\
