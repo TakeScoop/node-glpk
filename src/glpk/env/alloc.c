@@ -148,7 +148,7 @@ static inline void* _calloc_mbd(ENV* env, size_t size)
 }
 
 /**
- * Reallocate an mdb. This can *only* work if the mbd was previously allocated in this env. 
+ * Reallocate an mbd. This can *only* work if the mbd was previously allocated in this env. 
  * (if size is 0, will free the mbd instead)
  */
 static inline void* _realloc_mbd(MBD* mbd, ENV* env, size_t size)
