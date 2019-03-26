@@ -330,9 +330,14 @@ void glp_env_tls_finalize_r(glp_environ_state_t* env_state)
     glp_free_env();
 }
 
+/**
+ * This initializes thread-local storage from a given env_state and info.
+ * @param[in] env_state - environment to intialize TLS from
+ * @param[in] info - info to initialize env->term_info with if specified
+ *                   (supersedes any info in the env_state).
+ */
 void glp_env_tls_init_r(glp_environ_state_t *env_state, void* info) 
 {
- //   glp_init_env();
     ENV *env = get_env_ptr();
     if (info != NULL) env->term_info = info;
 
@@ -353,7 +358,12 @@ void glp_env_tls_init_r(glp_environ_state_t *env_state, void* info)
     xassert(environ_state_unlock(env_state) == 0);
 }
 
-/** Initialize environment state (per problem, etc) 
+/**
+ * Initialize environment state (per problem, etc)
+ * @param[in] default_info - The resulting env_state's term_info will be set to default_info
+ * @param[in] nodeHookCallback - The callback to set term_hook to.
+ *
+ * @return a heap allocated and initialized env_state
  */
 glp_environ_state_t* glp_init_env_state(void* default_info, int (*nodeHookCallback)(void*, const char*))
 {

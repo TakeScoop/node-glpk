@@ -58,7 +58,7 @@ static inline MBD* ptr_to_mbd(void* ptr)
 }
 
 /**
- * Take the mbd off the environment. Must only ever try to remove an mdb from the environment
+ * Take the mbd off the environment. Must only ever try to remove an mbd from the environment
  * it was allocated on
  */
 static inline void _remove_from_env(MBD* mbd, ENV* env)
@@ -79,39 +79,53 @@ static inline void _remove_from_env(MBD* mbd, ENV* env)
     }
 
     /* update counters */
-    if (get_mem_count() < 1 || get_mem_total() < mbd->size) {
-        xerror("unlinking mbd: memory allocation error\n");
+    if (GET_MEM_COUNT() < 1 || GET_MEM_TOTAL() < mbd->size) {
+        xerror("unlinking mbd: memory deallocation error; inconsistent state\n");
     }
-    add_mem_count(-1);
-    add_mem_total(-(mbd->size));
+    ADD_MEM_COUNT(-1);
+    ADD_MEM_TOTAL(-(mbd->size));
 }
 
 /**
  * Free an mbd from an env. If the mbd's env and the current env mismatch, the block will *not* be deallocated yet,
  * instead the deallocation will be deferred until the environment is freed
  */
-static inline void* _free_mbd(MBD* mbd, ENV* env) {
-    if(mbd->env != env) {
-        return NULL;
+static inline void _free_mbd(MBD* mbd, ENV* env) {
+    if(mbd->env == env) {
+        _remove_from_env(mbd, env);
+        free(mbd);
     }
-    _remove_from_env(mbd, env);
-    free(mbd);
-    return NULL;
 }
 
+/**
+ * Ensure that the requested allocation is reasonable
+ */
 static inline void _check_allocation(ENV* env, size_t size) 
 {
-    if (size > SIZE_T_MAX - MBD_SIZE)
+    if (size > SIZE_T_MAX - MBD_SIZE) {
         xerror("block too large\n");
-    if (size + MBD_SIZE > get_mem_limit() - get_mem_total())
+    }
+    if (size + MBD_SIZE > GET_MEM_LIMIT() - GET_MEM_TOTAL()) {
         xerror("memory allocation limit exceeded\n");
-    if (get_mem_count() == INT_MAX)
+    }
+    if (GET_MEM_COUNT() == SIZE_T_MAX) {
         xerror("too many memory blocks allocated\n");
+    }
 }
 
+/**
+ * Finish the definition of an mbd, and prepend the memory-block-descriptor to the head of the linked-list of tracked
+ * mbd's This happens in O(1)
+ *
+ * @param[in,out] mbd - The memory descriptor block we will prepend to the list
+ * @param[in,out] env - where we will prepend the mbd
+ * @param[in] size - What size we allocatd the mbd to.
+ *
+ */
 static inline void _prepend_mbd_to_env(MBD* mbd, ENV* env, size_t size)
 {
-    xassert(mbd != NULL && env != NULL);
+    xassert(mbd != NULL);
+    xassert(env != NULL);
     mbd->self = mbd;
     mbd->size = size;
     mbd->env = env;
@@ -125,11 +139,11 @@ static inline void _prepend_mbd_to_env(MBD* mbd, ENV* env, size_t size)
     }
 
     env->mem_ptr = mbd;
-    add_mem_count(1);
-    set_mem_cpeak();
+    ADD_MEM_COUNT(1);
+    SET_MEM_CPEAK();
 
-    add_mem_total(size);
-    set_mem_tpeak();
+    ADD_MEM_TOTAL(size);
+    SET_MEM_TPEAK();
 }
 
 /**
@@ -142,7 +156,8 @@ static inline void* _calloc_mbd(ENV* env, size_t size)
         return NULL;
     }
     _check_allocation(env, size);
-    xassert((mbd = calloc(1, size + MBD_SIZE)) != NULL);
+    mbd = calloc(1, size + MBD_SIZE);
+    xassert(mbd != NULL);
     _prepend_mbd_to_env(mbd, env, size);
     return mbd;
 }
@@ -154,34 +169,18 @@ static inline void* _calloc_mbd(ENV* env, size_t size)
 static inline void* _realloc_mbd(MBD* mbd, ENV* env, size_t size)
 {
     if(size == 0) {
-        return _free_mbd(mbd, env);
+        _free_mbd(mbd, env);
+        return NULL;
     }
     if(mbd->env != env) {
-        xerror("%s: ptr = %p; unable to reallocate from another environment", mbd);
+        xerror("ptr = %p; unable to reallocate from another environment\n", mbd);
     }
     _check_allocation(env, size);
     _remove_from_env(mbd, env);
-        mbd = realloc(mbd, size + MBD_SIZE);
-        xassert(mdb != NULL);
+    mbd = realloc(mbd, size + MBD_SIZE);
+    xassert(mbd != NULL);
     _prepend_mbd_to_env(mbd, env, size);
     return mbd;
-}
-
-static void *dma(const char *func, void *ptr, size_t size)
-{
-      ENV* env = get_env_ptr();
-      MBD* mbd = NULL;
-      if (ptr != NULL) {  
-         if ((mbd = ptr_to_mbd(ptr)) == NULL) {
-            xerror("%s: ptr = %p; invalid pointer\n", func, ptr);
-         }
-         if(size > 0) {
-             return (char*)_realloc_mbd(mbd, env, size) + MBD_SIZE;
-         } else {
-             return (char*) _free_mbd(mbd, env);
-         }
-      }
-      return (char*)_calloc_mbd(env, size) + MBD_SIZE;
 }
 
 /***********************************************************************
@@ -207,32 +206,38 @@ static void *dma(const char *func, void *ptr, size_t size)
 *  To free this block the routine glp_free (not free!) must be used. */
 
 void *glp_alloc(int n, int size)
-{     if (n < 1)
-         xerror("glp_alloc: n = %d; invalid parameter\n", n);
-      if (size < 1)
-         xerror("glp_alloc: size = %d; invalid parameter\n", size);
-      if ((size_t)n > SIZE_T_MAX / (size_t)size)
-         xerror("glp_alloc: n = %d, size = %d; block too large\n",
-            n, size);
-      ENV* env = get_env_ptr();
-      return (char*)_calloc_mbd(env, (size_t)n * (size_t)size) + MBD_SIZE;
+{
+    if (n < 1) {
+        xerror("glp_alloc: n = %d; invalid parameter\n", n);
+    }
+    if (size < 1) {
+        xerror("glp_alloc: size = %d; invalid parameter\n", size);
+    }
+    if ((size_t)n > SIZE_T_MAX / (size_t)size) {
+        xerror("glp_alloc: n = %d, size = %d; block too large\n", n, size);
+    }
+    ENV* env = get_env_ptr();
+    return (char*)_calloc_mbd(env, (size_t)n * (size_t)size) + MBD_SIZE;
 }
 
 /**********************************************************************/
-
+/* reallocate memory block */
 void *glp_realloc(void *ptr, int n, int size)
-{     /* reallocate memory block */
-      if (ptr == NULL)
-         xerror("glp_realloc: ptr = %p; invalid pointer\n", ptr);
-      if (n < 1)
-         xerror("glp_realloc: n = %d; invalid parameter\n", n);
-      if (size < 1)
-         xerror("glp_realloc: size = %d; invalid parameter\n", size);
-      if ((size_t)n > SIZE_T_MAX / (size_t)size)
-         xerror("glp_realloc: n = %d, size = %d; block too large\n",
-            n, size);
-      ENV* env = get_env_ptr();
-      return (char*)_realloc_mbd(ptr_to_mbd(ptr), env, (size_t)n * (size_t)size) + MBD_SIZE;
+{     
+    if (ptr == NULL) {
+        xerror("glp_realloc: ptr = %p; invalid pointer\n", ptr);
+    }
+    if (n < 1) {
+        xerror("glp_realloc: n = %d; invalid parameter\n", n);
+    }
+    if (size < 1) {
+        xerror("glp_realloc: size = %d; invalid parameter\n", size);
+    }
+    if ((size_t)n > SIZE_T_MAX / (size_t)size) {
+        xerror("glp_realloc: n = %d, size = %d; block too large\n", n, size);
+    }
+    ENV* env = get_env_ptr();
+    return (char*)_realloc_mbd(ptr_to_mbd(ptr), env, (size_t)n * (size_t)size) + MBD_SIZE;
 }
 
 /***********************************************************************
@@ -280,7 +285,7 @@ void glp_mem_limit(int limit)
       if (limit < 1) {
          xerror("glp_mem_limit: limit = %d; invalid parameter\n", limit);
       }
-      set_mem_limit(SIZE_T_MAX);
+      SET_MEM_LIMIT(SIZE_T_MAX);
       return;
 }
 
@@ -321,13 +326,13 @@ void glp_mem_usage(size_t *count, size_t *cpeak, size_t *total,
       ENV *env = get_env_ptr();
 #endif
       if (count != NULL)
-         *count = get_mem_count();
+         *count = GET_MEM_COUNT();
       if (cpeak != NULL)
-         *cpeak = get_mem_cpeak();
+         *cpeak = GET_MEM_CPEAK();
       if (total != NULL)
-         *total = get_mem_total();
+         *total = GET_MEM_TOTAL();
       if (tpeak != NULL)
-         *tpeak = get_mem_tpeak();
+         *tpeak = GET_MEM_TPEAK();
       return;
 }
 

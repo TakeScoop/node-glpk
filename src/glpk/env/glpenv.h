@@ -67,18 +67,18 @@ typedef struct _glp_environ_state {
 #define _set_peak_tls(NAME, PEAK) _set_peak(NAME##_tls, PEAK##_tls)
 
 
-#define get_mem_count() env->mem_count
-#define get_mem_total() env->mem_total
+#define GET_MEM_COUNT() env->mem_count
+#define GET_MEM_TOTAL() env->mem_total
 
-#define get_mem_limit() env->mem_limit
-#define get_mem_cpeak() env->mem_cpeak
-#define get_mem_tpeak() env->mem_tpeak
+#define GET_MEM_LIMIT() env->mem_limit
+#define GET_MEM_CPEAK() env->mem_cpeak
+#define GET_MEM_TPEAK() env->mem_tpeak
 
-#define set_mem_limit(VALUE) (env->mem_limit = VALUE)
-#define set_mem_tpeak() _set_mem_tpeak_func(env);
-#define set_mem_cpeak() _set_mem_cpeak_func(env);
-#define add_mem_count(x) _add_mem_count_func(env, x);
-#define add_mem_total(x) _add_mem_total_func(env, x);
+#define SET_MEM_LIMIT(VALUE) (env->mem_limit = VALUE)
+#define SET_MEM_TPEAK() _set_mem_tpeak_func(env);
+#define SET_MEM_CPEAK() _set_mem_cpeak_func(env);
+#define ADD_MEM_COUNT(x) _add_mem_count_func(env, x);
+#define ADD_MEM_TOTAL(x) _add_mem_total_func(env, x);
 
 struct ENV
 {     /* GLPK environment block */
