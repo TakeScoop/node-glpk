@@ -18,7 +18,8 @@ namespace NodeGLPK {
 std::vector<term_hook_fn> TermHookManager::term_hooks_{stdoutTermHook, eventTermHook}; 
 NodeEvent::uv_rwlock TermHookManager::lock_;
 
-static std::atomic<bool> term_output{false};
+std::atomic<bool> term_output{false};
+MemoryStatistics _global_memory_statistics{};
 
 int stdoutTermHook(void*, const char *s) {
     if(term_output.load()) {
@@ -58,15 +59,12 @@ extern "C" {
 #ifdef HAVE_ENV
     NAN_METHOD(glpMemInfo) {
         V8CHECK(info.Length() != 0, "Wrong number of arguments");
-        size_t count, cpeak, total, tpeak;
-
-        glp_mem_usage(&count, &cpeak, &total, &tpeak);
 
         Local<v8::Object> ret = Nan::New<v8::Object>();
-        ret->Set(Nan::New<v8::String>("count").ToLocalChecked(), Nan::New<v8::Number>(count));
-        ret->Set(Nan::New<v8::String>("cpeak").ToLocalChecked(), Nan::New<v8::Number>(cpeak));
-        ret->Set(Nan::New<v8::String>("total").ToLocalChecked(), Nan::New<v8::Number>(total));
-        ret->Set(Nan::New<v8::String>("tpeak").ToLocalChecked(), Nan::New<v8::Number>(tpeak));
+        ret->Set(Nan::New<v8::String>("count").ToLocalChecked(), Nan::New<v8::Number>(_global_memory_statistics.count()));
+        ret->Set(Nan::New<v8::String>("cpeak").ToLocalChecked(), Nan::New<v8::Number>(_global_memory_statistics.cpeak()));
+        ret->Set(Nan::New<v8::String>("total").ToLocalChecked(), Nan::New<v8::Number>(_global_memory_statistics.total()));
+        ret->Set(Nan::New<v8::String>("tpeak").ToLocalChecked(), Nan::New<v8::Number>(_global_memory_statistics.tpeak()));
 
         info.GetReturnValue().Set(ret);
     }

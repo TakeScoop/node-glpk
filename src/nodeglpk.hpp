@@ -34,9 +34,57 @@ struct HookInfo {
     eventemitter_fn_r fn;
 };
 
+/**
+ * MemoryStatistics is a threadsafe container for keeping track the various memory counters that can exist.
+ * This is suitable for use as a global/singleton static object.
+ */
+class MemoryStatistics {
+ public:
+     MemoryStatistics() : counters_{0,0,0,0}, lock_{} {}
+     ~MemoryStatistics() noexcept = default;
+
+     size_t count() {
+         NodeEvent::shared_lock<NodeEvent::uv_rwlock> guard{lock_};
+         return counters_.mem_count;
+     }
+
+     size_t cpeak() {
+         NodeEvent::shared_lock<NodeEvent::uv_rwlock> guard{lock_};
+         return counters_.mem_cpeak;
+     }
+
+     size_t total() {
+         NodeEvent::shared_lock<NodeEvent::uv_rwlock> guard{lock_};
+         return counters_.mem_total;
+     }
+
+     size_t tpeak() {
+         NodeEvent::shared_lock<NodeEvent::uv_rwlock> guard{lock_};
+         return counters_.mem_tpeak;
+     }
+
+     void updateCounters(struct glp_memory_counters& before, struct glp_memory_counters& now) {
+         std::unique_lock<NodeEvent::uv_rwlock> guard{lock_};
+
+         counters_.mem_count = counters_.mem_count - before.mem_count + now.mem_count;
+         counters_.mem_cpeak = counters_.mem_cpeak - before.mem_cpeak + now.mem_cpeak;
+         counters_.mem_total = counters_.mem_total - before.mem_total + now.mem_total;
+         counters_.mem_tpeak = counters_.mem_tpeak - before.mem_tpeak + now.mem_tpeak;
+     }
+
+
+
+ private:
+    struct glp_memory_counters counters_;
+    NodeEvent::uv_rwlock lock_;
+};
+
 int stdoutTermHook(void*, const char* s);
 int eventTermHook(void* info, const char* s);
 void _ErrorHook(void* s);
+
+extern MemoryStatistics _global_memory_statistics;
+
 
 /// TermHookManager provides static methods for managing TermHooks, and hook registration
 class TermHookManager {
@@ -92,7 +140,12 @@ class GLPKEnvStateGuard {
         using namespace std;
         glp_env_tls_init_r(env_state_.get(), static_cast<void*>(info.get()));
     }
-    ~GLPKEnvStateGuard() noexcept { glp_env_tls_finalize_r(env_state_.get()); }
+    ~GLPKEnvStateGuard() noexcept {
+        struct glp_memory_counters counters1 = glp_counters_from_state(env_state_.get());
+        glp_env_tls_finalize_r(env_state_.get());
+        struct glp_memory_counters counters2 = glp_counters_from_state(env_state_.get());
+        _global_memory_statistics.updateCounters(counters1, counters2);
+    }
  private:
     std::shared_ptr<glp_environ_state_t> env_state_;
 };
