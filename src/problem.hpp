@@ -230,21 +230,22 @@ namespace NodeGLPK {
        explicit Problem()
            : node::ObjectWrap(),
              emitter_(std::make_shared<NodeEvent::EventEmitter>()),
-             memstats_(std::make_shared<glp_memstats>()),
-             info_{std::make_shared<HookInfo>(emitter_, nullptr, nullptr)} {
-           
-           TermHookGuard hookguard{info_};
-           MemStatsGuard mguard{memstats_}; 
+             info_{std::make_shared<HookInfo>(emitter_)},
+             env_state_(make_shared_environ_state(info_)),
+             counters_{0,0,0,0},
+            thread{false}{
+
+           GLPKEnvStateGuard stateguard{env_state_, info_}; 
            handle = glp_create_prob();
-           thread = false;
         }
 
         ~Problem(){
             if (handle) {
-                TermHookGuard hookguard{info_};
-                MemStatsGuard mguard{memstats_}; 
+                GLPKEnvStateGuard stateguard{env_state_, info_}; 
                 glp_delete_prob(handle);
+                handle = NULL;
             }
+            emitter_->removeAllListeners();
         }
        
         static NAN_METHOD(New) {
@@ -273,13 +274,16 @@ namespace NodeGLPK {
             V8CHECK(info.Length() != 0, "Wrong number of arguments");
 
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
-            V8CHECK(!lp->memstats_, "object deleted");
-
             Local<v8::Object> ret = Nan::New<v8::Object>();
-            ret->Set(Nan::New<v8::String>("count").ToLocalChecked(), Nan::New<v8::Number>(lp->memstats_->problem_mem_count));
-            ret->Set(Nan::New<v8::String>("cpeak").ToLocalChecked(), Nan::New<v8::Number>(lp->memstats_->problem_mem_cpeak));
-            ret->Set(Nan::New<v8::String>("total").ToLocalChecked(), Nan::New<v8::Number>(lp->memstats_->problem_mem_total));
-            ret->Set(Nan::New<v8::String>("tpeak").ToLocalChecked(), Nan::New<v8::Number>(lp->memstats_->problem_mem_tpeak));
+
+            struct glp_memory_counters counters = lp->counters_;
+            if(lp->env_state_) {
+                counters = glp_counters_from_state(lp->env_state_.get());
+            } 
+            ret->Set(Nan::New<v8::String>("count").ToLocalChecked(), Nan::New<v8::Number>(counters.mem_count));
+            ret->Set(Nan::New<v8::String>("cpeak").ToLocalChecked(), Nan::New<v8::Number>(counters.mem_cpeak));
+            ret->Set(Nan::New<v8::String>("total").ToLocalChecked(), Nan::New<v8::Number>(counters.mem_total));
+            ret->Set(Nan::New<v8::String>("tpeak").ToLocalChecked(), Nan::New<v8::Number>(counters.mem_tpeak));
 
             info.GetReturnValue().Set(ret);
         }
@@ -375,8 +379,7 @@ namespace NodeGLPK {
                 return;
             }
             lp->thread = true;
-            EventEmitterDecorator* eventemitting = new EventEmitterDecorator(worker, lp->emitter_);
-            MemStatsDecorator* decorated = new MemStatsDecorator(eventemitting, lp->memstats_);
+            GLPKEnvStateDecorator* decorated = new GLPKEnvStateDecorator(worker, lp->emitter_, lp->env_state_);
             Nan::AsyncQueueWorker(decorated);
         }
         
@@ -441,8 +444,7 @@ namespace NodeGLPK {
                 return;
             }
             lp->thread = true;
-            EventEmitterDecorator* eventemitting = new EventEmitterDecorator(worker, lp->emitter_);
-            MemStatsDecorator* decorated = new MemStatsDecorator(eventemitting, lp->memstats_);
+            GLPKEnvStateDecorator* decorated = new GLPKEnvStateDecorator(worker, lp->emitter_, lp->env_state_);
             Nan::AsyncQueueWorker(decorated);
         }
         
@@ -528,8 +530,7 @@ namespace NodeGLPK {
                 return;
             }
             lp->thread = true;
-            EventEmitterDecorator* eventemitting = new EventEmitterDecorator(worker, lp->emitter_);
-            MemStatsDecorator* decorated = new MemStatsDecorator(eventemitting, lp->memstats_);
+            GLPKEnvStateDecorator* decorated = new GLPKEnvStateDecorator(worker, lp->emitter_, lp->env_state_);
             Nan::AsyncQueueWorker(decorated);
         }
         
@@ -634,8 +635,7 @@ namespace NodeGLPK {
                 return;
             }
             lp->thread = true;
-            EventEmitterDecorator* eventemitting = new EventEmitterDecorator(worker, lp->emitter_);
-            MemStatsDecorator* decorated = new MemStatsDecorator(eventemitting, lp->memstats_);
+            GLPKEnvStateDecorator* decorated = new GLPKEnvStateDecorator(worker, lp->emitter_, lp->env_state_);
             Nan::AsyncQueueWorker(decorated);
         }
         
@@ -711,16 +711,15 @@ namespace NodeGLPK {
                 return;
             }
             lp->thread = true;
-            EventEmitterDecorator* eventemitting = new EventEmitterDecorator(worker, lp->emitter_);
-            MemStatsDecorator* decorated = new MemStatsDecorator(eventemitting, lp->memstats_);
+            GLPKEnvStateDecorator* decorated = new GLPKEnvStateDecorator(worker, lp->emitter_, lp->env_state_);
             Nan::AsyncQueueWorker(decorated);
         }
  
         struct IocpCallbackInfo {
-            IocpCallbackInfo(Nan::Callback* cb, std::shared_ptr<glp_memstats> ms) : callback(cb), memstats(ms) {}
+            IocpCallbackInfo(Nan::Callback* cb, std::shared_ptr<glp_environ_state_t> ms) : callback(cb), env_state_(ms) {}
             ~IocpCallbackInfo() noexcept { delete callback; }
             Nan::Callback* callback;
-            std::shared_ptr<glp_memstats> memstats;
+            std::shared_ptr<glp_environ_state_t> env_state_;
         };
        
         
@@ -728,7 +727,7 @@ namespace NodeGLPK {
         static void IocpCallback(glp_tree *T, void *info){
             IocpCallbackInfo* cbinfo = static_cast<IocpCallbackInfo*>(info);
             const unsigned argc = 1;
-            Local<Value> t = Tree::Instantiate(T, cbinfo->memstats);
+            Local<Value> t = Tree::Instantiate(T, cbinfo->env_state_);
             Local<Value> argv[argc] = {Nan::New<Value>(t)};
             cbinfo->callback->Call(argc, argv);
             Tree* host = ObjectWrap::Unwrap<Tree>(t->ToObject());
@@ -816,7 +815,7 @@ namespace NodeGLPK {
                     } else if (keystr == "cbFunc"){
                         V8CHECKBOOL(!val->IsFunction(), "cbFunc: should be a function");
                         iocp->cb_func = IocpCallback;
-                        iocp->cb_info = new IocpCallbackInfo(new Nan::Callback(Local<Function>::Cast(val)), lp->memstats_);
+                        iocp->cb_info = new IocpCallbackInfo(new Nan::Callback(Local<Function>::Cast(val)), lp->env_state_);
                     } else if (keystr == "cbReasons"){
                         V8CHECKBOOL(!val->IsInt32(), "cbReason: should be int32");
                         iocp->cb_reasons = val->Int32Value();
@@ -981,8 +980,7 @@ namespace NodeGLPK {
                 return;
             }
             lp->thread = true;
-            EventEmitterDecorator* eventemitting = new EventEmitterDecorator(worker, lp->emitter_);
-            MemStatsDecorator* decorated = new MemStatsDecorator(eventemitting, lp->memstats_);
+            GLPKEnvStateDecorator* decorated = new GLPKEnvStateDecorator(worker, lp->emitter_, lp->env_state_);
             Nan::AsyncQueueWorker(decorated);
         }
         
@@ -1037,8 +1035,7 @@ namespace NodeGLPK {
             Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
             ReadLpWorker *worker = new ReadLpWorker(callback, lp, V8TOCSTRING(info[0]));
             lp->thread = true;
-            EventEmitterDecorator* eventemitting = new EventEmitterDecorator(worker, lp->emitter_);
-            MemStatsDecorator* decorated = new MemStatsDecorator(eventemitting, lp->memstats_);
+            GLPKEnvStateDecorator* decorated = new GLPKEnvStateDecorator(worker, lp->emitter_, lp->env_state_);
             Nan::AsyncQueueWorker(decorated);
         }
         
@@ -1092,8 +1089,7 @@ namespace NodeGLPK {
             Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
             WriteLpWorker *worker = new WriteLpWorker(callback, lp, V8TOCSTRING(info[0]));
             lp->thread = true;
-            EventEmitterDecorator* eventemitting = new EventEmitterDecorator(worker, lp->emitter_);
-            MemStatsDecorator* decorated = new MemStatsDecorator(eventemitting, lp->memstats_);
+            GLPKEnvStateDecorator* decorated = new GLPKEnvStateDecorator(worker, lp->emitter_, lp->env_state_);
             Nan::AsyncQueueWorker(decorated);
         }
         
@@ -1214,8 +1210,7 @@ namespace NodeGLPK {
             }
             
             lp->thread = true;
-            EventEmitterDecorator* eventemitting = new EventEmitterDecorator(worker, lp->emitter_);
-            MemStatsDecorator* decorated = new MemStatsDecorator(eventemitting, lp->memstats_);
+            GLPKEnvStateDecorator* decorated = new GLPKEnvStateDecorator(worker, lp->emitter_, lp->env_state_);
             Nan::AsyncQueueWorker(decorated);
         }
         
@@ -1326,8 +1321,7 @@ namespace NodeGLPK {
             Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
             ScaleWorker *worker = new ScaleWorker(callback, lp, info[0]->Int32Value());
             lp->thread = true;
-            EventEmitterDecorator* eventemitting = new EventEmitterDecorator(worker, lp->emitter_);
-            MemStatsDecorator* decorated = new MemStatsDecorator(eventemitting, lp->memstats_);
+            GLPKEnvStateDecorator* decorated = new GLPKEnvStateDecorator(worker, lp->emitter_, lp->env_state_);
             Nan::AsyncQueueWorker(decorated);
         }
         
@@ -1368,8 +1362,7 @@ namespace NodeGLPK {
             Nan::Callback *callback = new Nan::Callback(info[0].As<Function>());
             FactorizeWorker *worker = new FactorizeWorker(callback, lp);
             lp->thread = true;
-            EventEmitterDecorator* eventemitting = new EventEmitterDecorator(worker, lp->emitter_);
-            MemStatsDecorator* decorated = new MemStatsDecorator(eventemitting, lp->memstats_);
+            GLPKEnvStateDecorator* decorated = new GLPKEnvStateDecorator(worker, lp->emitter_, lp->env_state_);
             Nan::AsyncQueueWorker(decorated);
         }
         
@@ -1571,7 +1564,21 @@ namespace NodeGLPK {
         
         GLP_BIND_VALUE_INT32(Problem, GetColBind, glp_get_col_bind);
         
-        GLP_BIND_DELETE(Problem, Delete, glp_delete_prob);
+        static NAN_METHOD(Delete) {
+            Problem* obj = ObjectWrap::Unwrap<Problem>(info.Holder());
+            V8CHECK(!obj->handle, "object already deleted");
+            V8CHECK(obj->thread, "an async operation is inprogress")
+
+            GLP_CREATE_HOOK_GUARDS(obj); 
+            GLP_CATCH_RET(glp_delete_prob(obj->handle);)
+            obj->emitter_->removeAllListeners();
+            _global_memory_statistics.removeStateCounters(obj->env_state_, obj->counters_);
+
+            if(obj->handle) glp_delete_prob(obj->handle);
+            obj->handle = NULL;
+            obj->env_state_ = NULL;
+        }
+
         
         //void glp_ftran(glp_prob *P, double x[]);
         
@@ -1603,8 +1610,9 @@ namespace NodeGLPK {
         static Nan::Persistent<FunctionTemplate> constructor;
 
         std::shared_ptr<NodeEvent::EventEmitter> emitter_;
-        std::shared_ptr<glp_memstats> memstats_;
         std::shared_ptr<HookInfo> info_;
+        std::shared_ptr<glp_environ_state_t> env_state_;
+        struct glp_memory_counters counters_;
     public:
         glp_prob *handle;
         std::atomic<bool> thread;

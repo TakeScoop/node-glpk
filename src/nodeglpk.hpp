@@ -19,9 +19,10 @@ typedef NodeEvent::AsyncEventEmittingReentrantCWorker<32> ReentrantCWorker;
 
 /// The state information passed to all term_hooks. 
 struct HookInfo {
-    HookInfo(std::shared_ptr<NodeEvent::EventEmitter> emit, const ReentrantCWorker::ExecutionProgressSender* send,
-             eventemitter_fn_r func)
-        : emitter(emit), sender(send), fn(func) {}
+    explicit HookInfo(std::shared_ptr<NodeEvent::EventEmitter> emit) : emitter(emit) {}
+        
+    HookInfo(const ReentrantCWorker::ExecutionProgressSender* send,
+             eventemitter_fn_r func) : sender(send), fn(func) {}
 
     /// An emitter. Will be used if not-null, ignoring anything else.
     std::shared_ptr<NodeEvent::EventEmitter> emitter;
@@ -33,9 +34,66 @@ struct HookInfo {
     eventemitter_fn_r fn;
 };
 
+/**
+ * MemoryStatistics is a threadsafe container for keeping track the various memory counters that can exist.
+ * This is suitable for use as a global/singleton static object.
+ */
+class MemoryStatistics {
+ public:
+     MemoryStatistics() : counters_{0,0,0,0}, lock_{} {}
+     ~MemoryStatistics() noexcept = default;
+
+     size_t count() {
+         NodeEvent::shared_lock<NodeEvent::uv_rwlock> guard{lock_};
+         return counters_.mem_count;
+     }
+
+     size_t cpeak() {
+         NodeEvent::shared_lock<NodeEvent::uv_rwlock> guard{lock_};
+         return counters_.mem_cpeak;
+     }
+
+     size_t total() {
+         NodeEvent::shared_lock<NodeEvent::uv_rwlock> guard{lock_};
+         return counters_.mem_total;
+     }
+
+     size_t tpeak() {
+         NodeEvent::shared_lock<NodeEvent::uv_rwlock> guard{lock_};
+         return counters_.mem_tpeak;
+     }
+
+     void updateCounters(struct glp_memory_counters& before, struct glp_memory_counters& now) {
+         std::unique_lock<NodeEvent::uv_rwlock> guard{lock_};
+
+         counters_.mem_count = counters_.mem_count - before.mem_count + now.mem_count;
+         counters_.mem_cpeak = counters_.mem_cpeak - before.mem_cpeak + now.mem_cpeak;
+         counters_.mem_total = counters_.mem_total - before.mem_total + now.mem_total;
+         counters_.mem_tpeak = counters_.mem_tpeak - before.mem_tpeak + now.mem_tpeak;
+     }
+
+     /**
+      * @param[in] env_state - Environment state object
+      * @param[out] counters - The counters to update
+      */
+     void removeStateCounters(std::shared_ptr<glp_environ_state_t> env_state, glp_memory_counters& counters) {
+         struct glp_memory_counters new_counters = glp_counters_from_state(env_state.get());
+         counters = new_counters;
+         counters.mem_count = 0; // When we set env_state_ to null, these get freed
+         counters.mem_total = 0; // When we set env_state_ to null, these get freed
+         this->updateCounters(new_counters, counters);
+     }
+
+ private:
+    struct glp_memory_counters counters_;
+    NodeEvent::uv_rwlock lock_;
+};
+
 int stdoutTermHook(void*, const char* s);
 int eventTermHook(void* info, const char* s);
 void _ErrorHook(void* s);
+
+extern MemoryStatistics _global_memory_statistics;
 
 /// TermHookManager provides static methods for managing TermHooks, and hook registration
 class TermHookManager {
@@ -59,7 +117,7 @@ class TermHookManager {
     }
 
     /// Add a hook to the list of hooks that will be run. Duplicate hooks will be ignored (must be a C compatible
-    /// function (ugly style function pointer) that can have it's address taken)
+    /// function (ugly style function pointer) that can have its address taken)
     ///
     /// @param[in] hook - The hook to add
     static void AddHook(term_hook_fn hook) {
@@ -79,131 +137,68 @@ class TermHookManager {
         term_hooks_.clear();
     }
 
-    /// Set the info for the current thread.
-    ///
-    /// @param[in] info - The info to set for this thread
-    ///
-    /// @returns the prior info, use this to restore the prior info back when you're done
-    static std::shared_ptr<HookInfo> SetInfo(std::shared_ptr<HookInfo> info) {
-        auto oldInfo = info_;
-        info_ = info;
-        glp_error_hook(_ErrorHook, static_cast<void*>(info.get()));
-        glp_term_hook(NodeHookCallback, static_cast<void*>(info_.get()));
-        return oldInfo;
-    }
-
-    /// @returns the current info
-    static std::shared_ptr<HookInfo> Current() { return info_; }
-
-    /// free the environment of the current thread
-    static void ClearEnv() {
-        glp_free_env();
-        info_ = nullptr;
-    }
-
  private:
     static std::vector<term_hook_fn> term_hooks_;
     static NodeEvent::uv_rwlock lock_;
-    static thread_local std::shared_ptr<HookInfo> info_;
 };
 
-/// TermHookGuard is an RAII container for HookInfo management. Ensures the prior info is restored regardless of how you
-/// exit a block. Declare the guard in the same scope (or nested scope) of wherever you allocate the NodeInfo you are
-/// setting to ensure you never have a dangling pointer
-///
-class TermHookGuard {
+
+class GLPKEnvStateGuard {
  public:
-    explicit TermHookGuard(std::shared_ptr<HookInfo> info) : oldinfo_(nullptr) {
-        if (info && TermHookManager::Current() != info) {
-            oldinfo_ = TermHookManager::SetInfo(info);
-        }
+    GLPKEnvStateGuard(std::shared_ptr<glp_environ_state_t> state, std::shared_ptr<HookInfo> info) : env_state_(state) {
+        using namespace std;
+        glp_env_tls_init_r(env_state_.get(), static_cast<void*>(info.get()));
     }
-    ~TermHookGuard() noexcept { TermHookManager::SetInfo(oldinfo_); }
-
- private:
-    std::shared_ptr<HookInfo> oldinfo_;
-};
-
-/// TermHookThreadGuard is similar to TermHookGuard but instead of restoring the prior info, deletes the environment of
-/// the thread. This guard is suitable for the worker-thread method, where cleanup should happen when the thread
-/// completes.
-class TermHookThreadGuard {
- public:
-    explicit TermHookThreadGuard(std::shared_ptr<HookInfo> info) {
-        // Ensure this thread's env is setup and has our hooks
-        if(info && TermHookManager::Current() != info) { 
-            TermHookManager::SetInfo(info);  
-        }
+    ~GLPKEnvStateGuard() noexcept {
+        struct glp_memory_counters counters1 = glp_counters_from_state(env_state_.get());
+        glp_env_tls_finalize_r(env_state_.get());
+        struct glp_memory_counters counters2 = glp_counters_from_state(env_state_.get());
+        _global_memory_statistics.updateCounters(counters1, counters2);
     }
-
-    ~TermHookThreadGuard() noexcept { TermHookManager::ClearEnv(); }
-};
-
-class MemStatsGuard {
- public:
-    explicit MemStatsGuard(std::shared_ptr<glp_memstats> memstats) : memstats_(glp_set_memstats(memstats.get())) {}
-    ~MemStatsGuard() noexcept { glp_set_memstats(memstats_); }
  private:
-     glp_memstats* memstats_;
+    std::shared_ptr<glp_environ_state_t> env_state_;
 };
 
-/// EventEmitterDecorator decorates a Nan::AsyncWorker so that the Execute() method is wrapped with a TermHookThreadGuard
-class EventEmitterDecorator : public ReentrantCWorker {
+
+static inline std::shared_ptr<glp_environ_state_t> make_shared_environ_state(std::shared_ptr<HookInfo> info) {
+    auto state = std::shared_ptr<glp_environ_state_t>(
+        glp_init_env_state(static_cast<void*>(info.get()), TermHookManager::NodeHookCallback), glp_free_env_state);
+    return state;
+}
+
+class GLPKEnvStateDecorator : public ReentrantCWorker {
  public:
-    EventEmitterDecorator(Nan::AsyncWorker* decorated, std::shared_ptr<NodeEvent::EventEmitter> emitter)
-        : ReentrantCWorker(nullptr, emitter), decorated_(decorated) {}
+    GLPKEnvStateDecorator(Nan::AsyncWorker* decorated, std::shared_ptr<NodeEvent::EventEmitter> emitter,
+                          std::shared_ptr<glp_environ_state_t> env_state)
+        : ReentrantCWorker(nullptr, emitter), decorated_(decorated), env_state_(env_state), emitter_(emitter) {}
 
     virtual void HandleOKCallback() override { }
     virtual void HandleErrorCallback() override { } 
 
     virtual void WorkComplete() override {
+        auto info = std::make_shared<HookInfo>(emitter_);
+        GLPKEnvStateGuard stateguard{env_state_, info};
         decorated_->WorkComplete();
         ReentrantCWorker::WorkComplete();
     }
 
     virtual void ExecuteWithEmitter(const ExecutionProgressSender* sender, eventemitter_fn_r fn) override {
-        auto info = std::make_shared<HookInfo>(nullptr, sender, fn);
-        TermHookThreadGuard hookguard{info};
+        auto info = std::make_shared<HookInfo>(sender, fn);
+        GLPKEnvStateGuard stateguard{env_state_, info};
         decorated_->Execute();
     }
 
     virtual void Destroy() override {
+        auto info = std::make_shared<HookInfo>(emitter_);
+        GLPKEnvStateGuard stateguard{env_state_, info};
         decorated_->Destroy();
         ReentrantCWorker::Destroy();
     }
 
  private:
      Nan::AsyncWorker* decorated_;
-};
-
-class MemStatsDecorator : public Nan::AsyncWorker {
- public:
-    MemStatsDecorator(Nan::AsyncWorker* decorated, std::shared_ptr<glp_memstats> memstats)
-        : Nan::AsyncWorker(nullptr), decorated_(decorated), memstats_(memstats) {}
-
-    virtual void HandleOKCallback() override { }
-    virtual void HandleErrorCallback() override { } 
-
-    virtual void WorkComplete() override {
-        MemStatsGuard mguard{memstats_};
-        decorated_->WorkComplete();
-        Nan::AsyncWorker::WorkComplete();
-    }
-
-    virtual void Execute() override {
-        MemStatsGuard mguard{memstats_};
-        decorated_->Execute();
-    }
-
-    virtual void Destroy() override {
-        MemStatsGuard mguard{memstats_};
-        decorated_->Destroy();
-        Nan::AsyncWorker::Destroy();
-    }
-
- private:
-     Nan::AsyncWorker* decorated_;
-     std::shared_ptr<glp_memstats> memstats_;
+     std::shared_ptr<glp_environ_state_t> env_state_;
+     std::shared_ptr<NodeEvent::EventEmitter> emitter_;
 };
 
 

@@ -33,6 +33,7 @@ describe('Verify meminfo', function() {
     })
 })
 
+
 describe('Leakage check', function() {
     it('Should not leak memory', function() {
         this.timeout(15000)
@@ -42,6 +43,7 @@ describe('Leakage check', function() {
                 let idx = 0;
                 lp.on('log', function(msg) {
                     let info = glp.glpMemInfo()
+                    console.log(`INDEX: ${idx++}: ${msg.trim()}`)
                     expect(info).to.be.an.object()
                     expect(info).to.include(['count','cpeak','total','tpeak'])
                     expect(info.count).to.be.a.number()
@@ -53,6 +55,7 @@ describe('Leakage check', function() {
                 })
 
                 lp.intopt({ msgLev: glp.MSG_ALL, presolve: glp.ON }, function() {
+                    lp.delete()
                     resolve()
                 })
             })

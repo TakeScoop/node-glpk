@@ -21,9 +21,25 @@
 *  along with GLPK. If not, see <http://www.gnu.org/licenses/>.
 ***********************************************************************/
 
-#include "glpk.h"
+#include "stdc.h"
 #include "glpenv.h"
+#include "../glpk.h"
 
+#ifdef HAVE_ENV
+int _glp_init_env(ENV *env)
+{     
+      memset(env, 0, sizeof(*env));
+      snprintf(env->version, sizeof(*env->version) - 1, "%d.%d", GLP_MAJOR_VERSION, GLP_MINOR_VERSION);
+
+      env->self = env;
+      env->term_buf = malloc(TBUF_SIZE);
+      if (env->term_buf == NULL) return 2;
+      env->term_out = GLP_ON;
+      env->err_buf = malloc(EBUF_SIZE);
+      if (env->err_buf == NULL) return 2;
+      env->mem_limit = SIZE_T_MAX;
+      return 0;
+}
 /***********************************************************************
 *  NAME
 *
@@ -47,77 +63,34 @@
 *  1 - environment has been already initialized;
 *  2 - initialization failed (insufficient memory);
 *  3 - initialization failed (unsupported programming model). */
-#ifdef HAVE_ENV
-
-#ifdef GLOBAL_MEM_STATS
-/* dynamic memory allocation */
-volatile size_t mem_limit = SIZE_T_MAX;
-/* maximal amount of memory, in bytes, available for dynamic
- * allocation */
-volatile size_t mem_count = 0;
-/* total number of currently allocated memory blocks */
-volatile size_t mem_cpeak = 0;
-/* peak value of mem_count */
-volatile size_t mem_total = 0;
-/* total amount of currently allocated memory, in bytes; it is
- * the sum of the size field over all memory block descriptors */
-volatile size_t mem_tpeak = 0;
-/* peak value of mem_total */
-#endif
-
 int glp_init_env(void)
-{     ENV *env;
+{
+      ENV *env = NULL;
       int ok;
       /* check if the programming model is supported */
       ok = (CHAR_BIT == 8 && sizeof(char) == 1 &&
          sizeof(short) == 2 && sizeof(int) == 4 &&
          (sizeof(void *) == 4 || sizeof(void *) == 8));
-      if (!ok)
+      if (!ok) {
          return 3;
+      }
       /* check if the environment is already initialized */
-      if (tls_get_ptr() != NULL)
-         return 1;
+      if (tls_get_ptr() != NULL) {
+          return 1;
+      }
+
       /* allocate and initialize the environment block */
-      env = malloc(sizeof(ENV));
-      if (env == NULL)
-         return 2;
-      memset(env, 0, sizeof(ENV));
-      sprintf(env->version, "%d.%d",
-         GLP_MAJOR_VERSION, GLP_MINOR_VERSION);
-      env->self = env;
-      env->term_buf = malloc(TBUF_SIZE);
-      if (env->term_buf == NULL)
-      {  free(env);
-         return 2;
+      env = calloc(1,sizeof(*env));
+      if (!env || _glp_init_env(env) != 0) {
+          free(env->err_buf);
+          free(env->term_buf);
+          free(env);
+          return 2;
       }
-      env->term_out = GLP_ON;
-      env->term_hook = NULL;
-      env->term_info = NULL;
-      env->tee_file = NULL;
-      env->err_file = NULL;
-      env->err_line = 0;
-      env->err_hook = NULL;
-      env->err_info = NULL;
-      env->err_buf = malloc(EBUF_SIZE);
-      if (env->err_buf == NULL)
-      {  free(env->term_buf);
-         free(env);
-         return 2;
-      }
-      env->err_buf[0] = '\0';
-#ifndef GLOBAL_MEM_STATS
-      env->mem_limit = SIZE_T_MAX;
-      env->mem_ptr = NULL;
-      env->mem_count = env->mem_cpeak = 0;
-      env->mem_total = env->mem_tpeak = 0;
-#endif
-      env->memstats = NULL;
-      env->h_odbc = env->h_mysql = NULL;
-      /* save pointer to the environment block */
       tls_set_ptr(env);
-      /* initialization successful */
       return 0;
 }
+
 #endif
 
 /***********************************************************************
@@ -164,20 +137,10 @@ ENV *get_env_ptr(void)
          fflush(stderr);
          abort();
       }
+
       return env;
 }
 #endif
-
-#ifdef HAVE_ENV
-glp_memstats* glp_set_memstats(glp_memstats* new_stats)
-{
-    ENV *env = get_env_ptr();
-    glp_memstats* prior = env->memstats;
-    env->memstats = new_stats;
-    return prior;
-}
-#endif
-
 
 #ifdef HAVE_ENV
 /***********************************************************************
@@ -196,12 +159,61 @@ glp_memstats* glp_set_memstats(glp_memstats* new_stats)
 *  the form "X.Y", where X is the major version number, and Y is the
 *  minor version number, for example, "4.16". */
 const char *glp_version(void)
-{     ENV *env = get_env_ptr();
-      return env->version;
+{     
+    ENV *env = get_env_ptr();
+    return env->version;
 }
 #endif
 
 #ifdef HAVE_ENV
+int _glp_free_env(ENV *env) {
+
+    /* check if the environment is active */
+    if (env == NULL) {
+        return 1;
+    }
+
+    /* check if the environment block is valid */
+    if (env->self != env) {
+        fprintf(stderr, "Invalid GLPK environment\n");
+        fflush(stderr);
+        abort();
+    }
+
+    /* close handles to shared libraries */
+    if (env->h_odbc != NULL) {
+        xdlclose(env->h_odbc);
+    }
+    if (env->h_mysql != NULL) {
+        xdlclose(env->h_mysql);
+    }
+    /* close text file used for copying terminal output */
+    if (env->tee_file != NULL) {
+        fclose(env->tee_file);
+    }
+
+    MBD* p = env->mem_ptr;
+    MBD* q = (p) ? p->next : NULL;
+
+    // quick check for loops;
+    while(p) {
+        xassert(p != q);
+        p = p->next;
+        q = (q && q->next) ? q->next->next : NULL;
+    }
+    /* invalidate the environment block */
+    while (env->mem_ptr != NULL) {
+        p = env->mem_ptr;
+        env->mem_ptr = p->next;
+        free(p);
+    }
+    env->self = NULL;
+    /* free memory allocated to the environment block */
+    free(env->term_buf);
+    free(env->err_buf);
+    free(env);
+    return 0;
+}
 /***********************************************************************
 *  NAME
 *
@@ -233,43 +245,166 @@ const char *glp_version(void)
 int glp_free_env(void)
 {
       ENV *env = (ENV*) tls_get_ptr();
-      MBD *desc;
-      /* check if the environment is active */
-      if (env == NULL)
-         return 1;
-      /* check if the environment block is valid */
-      if (env->self != env)
-      {  fprintf(stderr, "Invalid GLPK environment\n");
-         fflush(stderr);
-         abort();
+      int r = _glp_free_env(env);
+      if (r == 0) {
+          tls_set_ptr(NULL);
       }
-      /* close handles to shared libraries */
-      if (env->h_odbc != NULL)
-         xdlclose(env->h_odbc);
-      if (env->h_mysql != NULL)
-         xdlclose(env->h_mysql);
-#ifndef GLOBAL_MEM_STATS
-      /* free memory blocks which are still allocated */
-      while (env->mem_ptr != NULL)
-      {  desc = env->mem_ptr;
-         env->mem_ptr = desc->next;
-         free(desc);
-      }
-#endif
-      /* close text file used for copying terminal output */
-      if (env->tee_file != NULL)
-         fclose(env->tee_file);
-      /* invalidate the environment block */
-      env->self = NULL;
-      /* free memory allocated to the environment block */
-      free(env->term_buf);
-      free(env->err_buf);
-      free(env);
-      /* reset a pointer to the environment block */
-      tls_set_ptr(NULL);
-      /* termination successful */
-      return 0;
+      return r;
 }
 #endif
 
-/* eof */
+#ifdef HAVE_ENV
+int _glp_free_env(ENV *env);
+int _glp_init_env(ENV *env);
+
+/**
+ * Get env readlock
+ */
+static inline int environ_state_rdlock(glp_environ_state_t *env_state)
+{
+    return pthread_rwlock_rdlock(&env_state->env_lock);
+}
+
+/**
+ * Get env lock
+ */
+static inline int environ_state_wrlock(glp_environ_state_t *env_state)
+{
+    return pthread_rwlock_wrlock(&env_state->env_lock);
+}
+/**
+ * Free lock
+ */
+static inline int environ_state_unlock(glp_environ_state_t* env_state)
+{
+    return pthread_rwlock_unlock(&env_state->env_lock);
+}
+
+/**
+ * Reentrant and threadsafe function for migrating all environment data from the thread-local environment to the given env_state 
+ * Call this whenever a thread terminates to ensure all thread-local state is preserved.
+ */
+void glp_env_tls_finalize_r(glp_environ_state_t* env_state)
+{
+    ENV *env = tls_get_ptr();
+    if(env == NULL) return;
+
+    /* Outside of the critical section, find the end of this thread's
+     * linked list; because last_node was set from tail_ptr, last_node->next
+     * *should* be NULL, but just in case */
+    MBD* last_node = NULL;
+    MBD* first_node = env->mem_ptr;
+    MBD* p = first_node;
+    MBD* q = (p) ? p->next : NULL;
+
+    // We are removing the env that these were associated with, so we must associate them with the
+    // env_state's env
+    while(p) {
+        xassert(p != q);
+        p->env = env_state->env;
+        last_node = p;
+        p = p->next;
+        q = (q && q->next) ? q->next->next : NULL;
+    }
+
+    /* In the critical section, we'll just prepend this threads linked list to
+     * the existing linked-list */
+    xassert(environ_state_wrlock(env_state) == 0);
+    {
+        if(last_node) { 
+            if(env_state->env->mem_ptr != NULL) env_state->env->mem_ptr->prev = last_node;
+            last_node->next = env_state->env->mem_ptr;
+            env_state->env->mem_ptr = first_node;
+        }
+
+        if(env->mem_cpeak_tls + env_state->env->mem_count > env_state->env->mem_cpeak) {
+            env_state->env->mem_cpeak = env->mem_cpeak_tls + env_state->env->mem_count;
+        }
+        if(env->mem_tpeak_tls + env_state->env->mem_total > env_state->env->mem_tpeak) {
+            env_state->env->mem_tpeak = env->mem_tpeak_tls + env_state->env->mem_total;
+        }
+
+        env_state->env->mem_total += env->mem_total_tls;
+        env_state->env->mem_count += env->mem_count_tls;
+    }
+    xassert(environ_state_unlock(env_state) == 0);
+    env->mem_ptr = NULL;
+    glp_free_env();
+}
+
+/**
+ * This initializes thread-local storage from a given env_state and info.
+ * @param[in] env_state - environment to intialize TLS from
+ * @param[in] info - info to initialize env->term_info with if specified
+ *                   (supersedes any info in the env_state).
+ */
+void glp_env_tls_init_r(glp_environ_state_t *env_state, void* info) 
+{
+    ENV *env = get_env_ptr();
+    if(env->env_tls_init_flag) {
+        return;
+    }
+    env->env_tls_init_flag = 1;
+
+    if (info != NULL) env->term_info = info;
+
+    xassert(environ_state_rdlock(env_state) == 0);
+    {
+        env->mem_count = env_state->env->mem_count;
+        env->mem_total = env_state->env->mem_total;
+        env->mem_cpeak = env_state->env->mem_cpeak;
+        env->mem_tpeak = env_state->env->mem_tpeak;
+        env->mem_limit = env_state->env->mem_limit;
+
+        env->tee_file = env_state->env->tee_file;
+        env->err_hook = env_state->env->err_hook;
+        env->term_hook = env_state->env->term_hook;
+        xassert(env_state->env->term_hook);
+        if (env->term_info == NULL) env->term_info = env_state->env->term_info;
+    }
+    xassert(environ_state_unlock(env_state) == 0);
+}
+
+/**
+ * Initialize environment state (per problem, etc)
+ * @param[in] default_info - The resulting env_state's term_info will be set to default_info
+ * @param[in] nodeHookCallback - The callback to set term_hook to.
+ *
+ * @return a heap allocated and initialized env_state
+ */
+glp_environ_state_t* glp_init_env_state(void* default_info, int (*nodeHookCallback)(void*, const char*))
+{
+    glp_environ_state_t* env_state = calloc(1, sizeof(*env_state));
+    pthread_rwlock_init(&env_state->env_lock, NULL);
+    env_state->env = calloc(1, sizeof(*env_state->env));
+    _glp_init_env(env_state->env);
+    env_state->env->term_info = default_info;
+    env_state->env->term_hook = nodeHookCallback;
+    return env_state;
+}
+
+/**
+ * Free all resources associated with ane env
+ */
+void glp_free_env_state(glp_environ_state_t *env_state)
+{
+    glp_env_tls_finalize_r(env_state);
+    pthread_rwlock_destroy(&env_state->env_lock);
+    _glp_free_env(env_state->env);
+    free(env_state);
+}
+
+struct glp_memory_counters glp_counters_from_state(glp_environ_state_t* env_state)
+{
+    struct glp_memory_counters counters;
+    xassert(environ_state_rdlock(env_state) == 0);
+    {
+        counters.mem_count = env_state->env->mem_count;
+        counters.mem_total = env_state->env->mem_total;
+        counters.mem_cpeak = env_state->env->mem_cpeak;
+        counters.mem_tpeak = env_state->env->mem_tpeak;
+    }
+    xassert(environ_state_unlock(env_state) == 0);
+    return counters;
+}
+#endif

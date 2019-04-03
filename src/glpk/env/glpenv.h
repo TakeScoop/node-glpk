@@ -21,11 +21,10 @@
 *  along with GLPK. If not, see <http://www.gnu.org/licenses/>.
 ***********************************************************************/
 
-#ifndef ENV_H
-#define ENV_H
+#ifndef GLPK_ENV_H
+#define GLPK_ENV_H
 
 #include "stdc.h"
-#include "memstats.h"
 #include <execinfo.h>
 
 #ifdef HAVE_ENV
@@ -54,97 +53,32 @@ typedef struct MBD MBD;
 #define GLP_OFF 0
 
 #ifdef HAVE_ENV
-
-#ifdef GLOBAL_MEM_STATS
-/* dynamic memory allocation */
-extern volatile size_t mem_limit;
-/* maximal amount of memory, in bytes, available for dynamic
- * allocation */
-extern volatile size_t mem_count;
-/* total number of currently allocated memory blocks */
-extern volatile size_t mem_cpeak;
-/* peak value of mem_count */
-extern volatile size_t mem_total;
-/* total amount of currently allocated memory, in bytes; it is
- * the sum of the size field over all memory block descriptors */
-extern volatile size_t mem_tpeak;
-/* peak value of mem_total */
-
-#ifdef HAVE_ATOMIC
-
-#define _add_mem_limit(x) __atomic_add_fetch(&mem_limit, x, __ATOMIC_CONSUME)
-#define _add_mem_count(x) __atomic_add_fetch(&mem_count, x, __ATOMIC_CONSUME)
-#define _add_mem_cpeak(x) __atomic_add_fetch(&mem_cpeak, x, __ATOMIC_CONSUME)
-#define _add_mem_total(x) __atomic_add_fetch(&mem_total, x, __ATOMIC_CONSUME)
-#define _add_mem_tpeak(x) __atomic_add_fetch(&mem_tpeak, x, __ATOMIC_CONSUME)
-
-#define _cmpxchg(DEST, CMP, SRC) __atomic_compare_exchange_n(DEST, &CMP, SRC, 0, __ATOMIC_RELEASE, __ATOMIC_RELAXED)
-
-#elif HAVE_SYNC // ifdef HAVE_ATOMIC
-
-#define _add_mem_limit(x) __sync_add_and_fetch(&mem_limit, x)
-#define _add_mem_count(x) __sync_add_and_fetch(&mem_count, x)
-#define _add_mem_cpeak(x) __sync_add_and_fetch(&mem_cpeak, x)
-#define _add_mem_total(x) __sync_add_and_fetch(&mem_total, x)
-#define _add_mem_tpeak(x) __sync_add_and_fetch(&mem_tpeak, x)
-
-#define _cmpxchg(DEST, CMP, SRC) __sync_val_compare_and_swap(DEST, CMP, SRC)
-
-#else  // ifdef HAVE_ATOMIC elif HAVE_SYNC
-
-#define _add_mem_limit(x) (mem_limit += x)
-#define _add_mem_count(x) (mem_count += x)
-#define _add_mem_cpeak(x) (mem_cpeak += x)
-#define _add_mem_total(x) (mem_total += x)
-#define _add_mem_tpeak(x) (mem_tpeak += x)
+typedef struct _glp_environ_state {
+    pthread_rwlock_t env_lock;
+    ENV* env;
+} glp_environ_state_t;
 
 
-#endif // ifdef HAVE_ATOMIC elif HAVE_SYNC
-
-#define _set_peak(VALUE, PEAK)                                              \
-    do {                                                                    \
-        size_t oldpeak = get_mem_##PEAK();                                  \
-        while (VALUE > oldpeak && !_cmpxchg(&mem_##PEAK, oldpeak, VALUE)) { \
-            oldpeak = get_mem_##PEAK();                                     \
-        }                                                                   \
-    } while (0)
-
-#define set_mem_limit(VALUE)                                                                   \
-    do {                                                                                       \
-        size_t limit = get_mem_limit();                                                        \
-        while (limit != VALUE && !_cmpxchg(&mem_total, limit, VALUE)) limit = get_mem_limit(); \
-    } while (0)
-
-#else // #ifdef GLOBAL_MEM_STATS 
-
-#define _add_mem_limit(x) (env->mem_limit += x)
-#define _add_mem_count(x) (env->mem_count += x)
-#define _add_mem_cpeak(x) (env->mem_cpeak += x)
-#define _add_mem_total(x) (env->mem_total += x)
-#define _add_mem_tpeak(x) (env->mem_tpeak += x)
-
-#define _set_peak(VALUE, PEAK)                                \
+#define _set_peak(NAME, PEAK)                                \
     do {                                                      \
-        if (VALUE > env->mem_##PEAK) env->mem_##PEAK = VALUE; \
+        if (env->mem_##NAME > env->mem_##PEAK) env->mem_##PEAK = env->mem_##NAME; \
     } while (0)
 
-#define _set_mem_limit(VALUE) (env->mem_limit = VALUE)
+#define _set_peak_tls(NAME, PEAK) _set_peak(NAME##_tls, PEAK##_tls)
 
-#endif // #ifdef GLOBAL_MEM_STATS
 
-#define _set_mem_tpeak(TOTAL) _set_peak(TOTAL, tpeak)
-#define _set_mem_cpeak(COUNT) _set_peak(COUNT, cpeak)
+#define GET_MEM_COUNT() env->mem_count
+#define GET_MEM_TOTAL() env->mem_total
 
-#define get_mem_limit() _add_mem_limit(0)
-#define get_mem_count() _add_mem_count(0)
-#define get_mem_cpeak() _add_mem_cpeak(0)
-#define get_mem_total() _add_mem_total(0)
-#define get_mem_tpeak() _add_mem_tpeak(0)
+#define GET_MEM_LIMIT() env->mem_limit
+#define GET_MEM_CPEAK() env->mem_cpeak
+#define GET_MEM_TPEAK() env->mem_tpeak
 
-#define set_mem_tpeak(TOTAL) _set_mem_tpeak_func(env, TOTAL);
-#define set_mem_cpeak(COUNT) _set_mem_cpeak_func(env, COUNT);
-#define add_mem_count(x) _add_mem_count_func(env, x);
-#define add_mem_total(x) _add_mem_total_func(env, x);
+#define SET_MEM_LIMIT(VALUE) (env->mem_limit = VALUE)
+#define SET_MEM_TPEAK() _set_mem_tpeak_func(env);
+#define SET_MEM_CPEAK() _set_mem_cpeak_func(env);
+#define ADD_MEM_COUNT(x) _add_mem_count_func(env, x);
+#define ADD_MEM_TOTAL(x) _add_mem_total_func(env, x);
 
 struct ENV
 {     /* GLPK environment block */
@@ -174,6 +108,8 @@ struct ENV
       /* value of the __FILE__ macro passed to glp_error */
       int err_line;
       /* value of the __LINE__ macro passed to glp_error */
+      uint8_t env_tls_init_flag;
+      /* Flag indicating tls_init already occurred on this env */
       void (*err_hook)(void *info);
       /* user-defined routine to intercept abnormal termination */
       void *err_info;
@@ -182,23 +118,28 @@ struct ENV
       /* buffer to store error messages (used by I/O routines) */
       /*--------------------------------------------------------------*/
       /* dynamic memory allocation */
-#ifndef GLOBAL_MEM_STATS
+      MBD *mem_ptr;
+      /* pointer to the linked list of allocated memory blocks */
       size_t mem_limit;
       /* maximal amount of memory, in bytes, available for dynamic
        * allocation */
-      MBD *mem_ptr;
-      /* pointer to the linked list of allocated memory blocks */
       size_t mem_count;
       /* total number of currently allocated memory blocks */
+      size_t mem_count_tls;
+      /* total count of currently allocated memory blockson this thread */
       size_t mem_cpeak;
       /* peak value of mem_count */
+      size_t mem_cpeak_tls;
+      /* peak value of mem_count */
       size_t mem_total;
+      /* total on this thread */
+      size_t mem_total_tls;
       /* total amount of currently allocated memory, in bytes; it is
        * the sum of the size field over all memory block descriptors */
       size_t mem_tpeak;
       /* peak value of mem_total */
-#endif
-      glp_memstats* memstats;
+      size_t mem_tpeak_tls;
+      /* peak value of mem_total */
       /*--------------------------------------------------------------*/
       /* dynamic linking support (optional) */
       void *h_odbc;
@@ -207,50 +148,52 @@ struct ENV
       /* handle to MySQL shared library */
 };
 
+struct glp_memory_counters {
+    size_t mem_count;
+    /* total number of currently allocated memory blocks */
+    size_t mem_cpeak;
+    /* peak value of mem_count */
+    size_t mem_total;
+    /* total amount of currently allocated memory, in bytes; it is
+     * the sum of the size field over all memory block descriptors */
+    size_t mem_tpeak;
+};
+
 struct MBD
 {     /* memory block descriptor */
       size_t size;
       /* size of block, in bytes, including descriptor */
       MBD *self;
       /* pointer to this descriptor to check its validity */
-#ifndef GLOBAL_MEM_STATS
       MBD *prev;
       /* pointer to previous memory block descriptor */
       MBD *next;
       /* pointer to next memory block descriptor */
-#endif
+      ENV *env;
+      /* pointer to tls environment */
 };
 
-static inline __attribute__((always_inline)) size_t _add_mem_total_func(ENV* env, size_t x) {
-    if(env && env->memstats) {
-        env->memstats->problem_mem_total += x;
-    }
-    return _add_mem_total(x);
+static inline __attribute__((always_inline)) void _add_mem_total_func(ENV* env, size_t x) {
+    env->mem_total += x;
+    env->mem_total_tls += x;
 }
 
-static inline __attribute__((always_inline)) size_t _add_mem_count_func(ENV* env, size_t x) {
-    if(env && env->memstats) {
-        env->memstats->problem_mem_count += x;
-    }
-    return _add_mem_count(x);
+static inline __attribute__((always_inline)) void _add_mem_count_func(ENV* env, size_t x) {
+    env->mem_count_tls += x;
+    env->mem_count += x;
 }
 
-static inline __attribute__((always_inline)) void _set_mem_tpeak_func(ENV* env, size_t x) {
-    if(env && env->memstats && x > env->memstats->problem_mem_tpeak) {
-        env->memstats->problem_mem_tpeak = x;
-    }
-    _set_mem_tpeak(x);
+static inline __attribute__((always_inline)) void _set_mem_tpeak_func(ENV* env) {
+    _set_peak_tls(total, tpeak);
+    _set_peak(total, tpeak);
 }
 
-static inline __attribute__((always_inline)) void _set_mem_cpeak_func(ENV* env, size_t x) {
-    if(env && env->memstats && x > env->memstats->problem_mem_cpeak) {
-        env->memstats->problem_mem_cpeak = x;
-    }
-    _set_mem_cpeak(x);
+static inline __attribute__((always_inline)) void _set_mem_cpeak_func(ENV* env) {
+    _set_peak_tls(count, cpeak);
+    _set_peak(count, cpeak);
 }
+#endif // ifdef HAVE_ENV
 
-
-#endif
 
 #ifdef HAVE_ENV
 #define get_env_ptr _glp_get_env_ptr
@@ -283,10 +226,10 @@ int glp_term_out(int flag);
 
 #ifdef HAVE_ENV
 void glp_term_hook(int (*func)(void *info, const char *s), void *info);
-
 #else
 void glp_term_hook(void (*func)(const char *s));
 #endif
+
 /* install hook to intercept terminal output */
 int glp_open_tee(const char *fname);
 /* start copying terminal output to text file */
@@ -349,9 +292,30 @@ void glp_free(void *ptr);
 void glp_mem_limit(int limit);
 /* set memory usage limit */
 
-void glp_mem_usage(size_t *count, size_t *cpeak,
-        size_t *total, size_t *tpeak);
+void glp_mem_usage(size_t *count, size_t *cpeak, size_t *total, size_t *tpeak);
 /* get memory usage information */
+
+#ifdef HAVE_ENV
+/** Initialize environment state (per problem, etc) 
+ */
+glp_environ_state_t* glp_init_env_state(void* default_info, int (*nodeHookCallback)(void*, const char*));
+
+/** Get memory counters from an eniron_state
+ */
+struct glp_memory_counters glp_counters_from_state(glp_environ_state_t* env_state);
+/**
+ * Free all resources associated with ane env
+ */
+void glp_free_env_state(glp_environ_state_t *env_state);
+
+/**
+ * Reentrant and threadsafe function for migrating all environment data from the thread-local environment to the given env_state 
+ * Call this whenever a thread is done working on a given problem to ensure all thread-local state is preserved.
+ */
+void glp_env_tls_finalize_r(glp_environ_state_t* env_state);
+void glp_env_tls_init_r(glp_environ_state_t* env_state, void* info);
+
+#endif
 
 typedef struct glp_file glp_file;
 /* sequential stream descriptor */

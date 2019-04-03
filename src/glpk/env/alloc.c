@@ -21,6 +21,7 @@
 *  along with GLPK. If not, see <http://www.gnu.org/licenses/>.
 ***********************************************************************/
 
+#include <stdlib.h>
 #include "glpenv.h"
 
 
@@ -45,74 +46,139 @@
 *  for book-keeping the memory usage statistics. */
 
 #ifdef HAVE_ENV
-static void *dma(const char *func, void *ptr, size_t size)
+
+/**
+ * Return the memory block descriptor for a memory block that was allocated by glp_alloc.
+ */
+static inline MBD* ptr_to_mbd(void* ptr)
 {
-      ENV *env = get_env_ptr();
-      MBD *mbd;
-      if (ptr == NULL)
-      {  /* new memory block will be allocated */
-         mbd = NULL;
-      }
-      else
-      {  /* allocated memory block will be reallocated or freed */
-         /* get pointer to the block descriptor */
-         mbd = (MBD *)((char *)ptr - MBD_SIZE);
-         /* make sure that the block descriptor is valid */
-         if (mbd->self != mbd)
-            xerror("%s: ptr = %p; invalid pointer\n", func, ptr);
-         /* remove the block from the linked list */
-#ifndef GLOBAL_MEM_STATS
-         mbd->self = NULL;
-         if (mbd->prev == NULL)
-            env->mem_ptr = mbd->next;
-         else
-            mbd->prev->next = mbd->next;
-         if (mbd->next == NULL)
-            ;
-         else
-            mbd->next->prev = mbd->prev;
-#endif
-         /* decrease usage counts */
-         if (!(get_mem_count() >= 1 && get_mem_total() >= mbd->size))
-            xerror("%s: memory allocation error\n", func);
-         add_mem_count(-1);
-         add_mem_total(-(mbd->size));
-         if (size == 0)
-         {  /* free the memory block */
-            free(mbd);
-            return NULL;
-         }
-      }
-      /* allocate/reallocate memory block */
-      if (size > SIZE_T_MAX - MBD_SIZE)
-         xerror("%s: block too large\n", func);
-      size += MBD_SIZE;
-      if (size > get_mem_limit() - get_mem_total())
-         xerror("%s: memory allocation limit exceeded\n", func);
-      if (get_mem_count() == INT_MAX)
-         xerror("%s: too many memory blocks allocated\n", func);
-      mbd = (mbd == NULL ? malloc(size) : realloc(mbd, size));
-      if (mbd == NULL)
-         xerror("%s: no memory available\n", func);
-      /* setup the block descriptor */
-      mbd->size = size;
-      mbd->self = mbd;
-#ifndef GLOBAL_MEM_STATS
-      mbd->prev = NULL;
-      mbd->next = env->mem_ptr;
-      /* add the block to the beginning of the linked list */
-      if (mbd->next != NULL)
-         mbd->next->prev = mbd;
-      env->mem_ptr = mbd;
-#endif
-      /* increase usage counts */
-      size_t count = add_mem_count(1);
-      set_mem_cpeak(count);
+    MBD* mbd = (MBD *)((char *)ptr - MBD_SIZE);
+    xassert(mbd->self == mbd);
+    return mbd;
+}
 
-      size_t total = add_mem_total(size);
-      set_mem_tpeak(total);
+/**
+ * Take the mbd off the environment. Must only ever try to remove an mbd from the environment
+ * it was allocated on
+ */
+static inline void _remove_from_env(MBD* mbd, ENV* env)
+{
+    xassert(mbd->env == env);
 
-      return (char *)mbd + MBD_SIZE;
+    MBD* before = mbd->prev;
+    MBD* after = mbd->next;
+
+    /* unlink ourselves */
+    if(after) {
+        after->prev = before;
+    }
+    if(before) {
+        before->next = after;
+    } else {
+        env->mem_ptr = after;
+    }
+
+    /* update counters */
+    if (GET_MEM_COUNT() < 1 || GET_MEM_TOTAL() < mbd->size) {
+        xerror("unlinking mbd: memory deallocation error; inconsistent state\n");
+    }
+    ADD_MEM_COUNT(-1);
+    ADD_MEM_TOTAL(-(mbd->size));
+}
+
+/**
+ * Free an mbd from an env. If the mbd's env and the current env mismatch, the block will *not* be deallocated yet,
+ * instead the deallocation will be deferred until the environment is freed
+ */
+static inline void _free_mbd(MBD* mbd, ENV* env) {
+    if(mbd->env == env) {
+        _remove_from_env(mbd, env);
+        free(mbd);
+    }
+}
+
+/**
+ * Ensure that the requested allocation is reasonable
+ */
+static inline void _check_allocation(ENV* env, size_t size) 
+{
+    if (size > SIZE_T_MAX - MBD_SIZE) {
+        xerror("block too large\n");
+    }
+    if (size + MBD_SIZE > GET_MEM_LIMIT() - GET_MEM_TOTAL()) {
+        xerror("memory allocation limit exceeded\n");
+    }
+    if (GET_MEM_COUNT() == SIZE_T_MAX) {
+        xerror("too many memory blocks allocated\n");
+    }
+}
+
+/**
+ * Finish the definition of an mbd, and prepend the memory-block-descriptor to the head of the linked-list of tracked
+ * mbd's This happens in O(1)
+ *
+ * @param[in,out] mbd - The memory descriptor block we will prepend to the list
+ * @param[in,out] env - where we will prepend the mbd
+ * @param[in] size - What size we allocatd the mbd to.
+ *
+ */
+static inline void _prepend_mbd_to_env(MBD* mbd, ENV* env, size_t size)
+{
+    xassert(mbd != NULL);
+    xassert(env != NULL);
+    mbd->self = mbd;
+    mbd->size = size;
+    mbd->env = env;
+    mbd->prev = NULL;
+    mbd->next = env->mem_ptr;
+
+    if(env->mem_ptr != NULL) {
+        env->mem_ptr->prev = mbd;
+    }
+
+    env->mem_ptr = mbd;
+    ADD_MEM_COUNT(1);
+    SET_MEM_CPEAK();
+
+    ADD_MEM_TOTAL(size);
+    SET_MEM_TPEAK();
+}
+
+/**
+ * Calloc an mbd and add it to the env
+ */
+static inline void* _calloc_mbd(ENV* env, size_t size)
+{
+    MBD* mbd = NULL;
+    if(size == 0) {
+        return NULL;
+    }
+    _check_allocation(env, size);
+    mbd = calloc(1, size + MBD_SIZE);
+    xassert(mbd != NULL);
+    _prepend_mbd_to_env(mbd, env, size);
+    return mbd;
+}
+
+/**
+ * Reallocate an mbd. This can *only* work if the mbd was previously allocated in this env. 
+ * (if size is 0, will free the mbd instead)
+ */
+static inline void* _realloc_mbd(MBD* mbd, ENV* env, size_t size)
+{
+    if(size == 0) {
+        _free_mbd(mbd, env);
+        return NULL;
+    }
+    if(mbd->env != env) {
+        xerror("ptr = %p; unable to reallocate from another environment\n", mbd);
+    }
+    _check_allocation(env, size);
+    _remove_from_env(mbd, env);
+    mbd = realloc(mbd, size + MBD_SIZE);
+    xassert(mbd != NULL);
+    _prepend_mbd_to_env(mbd, env, size);
+    return mbd;
 }
 
 /***********************************************************************
@@ -138,30 +204,38 @@ static void *dma(const char *func, void *ptr, size_t size)
 *  To free this block the routine glp_free (not free!) must be used. */
 
 void *glp_alloc(int n, int size)
-{     if (n < 1)
-         xerror("glp_alloc: n = %d; invalid parameter\n", n);
-      if (size < 1)
-         xerror("glp_alloc: size = %d; invalid parameter\n", size);
-      if ((size_t)n > SIZE_T_MAX / (size_t)size)
-         xerror("glp_alloc: n = %d, size = %d; block too large\n",
-            n, size);
-      return dma("glp_alloc", NULL, (size_t)n * (size_t)size);
+{
+    if (n < 1) {
+        xerror("glp_alloc: n = %d; invalid parameter\n", n);
+    }
+    if (size < 1) {
+        xerror("glp_alloc: size = %d; invalid parameter\n", size);
+    }
+    if ((size_t)n > SIZE_T_MAX / (size_t)size) {
+        xerror("glp_alloc: n = %d, size = %d; block too large\n", n, size);
+    }
+    ENV* env = get_env_ptr();
+    return (char*)_calloc_mbd(env, (size_t)n * (size_t)size) + MBD_SIZE;
 }
 
 /**********************************************************************/
-
+/* reallocate memory block */
 void *glp_realloc(void *ptr, int n, int size)
-{     /* reallocate memory block */
-      if (ptr == NULL)
-         xerror("glp_realloc: ptr = %p; invalid pointer\n", ptr);
-      if (n < 1)
-         xerror("glp_realloc: n = %d; invalid parameter\n", n);
-      if (size < 1)
-         xerror("glp_realloc: size = %d; invalid parameter\n", size);
-      if ((size_t)n > SIZE_T_MAX / (size_t)size)
-         xerror("glp_realloc: n = %d, size = %d; block too large\n",
-            n, size);
-      return dma("glp_realloc", ptr, (size_t)n * (size_t)size);
+{     
+    if (ptr == NULL) {
+        xerror("glp_realloc: ptr = %p; invalid pointer\n", ptr);
+    }
+    if (n < 1) {
+        xerror("glp_realloc: n = %d; invalid parameter\n", n);
+    }
+    if (size < 1) {
+        xerror("glp_realloc: size = %d; invalid parameter\n", size);
+    }
+    if ((size_t)n > SIZE_T_MAX / (size_t)size) {
+        xerror("glp_realloc: n = %d, size = %d; block too large\n", n, size);
+    }
+    ENV* env = get_env_ptr();
+    return (char*)_realloc_mbd(ptr_to_mbd(ptr), env, (size_t)n * (size_t)size) + MBD_SIZE;
 }
 
 /***********************************************************************
@@ -180,10 +254,13 @@ void *glp_realloc(void *ptr, int n, int size)
 *  reallocated by the routine glp_realloc. */
 
 void glp_free(void *ptr)
-{     if (ptr == NULL)
-         xerror("glp_free: ptr = %p; invalid pointer\n", ptr);
-      dma("glp_free", ptr, 0);
-      return;
+{
+    if (ptr == NULL) {
+        xerror("glp_free: ptr = %p; invalid pointer\n", ptr);
+    }
+    ENV* env = get_env_ptr();
+    _free_mbd(ptr_to_mbd(ptr), env);
+    return;
 }
 
 /***********************************************************************
@@ -202,16 +279,11 @@ void glp_free(void *ptr)
 
 void glp_mem_limit(int limit)
 {     
-#ifndef GLOBAL_MEM_STATS
       ENV *env = get_env_ptr();
-#endif
-      if (limit < 1)
-         xerror("glp_mem_limit: limit = %d; invalid parameter\n",
-            limit);
-      if ((size_t)limit <= (SIZE_T_MAX >> 20))
-          set_mem_limit((size_t)limit << 20);
-      else
-          set_mem_limit(SIZE_T_MAX);
+      if (limit < 1) {
+         xerror("glp_mem_limit: limit = %d; invalid parameter\n", limit);
+      }
+      SET_MEM_LIMIT(SIZE_T_MAX);
       return;
 }
 
@@ -248,17 +320,17 @@ void glp_mem_limit(int limit)
 void glp_mem_usage(size_t *count, size_t *cpeak, size_t *total,
       size_t *tpeak)
 {  
-#ifndef GLOBAL_MEM_STATS
+#ifdef HAVE_ENV
       ENV *env = get_env_ptr();
 #endif
       if (count != NULL)
-         *count = get_mem_count();
+         *count = GET_MEM_COUNT();
       if (cpeak != NULL)
-         *cpeak = get_mem_cpeak();
+         *cpeak = GET_MEM_CPEAK();
       if (total != NULL)
-         *total = get_mem_total();
+         *total = GET_MEM_TOTAL();
       if (tpeak != NULL)
-         *tpeak = get_mem_tpeak();
+         *tpeak = GET_MEM_TPEAK();
       return;
 }
 
@@ -284,7 +356,7 @@ void glp_mem_limit(int limit)
     
 }
 
-void glp_mem_usage(int *count, int *cpeak, size_t *total,
+void glp_mem_usage(size_t *count, size_t *cpeak, size_t *total,
                    size_t *tpeak)
 {
     if (count != NULL)
