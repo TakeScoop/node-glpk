@@ -132,10 +132,8 @@ static inline void _prepend_mbd_to_env(MBD* mbd, ENV* env, size_t size)
     mbd->prev = NULL;
     mbd->next = env->mem_ptr;
 
-    if(mbd->next == NULL) {
-        env->mem_tail_ptr = mbd;
-    } else {
-        mbd->next->prev = mbd;
+    if(env->mem_ptr != NULL) {
+        env->mem_ptr->prev = mbd;
     }
 
     env->mem_ptr = mbd;

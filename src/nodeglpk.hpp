@@ -72,7 +72,17 @@ class MemoryStatistics {
          counters_.mem_tpeak = counters_.mem_tpeak - before.mem_tpeak + now.mem_tpeak;
      }
 
-
+     /**
+      * @param[in] env_state - Environment state object
+      * @param[out] counters - The counters to update
+      */
+     void removeStateCounters(std::shared_ptr<glp_environ_state_t> env_state, glp_memory_counters& counters) {
+         struct glp_memory_counters new_counters = glp_counters_from_state(env_state.get());
+         counters = new_counters;
+         counters.mem_count = 0; // When we set env_state_ to null, these get freed
+         counters.mem_total = 0; // When we set env_state_ to null, these get freed
+         this->updateCounters(new_counters, counters);
+     }
 
  private:
     struct glp_memory_counters counters_;
@@ -84,7 +94,6 @@ int eventTermHook(void* info, const char* s);
 void _ErrorHook(void* s);
 
 extern MemoryStatistics _global_memory_statistics;
-
 
 /// TermHookManager provides static methods for managing TermHooks, and hook registration
 class TermHookManager {

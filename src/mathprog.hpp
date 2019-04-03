@@ -49,7 +49,8 @@ namespace NodeGLPK {
            : node::ObjectWrap(),
              emitter_(std::make_shared<NodeEvent::EventEmitter>()),
              info_{std::make_shared<HookInfo>(emitter_)}, 
-             env_state_(make_shared_environ_state(info_))
+             env_state_(make_shared_environ_state(info_)),
+             counters_{0,0,0,0}
              {
            GLPKEnvStateGuard mguard{env_state_, info_};
            handle = glp_mpl_alloc_wksp();
@@ -93,8 +94,11 @@ namespace NodeGLPK {
             Mathprog* mp = ObjectWrap::Unwrap<Mathprog>(info.Holder());
             V8CHECK(!mp->env_state_, "object deleted");
 
+            struct glp_memory_counters counters = mp->counters_;
+            if(mp->env_state_) {
+                counters = glp_counters_from_state(mp->env_state_.get());
+            } 
             Local<v8::Object> ret = Nan::New<v8::Object>();
-            struct glp_memory_counters counters = glp_counters_from_state(mp->env_state_.get());
             ret->Set(Nan::New<v8::String>("count").ToLocalChecked(), Nan::New<v8::Number>(counters.mem_count));
             ret->Set(Nan::New<v8::String>("cpeak").ToLocalChecked(), Nan::New<v8::Number>(counters.mem_cpeak));
             ret->Set(Nan::New<v8::String>("total").ToLocalChecked(), Nan::New<v8::Number>(counters.mem_total));
@@ -413,6 +417,7 @@ namespace NodeGLPK {
             GLP_CREATE_HOOK_GUARDS(obj); 
             GLP_CATCH_RET(glp_mpl_free_wksp(obj->handle);)
             obj->emitter_->removeAllListeners();
+            _global_memory_statistics.removeStateCounters(obj->env_state_, obj->counters_);
             obj->handle = NULL;
             obj->env_state_ = NULL;
         }
@@ -425,6 +430,7 @@ namespace NodeGLPK {
         std::shared_ptr<NodeEvent::EventEmitter> emitter_;
         std::shared_ptr<HookInfo> info_;
         std::shared_ptr<glp_environ_state_t> env_state_;
+        struct glp_memory_counters counters_;
     };
     
     Nan::Persistent<FunctionTemplate> Mathprog::constructor;

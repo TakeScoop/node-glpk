@@ -1572,13 +1572,9 @@ namespace NodeGLPK {
             GLP_CREATE_HOOK_GUARDS(obj); 
             GLP_CATCH_RET(glp_delete_prob(obj->handle);)
             obj->emitter_->removeAllListeners();
+            _global_memory_statistics.removeStateCounters(obj->env_state_, obj->counters_);
 
-            struct glp_memory_counters counters = glp_counters_from_state(obj->env_state_.get());
-            obj->counters_ = counters;
-            obj->counters_.mem_count = 0; // When we set env_state_ to null, these get freed
-            obj->counters_.mem_total = 0; // When we set env_state_ to null, these get freed
-            _global_memory_statistics.updateCounters(counters, obj->counters_);
-
+            if(obj->handle) glp_delete_prob(obj->handle);
             obj->handle = NULL;
             obj->env_state_ = NULL;
         }

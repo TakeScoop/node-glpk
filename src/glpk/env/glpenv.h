@@ -108,6 +108,8 @@ struct ENV
       /* value of the __FILE__ macro passed to glp_error */
       int err_line;
       /* value of the __LINE__ macro passed to glp_error */
+      uint8_t env_tls_init_flag;
+      /* Flag indicating tls_init already occurred on this env */
       void (*err_hook)(void *info);
       /* user-defined routine to intercept abnormal termination */
       void *err_info;
@@ -117,7 +119,6 @@ struct ENV
       /*--------------------------------------------------------------*/
       /* dynamic memory allocation */
       MBD *mem_ptr;
-      MBD *mem_tail_ptr;
       /* pointer to the linked list of allocated memory blocks */
       size_t mem_limit;
       /* maximal amount of memory, in bytes, available for dynamic

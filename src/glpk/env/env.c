@@ -80,7 +80,8 @@ int glp_init_env(void)
       }
 
       /* allocate and initialize the environment block */
-      if(!(env = calloc(1,sizeof(*env))) || _glp_init_env(env) != 0) {
+      env = calloc(1,sizeof(*env));
+      if (!env || _glp_init_env(env) != 0) {
           free(env->err_buf);
           free(env->term_buf);
           free(env);
@@ -136,6 +137,7 @@ ENV *get_env_ptr(void)
          fflush(stderr);
          abort();
       }
+
       return env;
 }
 #endif
@@ -244,11 +246,10 @@ int glp_free_env(void)
 {
       ENV *env = (ENV*) tls_get_ptr();
       int r = _glp_free_env(env);
-      if (r != 0) { return r; }
-      /* reset a pointer to the environment block */
-      tls_set_ptr(NULL);
-      /* termination successful */
-      return 0;
+      if (r == 0) {
+          tls_set_ptr(NULL);
+      }
+      return r;
 }
 #endif
 
@@ -285,14 +286,15 @@ static inline int environ_state_unlock(glp_environ_state_t* env_state)
  */
 void glp_env_tls_finalize_r(glp_environ_state_t* env_state)
 {
-    ENV *env = get_env_ptr();
+    ENV *env = tls_get_ptr();
     if(env == NULL) return;
 
     /* Outside of the critical section, find the end of this thread's
      * linked list; because last_node was set from tail_ptr, last_node->next
      * *should* be NULL, but just in case */
     MBD* last_node = NULL;
-    MBD* p = env->mem_ptr;
+    MBD* first_node = env->mem_ptr;
+    MBD* p = first_node;
     MBD* q = (p) ? p->next : NULL;
 
     // We are removing the env that these were associated with, so we must associate them with the
@@ -312,7 +314,7 @@ void glp_env_tls_finalize_r(glp_environ_state_t* env_state)
         if(last_node) { 
             if(env_state->env->mem_ptr != NULL) env_state->env->mem_ptr->prev = last_node;
             last_node->next = env_state->env->mem_ptr;
-            env_state->env->mem_ptr = last_node;
+            env_state->env->mem_ptr = first_node;
         }
 
         if(env->mem_cpeak_tls + env_state->env->mem_count > env_state->env->mem_cpeak) {
@@ -339,6 +341,11 @@ void glp_env_tls_finalize_r(glp_environ_state_t* env_state)
 void glp_env_tls_init_r(glp_environ_state_t *env_state, void* info) 
 {
     ENV *env = get_env_ptr();
+    if(env->env_tls_init_flag) {
+        return;
+    }
+    env->env_tls_init_flag = 1;
+
     if (info != NULL) env->term_info = info;
 
     xassert(environ_state_rdlock(env_state) == 0);
