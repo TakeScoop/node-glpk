@@ -4,8 +4,15 @@ Node.js native module for GLPK.
 
 ## Install
 ```sh
-$ npm install glpk
+$ nvm use
+$ npm install
 ```
+
+## Test
+```sh
+$ npm run test
+```
+
 ## Example
 ```js
 var glp = require("glpk");
