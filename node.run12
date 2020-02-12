@@ -1,0 +1,2080 @@
+Script started on Mon Feb 10 15:05:27 2020
+[?1034hguycole@skyguy:101>nvm use 12
+Now using node v12.15.0 (npm v6.13.4)
+guycole@skyguy:102>npm i
+[?25l⸨[90m░░░░░░░░░░░░░░░░░░[0m⸩ ⠦ rollbackFailedOptional: [34;40mverb[0m [35mnpm-session[0m b06306677cc5ad18[0m[K⸨[7m [27m[90m░░░░░░░░░░░░░░░░░[0m⸩ ⠋ preinstall:glpk: [32minfo[0m [35mlifecycle[0m glpk@0.0.12~preinstall: glpk@0.0.12[0m[K⸨[7m [27m[90m░░░░░░░░░░░░░░░░░[0m⸩ ⠋ preinstall:glpk: [32minfo[0m [35mlifecycle[0m glpk@0.0.12~preinstall: glpk@0.0.12[0m[K⸨[7m [27m[90m░░░░░░░░░░░░░░░░░[0m⸩ ⠴ loadIdealTree:loadAllDepsIntoIdealTree: [7msill[0m [35minstall[0m loadIdealTree[0m[K⸨[7m  [27m[90m░░░░░░░░░░░░░░░░[0m⸩ ⠧ loadDep:cpp-eventemitter: [7msill[0m [35minstall[0m loadAllDepsIntoIdealTree[0m[K⸨[7m     [27m[90m░░░░░░░░░░░░░[0m⸩ ⠧ loadDep:uuid: [7msill[0m [35minstall[0m loadAllDepsIntoIdealTree[0m[K⸨[7m       [27m[90m░░░░░░░░░░░[0m⸩ ⠹ diffTrees: [7msill[0m [35minstall[0m generateActionsToTake[0m[K⸨[7m       [27m[90m░░░░░░░░░░░[0m⸩ ⠇ postinstall: [7msill[0m [35minstall[0m executeActions[0m[K[K[?25h
+> glpk@0.0.12 install /Users/guycole/github/node-glpk
+> node-gyp rebuild
+
+  CC(target) Release/obj.target/libglpk/src/glpk/avl.o
+  CC(target) Release/obj.target/libglpk/src/glpk/bfd.o
+[1m../src/glpk/bfd.c:272:18: [0m[0;1;35mwarning: [0m[1munused variable 'cond' [-Wunused-variable][0m
+          double cond;
+[0;1;32m                 ^
+[0m[1m../src/glpk/bfd.c:250:10: [0m[0;1;35mwarning: [0m[1mvariable 'ret' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/bfd.c:270:11: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      if (ret == 0)
+[0;1;32m          ^~~
+[0m[1m../src/glpk/bfd.c:145:20: [0m[0;1;30mnote: [0minitialize the variable 'ret' to silence this warning[0m
+      int type, ret;
+[0;1;32m                   ^
+[0m[0;32m                    = 0
+[0m[1m../src/glpk/bfd.c:440:16: [0m[0;1;35mwarning: [0m[1mvariable 'ret' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+               default:
+[0;1;32m               ^~~~~~~
+[0m[1m../src/glpk/bfd.c:444:21: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+            switch (ret)
+[0;1;32m                    ^~~
+[0m[1m../src/glpk/bfd.c:405:14: [0m[0;1;30mnote: [0minitialize the variable 'ret' to silence this warning[0m
+      int ret;
+[0;1;32m             ^
+[0m[0;32m              = 0
+[0m3 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/bfx.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpapi01.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpapi02.o
+[1m../src/glpk/glpapi02.c:233:10: [0m[0;1;35mwarning: [0m[1mvariable 'lb' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/glpapi02.c:236:14: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      return lb;
+[0;1;32m             ^~
+[0m[1m../src/glpk/glpapi02.c:222:16: [0m[0;1;30mnote: [0minitialize the variable 'lb' to silence this warning[0m
+{     double lb;
+[0;1;32m               ^
+[0m[0;32m                = 0.0
+[0m[1m../src/glpk/glpapi02.c:266:10: [0m[0;1;35mwarning: [0m[1mvariable 'ub' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/glpapi02.c:269:14: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      return ub;
+[0;1;32m             ^~
+[0m[1m../src/glpk/glpapi02.c:255:16: [0m[0;1;30mnote: [0minitialize the variable 'ub' to silence this warning[0m
+{     double ub;
+[0;1;32m               ^
+[0m[0;32m                = 0.0
+[0m[1m../src/glpk/glpapi02.c:327:10: [0m[0;1;35mwarning: [0m[1mvariable 'lb' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/glpapi02.c:330:14: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      return lb;
+[0;1;32m             ^~
+[0m[1m../src/glpk/glpapi02.c:315:16: [0m[0;1;30mnote: [0minitialize the variable 'lb' to silence this warning[0m
+{     double lb;
+[0;1;32m               ^
+[0m[0;32m                = 0.0
+[0m[1m../src/glpk/glpapi02.c:361:10: [0m[0;1;35mwarning: [0m[1mvariable 'ub' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/glpapi02.c:364:14: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      return ub;
+[0;1;32m             ^~
+[0m[1m../src/glpk/glpapi02.c:349:16: [0m[0;1;30mnote: [0minitialize the variable 'ub' to silence this warning[0m
+{     double ub;
+[0;1;32m               ^
+[0m[0;32m                = 0.0
+[0m4 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpapi03.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpapi04.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpapi05.o
+[1m../src/glpk/glpapi05.c:73:31: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+      if (row->stat == GLP_BS && stat != GLP_BS ||
+[0;1;32m          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpapi05.c:73:31: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+      if (row->stat == GLP_BS && stat != GLP_BS ||
+[0;1;32m          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpapi05.c:74:31: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+          row->stat != GLP_BS && stat == GLP_BS)
+[0;1;32m          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpapi05.c:74:31: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+          row->stat != GLP_BS && stat == GLP_BS)
+[0;1;32m          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpapi05.c:127:31: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+      if (col->stat == GLP_BS && stat != GLP_BS ||
+[0;1;32m          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpapi05.c:127:31: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+      if (col->stat == GLP_BS && stat != GLP_BS ||
+[0;1;32m          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpapi05.c:128:31: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+          col->stat != GLP_BS && stat == GLP_BS)
+[0;1;32m          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpapi05.c:128:31: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+          col->stat != GLP_BS && stat == GLP_BS)
+[0;1;32m          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+[0m4 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpapi06.o
+[1m../src/glpk/glpapi06.c:544:26: [0m[0;1;35mwarning: [0m[1mexplicitly assigning value of variable of type 'int' to itself [-Wself-assign][0m
+                  status = status;
+[0;1;32m                  ~~~~~~ ^ ~~~~~~
+[0m[1m../src/glpk/glpapi06.c:553:20: [0m[0;1;35mwarning: [0m[1mexplicitly assigning value of variable of type 'int' to itself [-Wself-assign][0m
+            status = status;
+[0;1;32m            ~~~~~~ ^ ~~~~~~
+[0m2 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpapi07.o
+[1m../src/glpk/glpapi07.c:397:10: [0m[0;1;35mwarning: [0m[1mvariable 'pst' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/glpapi07.c:401:22: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      lp->pbs_stat = pst;
+[0;1;32m                     ^~~
+[0m[1m../src/glpk/glpapi07.c:265:29: [0m[0;1;30mnote: [0minitialize the variable 'pst' to silence this warning[0m
+      int i, j, k, type, pst, dst, ret, stat;
+[0;1;32m                            ^
+[0m[0;32m                             = 0
+[0m[1m../src/glpk/glpapi07.c:397:10: [0m[0;1;35mwarning: [0m[1mvariable 'dst' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/glpapi07.c:402:22: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      lp->dbs_stat = dst;
+[0;1;32m                     ^~~
+[0m[1m../src/glpk/glpapi07.c:265:34: [0m[0;1;30mnote: [0minitialize the variable 'dst' to silence this warning[0m
+      int i, j, k, type, pst, dst, ret, stat;
+[0;1;32m                                 ^
+[0m[0;32m                                  = 0
+[0m2 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpapi08.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpapi09.o
+[1m../src/glpk/glpapi09.c:486:7: [0m[0;1;35mwarning: [0m[1m'/*' within block comment [-Wcomment][0m
+      /* the transformed MIP is no longer needed */
+[0;1;32m      ^
+[0m1 warning generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpapi10.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpapi11.o
+[1m../src/glpk/glpapi11.c:465:24: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         if (pass == 1 && k > m || pass == 2 && k <= m)
+[0;1;32m             ~~~~~~~~~~^~~~~~~~ ~~
+[0m[1m../src/glpk/glpapi11.c:465:24: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         if (pass == 1 && k > m || pass == 2 && k <= m)
+[0;1;32m                       ^
+[0m[0;32m             (                 )
+[0m[1m../src/glpk/glpapi11.c:465:46: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         if (pass == 1 && k > m || pass == 2 && k <= m)
+[0;1;32m                                ~~ ~~~~~~~~~~^~~~~~~~~
+[0m[1m../src/glpk/glpapi11.c:465:46: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         if (pass == 1 && k > m || pass == 2 && k <= m)
+[0;1;32m                                             ^
+[0m[0;32m                                   (                  )
+[0m[1m../src/glpk/glpapi11.c:529:37: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+            else if (stat == GLP_NL && P->dir == GLP_MIN ||
+[0;1;32m                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpapi11.c:529:37: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+            else if (stat == GLP_NL && P->dir == GLP_MIN ||
+[0;1;32m                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpapi11.c:530:37: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+                     stat == GLP_NU && P->dir == GLP_MAX)
+[0;1;32m                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpapi11.c:530:37: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+                     stat == GLP_NU && P->dir == GLP_MAX)
+[0;1;32m                     ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+[0m4 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpapi12.o
+[1m../src/glpk/glpapi12.c:676:49: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         if ((stat == GLP_NF || stat == GLP_NL) && temp < -1e-5 ||
+[0;1;32m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpapi12.c:676:49: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         if ((stat == GLP_NF || stat == GLP_NL) && temp < -1e-5 ||
+[0;1;32m                                                ^
+[0m[0;32m             (                                                 )
+[0m[1m../src/glpk/glpapi12.c:677:49: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+             (stat == GLP_NF || stat == GLP_NU) && temp > +1e-5)
+[0;1;32m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpapi12.c:677:49: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+             (stat == GLP_NF || stat == GLP_NU) && temp > +1e-5)
+[0;1;32m                                                ^
+[0m[0;32m             (                                                 )
+[0m[1m../src/glpk/glpapi12.c:700:49: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         if ((stat == GLP_NF || stat == GLP_NL) && temp < -1e-5 ||
+[0;1;32m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpapi12.c:700:49: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         if ((stat == GLP_NF || stat == GLP_NL) && temp < -1e-5 ||
+[0;1;32m                                                ^
+[0m[0;32m             (                                                 )
+[0m[1m../src/glpk/glpapi12.c:701:49: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+             (stat == GLP_NF || stat == GLP_NU) && temp > +1e-5)
+[0;1;32m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpapi12.c:701:49: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+             (stat == GLP_NF || stat == GLP_NU) && temp > +1e-5)
+[0;1;32m                                                ^
+[0m[0;32m             (                                                 )
+[0m[1m../src/glpk/glpapi12.c:1367:42: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         if (teta > temp || teta == temp && big < fabs(alfa))
+[0;1;32m                         ~~ ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpapi12.c:1367:42: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         if (teta > temp || teta == temp && big < fabs(alfa))
+[0;1;32m                                         ^
+[0m[0;32m                            (                               )
+[0m[1m../src/glpk/glpapi12.c:1501:42: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         if (teta > temp || teta == temp && big < fabs(alfa))
+[0;1;32m                         ~~ ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpapi12.c:1501:42: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         if (teta > temp || teta == temp && big < fabs(alfa))
+[0;1;32m                                         ^
+[0m[0;32m                            (                               )
+[0m[1m../src/glpk/glpapi12.c:1635:16: [0m[0;1;35mwarning: [0m[1mvariable 'dir' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized][0m
+      else if (type == GLP_UP)
+[0;1;32m               ^~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpapi12.c:1651:46: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      piv = glp_dual_rtest(P, len, ind, val, dir, eps);
+[0;1;32m                                             ^~~
+[0m[1m../src/glpk/glpapi12.c:1635:12: [0m[0;1;30mnote: [0mremove the 'if' if its condition is always true[0m
+      else if (type == GLP_UP)
+[0;1;32m           ^~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpapi12.c:1589:20: [0m[0;1;30mnote: [0minitialize the variable 'dir' to silence this warning[0m
+{     int t, k, dir, piv, ret = 0;
+[0;1;32m                   ^
+[0m[0;32m                    = 0
+[0m[1m../src/glpk/glpapi12.c:1869:23: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         if (kase < 0 && val[piv] > 0.0 ||
+[0;1;32m             ~~~~~~~~~^~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpapi12.c:1869:23: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         if (kase < 0 && val[piv] > 0.0 ||
+[0;1;32m                      ^
+[0m[0;32m             (                         )
+[0m[1m../src/glpk/glpapi12.c:1870:23: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+             kase > 0 && val[piv] < 0.0)
+[0;1;32m             ~~~~~~~~~^~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpapi12.c:1870:23: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+             kase > 0 && val[piv] < 0.0)
+[0;1;32m                      ^
+[0m[0;32m             (                         )
+[0m[1m../src/glpk/glpapi12.c:2066:23: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         if (kase < 0 && rval[rpiv] > 0.0 ||
+[0;1;32m             ~~~~~~~~~^~~~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpapi12.c:2066:23: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         if (kase < 0 && rval[rpiv] > 0.0 ||
+[0;1;32m                      ^
+[0m[0;32m             (                           )
+[0m[1m../src/glpk/glpapi12.c:2067:23: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+             kase > 0 && rval[rpiv] < 0.0)
+[0;1;32m             ~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpapi12.c:2067:23: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+             kase > 0 && rval[rpiv] < 0.0)
+[0;1;32m                      ^
+[0m[0;32m             (                           )
+[0m[1m../src/glpk/glpapi12.c:2114:25: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+            if (dir < 0 && rval[rpiv] > 0.0 ||
+[0;1;32m                ~~~~~~~~^~~~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpapi12.c:2114:25: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+            if (dir < 0 && rval[rpiv] > 0.0 ||
+[0;1;32m                        ^
+[0m[0;32m                (                          )
+[0m[1m../src/glpk/glpapi12.c:2115:25: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+                dir > 0 && rval[rpiv] < 0.0)
+[0;1;32m                ~~~~~~~~^~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpapi12.c:2115:25: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+                dir > 0 && rval[rpiv] < 0.0)
+[0;1;32m                        ^
+[0m[0;32m                (                          )
+[0m[1m../src/glpk/glpapi12.c:2146:22: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         if (dir < 0 && cval[cpiv] > 0.0 ||
+[0;1;32m             ~~~~~~~~^~~~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpapi12.c:2146:22: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         if (dir < 0 && cval[cpiv] > 0.0 ||
+[0;1;32m                     ^
+[0m[0;32m             (                          )
+[0m[1m../src/glpk/glpapi12.c:2147:22: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+             dir > 0 && cval[cpiv] < 0.0)
+[0;1;32m             ~~~~~~~~^~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpapi12.c:2147:22: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+             dir > 0 && cval[cpiv] < 0.0)
+[0;1;32m                     ^
+[0m[0;32m             (                          )
+[0m15 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpapi13.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpapi14.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpapi15.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpapi16.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpapi17.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpapi18.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpapi19.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpapi20.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpapi21.o
+[1m../src/glpk/glpapi21.c:435:34: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+               argv[k][0] == '-' && !isdigit((unsigned char)argv[k][1]))
+[0;1;32m               ~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpapi21.c:435:34: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+               argv[k][0] == '-' && !isdigit((unsigned char)argv[k][1]))
+[0;1;32m                                 ^
+[0m[0;32m               (                                                       )
+[0m[1m../src/glpk/glpapi21.c:821:34: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+               argv[k][0] == '-' && !isdigit((unsigned char)argv[k][1]))
+[0;1;32m               ~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpapi21.c:821:34: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+               argv[k][0] == '-' && !isdigit((unsigned char)argv[k][1]))
+[0;1;32m                                 ^
+[0m[0;32m               (                                                       )
+[0m[1m../src/glpk/glpapi21.c:1235:41: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+      {  if (csa->solution == SOL_BASIC && !csa->smcp.presolve ||
+[0;1;32m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpapi21.c:1235:41: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+      {  if (csa->solution == SOL_BASIC && !csa->smcp.presolve ||
+[0;1;32m                                        ^
+[0m[0;32m             (                                                )
+[0m[1m../src/glpk/glpapi21.c:1237:43: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+             csa->solution == SOL_INTEGER && !csa->iocp.presolve)
+[0;1;32m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpapi21.c:1237:43: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+             csa->solution == SOL_INTEGER && !csa->iocp.presolve)
+[0;1;32m                                          ^
+[0m[0;32m             (                                                  )
+[0m[1m../src/glpk/glpapi21.c:1242:38: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+      if (csa->solution == SOL_BASIC && !csa->smcp.presolve ||
+[0;1;32m          ~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpapi21.c:1242:38: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+      if (csa->solution == SOL_BASIC && !csa->smcp.presolve ||
+[0;1;32m                                     ^
+[0m[0;32m          (                                                )
+[0m[1m../src/glpk/glpapi21.c:1243:40: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+          csa->solution == SOL_INTEGER && !csa->iocp.presolve)
+[0;1;32m          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpapi21.c:1243:40: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+          csa->solution == SOL_INTEGER && !csa->iocp.presolve)
+[0;1;32m                                       ^
+[0m[0;32m          (                                                  )
+[0m[1m../src/glpk/glpapi21.c:1450:24: [0m[0;1;35mwarning: [0m[1mincompatible pointer types passing 'int *' to parameter of type 'size_t *' (aka 'unsigned long *') [-Wincompatible-pointer-types][0m
+         glp_mem_usage(&count, NULL, &total, NULL);
+[0;1;32m                       ^~~~~~
+[0m[1m../src/glpk/glpk.h:923:28: [0m[0;1;30mnote: [0mpassing argument to parameter 'count' here[0m
+void glp_mem_usage(size_t *count, size_t *cpeak, size_t *total, size_t *tpeak);
+[0;1;32m                           ^
+[0m[1m../src/glpk/glpapi21.c:1035:24: [0m[0;1;35mwarning: [0m[1mcomparison of integers of different signs: 'int' and 'unsigned int' [-Wsign-compare][0m
+         if (csa->seed == 0x80000000)
+[0;1;32m             ~~~~~~~~~ ^  ~~~~~~~~~~
+[0m8 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpcpx.o
+[1m../src/glpk/glpcpx.c:244:49: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+      else if (isalpha(csa->c) || csa->c != '.' && strchr(CHAR_SET,
+[0;1;32m                               ~~ ~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpcpx.c:244:49: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+      else if (isalpha(csa->c) || csa->c != '.' && strchr(CHAR_SET,
+[0;1;32m                                  ~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+[0m1 warning generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpdmx.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpgmp.o
+[1m../src/glpk/glpgmp.c:146:15: [0m[0;1;35mwarning: [0m[1mcomparison of integers of different signs: 'int' and 'unsigned int' [-Wsign-compare][0m
+      if (val == 0x80000000)
+[0;1;32m          ~~~ ^  ~~~~~~~~~~
+[0m[1m../src/glpk/glpgmp.c:227:25: [0m[0;1;35mwarning: [0m[1mcomparison of integers of different signs: 'int' and 'unsigned int' [-Wsign-compare][0m
+      {  xassert(x->val != 0x80000000);
+[0;1;32m                 ~~~~~~ ^  ~~~~~~~~~~
+[0m[1m../src/glpk/env/glpenv.h:250:16: [0m[0;1;30mnote: [0mexpanded from macro 'xassert'[0m
+      ((void)((expr) || (glp_assert_(#expr, __FILE__, __LINE__), 1)))
+[0;1;32m               ^~~~
+[0m[1m../src/glpk/glpgmp.c:282:37: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         if (!(xval > 0 && yval > 0 && zval <= 0 ||
+[0;1;32m               ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpgmp.c:282:37: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         if (!(xval > 0 && yval > 0 && zval <= 0 ||
+[0;1;32m                                    ^
+[0m[0;32m               (                                )
+[0m[1m../src/glpk/glpgmp.c:283:37: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+               xval < 0 && yval < 0 && zval >= 0))
+[0;1;32m               ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+[0m[1m../src/glpk/glpgmp.c:283:37: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+               xval < 0 && yval < 0 && zval >= 0))
+[0;1;32m                                    ^
+[0m[0;32m               (                                )
+[0m[1m../src/glpk/glpgmp.c:335:18: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+      if (sx > 0 && sy > 0 || sx < 0 && sy < 0)
+[0;1;32m          ~~~~~~~^~~~~~~~~ ~~
+[0m[1m../src/glpk/glpgmp.c:335:18: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+      if (sx > 0 && sy > 0 || sx < 0 && sy < 0)
+[0;1;32m                 ^
+[0m[0;32m          (               )
+[0m[1m../src/glpk/glpgmp.c:335:38: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+      if (sx > 0 && sy > 0 || sx < 0 && sy < 0)
+[0;1;32m                           ~~ ~~~~~~~^~~~~~~~~
+[0m[1m../src/glpk/glpgmp.c:335:38: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+      if (sx > 0 && sy > 0 || sx < 0 && sy < 0)
+[0;1;32m                                     ^
+[0m[0;32m                              (               )
+[0m[1m../src/glpk/glpgmp.c:281:23: [0m[0;1;35mwarning: [0m[1mcomparison of integers of different signs: 'int' and 'unsigned int' [-Wsign-compare][0m
+         xassert(xval != 0x80000000 && yval != 0x80000000);
+[0;1;32m                 ~~~~ ^  ~~~~~~~~~~
+[0m[1m../src/glpk/env/glpenv.h:250:16: [0m[0;1;30mnote: [0mexpanded from macro 'xassert'[0m
+      ((void)((expr) || (glp_assert_(#expr, __FILE__, __LINE__), 1)))
+[0;1;32m               ^~~~
+[0m[1m../src/glpk/glpgmp.c:281:45: [0m[0;1;35mwarning: [0m[1mcomparison of integers of different signs: 'int' and 'unsigned int' [-Wsign-compare][0m
+         xassert(xval != 0x80000000 && yval != 0x80000000);
+[0;1;32m                                       ~~~~ ^  ~~~~~~~~~~
+[0m[1m../src/glpk/env/glpenv.h:250:16: [0m[0;1;30mnote: [0mexpanded from macro 'xassert'[0m
+      ((void)((expr) || (glp_assert_(#expr, __FILE__, __LINE__), 1)))
+[0;1;32m               ^~~~
+[0m[1m../src/glpk/glpgmp.c:290:25: [0m[0;1;35mwarning: [0m[1mcomparison of integers of different signs: 'int' and 'unsigned int' [-Wsign-compare][0m
+      {  xassert(x->val != 0x80000000);
+[0;1;32m                 ~~~~~~ ^  ~~~~~~~~~~
+[0m[1m../src/glpk/env/glpenv.h:250:16: [0m[0;1;30mnote: [0mexpanded from macro 'xassert'[0m
+      ((void)((expr) || (glp_assert_(#expr, __FILE__, __LINE__), 1)))
+[0;1;32m               ^~~~
+[0m[1m../src/glpk/glpgmp.c:312:25: [0m[0;1;35mwarning: [0m[1mcomparison of integers of different signs: 'int' and 'unsigned int' [-Wsign-compare][0m
+      {  xassert(y->val != 0x80000000);
+[0;1;32m                 ~~~~~~ ^  ~~~~~~~~~~
+[0m[1m../src/glpk/env/glpenv.h:250:16: [0m[0;1;30mnote: [0mexpanded from macro 'xassert'[0m
+      ((void)((expr) || (glp_assert_(#expr, __FILE__, __LINE__), 1)))
+[0;1;32m               ^~~~
+[0m[1m../src/glpk/glpgmp.c:438:23: [0m[0;1;35mwarning: [0m[1mcomparison of integers of different signs: 'int' and 'unsigned int' [-Wsign-compare][0m
+         xassert(xval != 0x80000000 && yval != 0x80000000);
+[0;1;32m                 ~~~~ ^  ~~~~~~~~~~
+[0m[1m../src/glpk/env/glpenv.h:250:16: [0m[0;1;30mnote: [0mexpanded from macro 'xassert'[0m
+      ((void)((expr) || (glp_assert_(#expr, __FILE__, __LINE__), 1)))
+[0;1;32m               ^~~~
+[0m[1m../src/glpk/glpgmp.c:438:45: [0m[0;1;35mwarning: [0m[1mcomparison of integers of different signs: 'int' and 'unsigned int' [-Wsign-compare][0m
+         xassert(xval != 0x80000000 && yval != 0x80000000);
+[0;1;32m                                       ~~~~ ^  ~~~~~~~~~~
+[0m[1m../src/glpk/env/glpenv.h:250:16: [0m[0;1;30mnote: [0mexpanded from macro 'xassert'[0m
+      ((void)((expr) || (glp_assert_(#expr, __FILE__, __LINE__), 1)))
+[0;1;32m               ^~~~
+[0m[1m../src/glpk/glpgmp.c:448:25: [0m[0;1;35mwarning: [0m[1mcomparison of integers of different signs: 'int' and 'unsigned int' [-Wsign-compare][0m
+      {  xassert(x->val != 0x80000000);
+[0;1;32m                 ~~~~~~ ^  ~~~~~~~~~~
+[0m[1m../src/glpk/env/glpenv.h:250:16: [0m[0;1;30mnote: [0mexpanded from macro 'xassert'[0m
+      ((void)((expr) || (glp_assert_(#expr, __FILE__, __LINE__), 1)))
+[0;1;32m               ^~~~
+[0m[1m../src/glpk/glpgmp.c:470:25: [0m[0;1;35mwarning: [0m[1mcomparison of integers of different signs: 'int' and 'unsigned int' [-Wsign-compare][0m
+      {  xassert(y->val != 0x80000000);
+[0;1;32m                 ~~~~~~ ^  ~~~~~~~~~~
+[0m[1m../src/glpk/env/glpenv.h:250:16: [0m[0;1;30mnote: [0mexpanded from macro 'xassert'[0m
+      ((void)((expr) || (glp_assert_(#expr, __FILE__, __LINE__), 1)))
+[0;1;32m               ^~~~
+[0m[1m../src/glpk/glpgmp.c:589:23: [0m[0;1;35mwarning: [0m[1mcomparison of integers of different signs: 'int' and 'unsigned int' [-Wsign-compare][0m
+         xassert(xval != 0x80000000 && yval != 0x80000000);
+[0;1;32m                 ~~~~ ^  ~~~~~~~~~~
+[0m[1m../src/glpk/env/glpenv.h:250:16: [0m[0;1;30mnote: [0mexpanded from macro 'xassert'[0m
+      ((void)((expr) || (glp_assert_(#expr, __FILE__, __LINE__), 1)))
+[0;1;32m               ^~~~
+[0m[1m../src/glpk/glpgmp.c:589:45: [0m[0;1;35mwarning: [0m[1mcomparison of integers of different signs: 'int' and 'unsigned int' [-Wsign-compare][0m
+         xassert(xval != 0x80000000 && yval != 0x80000000);
+[0;1;32m                                       ~~~~ ^  ~~~~~~~~~~
+[0m[1m../src/glpk/env/glpenv.h:250:16: [0m[0;1;30mnote: [0mexpanded from macro 'xassert'[0m
+      ((void)((expr) || (glp_assert_(#expr, __FILE__, __LINE__), 1)))
+[0;1;32m               ^~~~
+[0m[1m../src/glpk/glpgmp.c:596:25: [0m[0;1;35mwarning: [0m[1mcomparison of integers of different signs: 'int' and 'unsigned int' [-Wsign-compare][0m
+      {  xassert(x->val != 0x80000000);
+[0;1;32m                 ~~~~~~ ^  ~~~~~~~~~~
+[0m[1m../src/glpk/env/glpenv.h:250:16: [0m[0;1;30mnote: [0mexpanded from macro 'xassert'[0m
+      ((void)((expr) || (glp_assert_(#expr, __FILE__, __LINE__), 1)))
+[0;1;32m               ^~~~
+[0m[1m../src/glpk/glpgmp.c:618:25: [0m[0;1;35mwarning: [0m[1mcomparison of integers of different signs: 'int' and 'unsigned int' [-Wsign-compare][0m
+      {  xassert(y->val != 0x80000000);
+[0;1;32m                 ~~~~~~ ^  ~~~~~~~~~~
+[0m[1m../src/glpk/env/glpenv.h:250:16: [0m[0;1;30mnote: [0mexpanded from macro 'xassert'[0m
+      ((void)((expr) || (glp_assert_(#expr, __FILE__, __LINE__), 1)))
+[0;1;32m               ^~~~
+[0m[1m../src/glpk/glpgmp.c:767:22: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+      if (x->val > 0 && y->val <= 0 || x->val == 0 && y->val < 0)
+[0;1;32m          ~~~~~~~~~~~^~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpgmp.c:767:22: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+      if (x->val > 0 && y->val <= 0 || x->val == 0 && y->val < 0)
+[0;1;32m                     ^
+[0m[0;32m          (                        )
+[0m[1m../src/glpk/glpgmp.c:767:52: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+      if (x->val > 0 && y->val <= 0 || x->val == 0 && y->val < 0)
+[0;1;32m                                    ~~ ~~~~~~~~~~~~^~~~~~~~~~~~~
+[0m[1m../src/glpk/glpgmp.c:767:52: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+      if (x->val > 0 && y->val <= 0 || x->val == 0 && y->val < 0)
+[0;1;32m                                                   ^
+[0m[0;32m                                       (                        )
+[0m[1m../src/glpk/glpgmp.c:771:22: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+      if (x->val < 0 && y->val >= 0 || x->val == 0 && y->val > 0)
+[0;1;32m          ~~~~~~~~~~~^~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpgmp.c:771:22: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+      if (x->val < 0 && y->val >= 0 || x->val == 0 && y->val > 0)
+[0;1;32m                     ^
+[0m[0;32m          (                        )
+[0m[1m../src/glpk/glpgmp.c:771:52: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+      if (x->val < 0 && y->val >= 0 || x->val == 0 && y->val > 0)
+[0;1;32m                                    ~~ ~~~~~~~~~~~~^~~~~~~~~~~~~
+[0m[1m../src/glpk/glpgmp.c:771:52: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+      if (x->val < 0 && y->val >= 0 || x->val == 0 && y->val > 0)
+[0;1;32m                                                   ^
+[0m[0;32m                                       (                        )
+[0m[1m../src/glpk/glpgmp.c:762:23: [0m[0;1;35mwarning: [0m[1mcomparison of integers of different signs: 'int' and 'unsigned int' [-Wsign-compare][0m
+         xassert(xval != 0x80000000 && yval != 0x80000000);
+[0;1;32m                 ~~~~ ^  ~~~~~~~~~~
+[0m[1m../src/glpk/env/glpenv.h:250:16: [0m[0;1;30mnote: [0mexpanded from macro 'xassert'[0m
+      ((void)((expr) || (glp_assert_(#expr, __FILE__, __LINE__), 1)))
+[0;1;32m               ^~~~
+[0m[1m../src/glpk/glpgmp.c:762:45: [0m[0;1;35mwarning: [0m[1mcomparison of integers of different signs: 'int' and 'unsigned int' [-Wsign-compare][0m
+         xassert(xval != 0x80000000 && yval != 0x80000000);
+[0;1;32m                                       ~~~~ ^  ~~~~~~~~~~
+[0m[1m../src/glpk/env/glpenv.h:250:16: [0m[0;1;30mnote: [0mexpanded from macro 'xassert'[0m
+      ((void)((expr) || (glp_assert_(#expr, __FILE__, __LINE__), 1)))
+[0;1;32m               ^~~~
+[0m[1m../src/glpk/glpgmp.c:777:25: [0m[0;1;35mwarning: [0m[1mcomparison of integers of different signs: 'int' and 'unsigned int' [-Wsign-compare][0m
+      {  xassert(x->val != 0x80000000);
+[0;1;32m                 ~~~~~~ ^  ~~~~~~~~~~
+[0m[1m../src/glpk/env/glpenv.h:250:16: [0m[0;1;30mnote: [0mexpanded from macro 'xassert'[0m
+      ((void)((expr) || (glp_assert_(#expr, __FILE__, __LINE__), 1)))
+[0;1;32m               ^~~~
+[0m[1m../src/glpk/glpgmp.c:799:25: [0m[0;1;35mwarning: [0m[1mcomparison of integers of different signs: 'int' and 'unsigned int' [-Wsign-compare][0m
+      {  xassert(y->val != 0x80000000);
+[0;1;32m                 ~~~~~~ ^  ~~~~~~~~~~
+[0m[1m../src/glpk/env/glpenv.h:250:16: [0m[0;1;30mnote: [0mexpanded from macro 'xassert'[0m
+      ((void)((expr) || (glp_assert_(#expr, __FILE__, __LINE__), 1)))
+[0;1;32m               ^~~~
+[0m26 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glphbm.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpini01.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpini02.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpios01.o
+[1m../src/glpk/glpios01.c:224:17: [0m[0;1;35mwarning: [0m[1mexplicitly assigning value of variable of type 'IOSNPD *' (aka 'struct IOSNPD *') to itself [-Wself-assign][0m
+      for (node = node; node != NULL; node = node->up)
+[0;1;32m           ~~~~ ^ ~~~~
+[0m[1m../src/glpk/glpios01.c:997:32: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         {  if (stat == GLP_NL && gamma < 0.0 ||
+[0;1;32m                ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpios01.c:997:32: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         {  if (stat == GLP_NL && gamma < 0.0 ||
+[0;1;32m                               ^
+[0m[0;32m                (                            )
+[0m[1m../src/glpk/glpios01.c:998:32: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+                stat == GLP_NU && gamma > 0.0 ||
+[0;1;32m                ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpios01.c:998:32: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+                stat == GLP_NU && gamma > 0.0 ||
+[0;1;32m                               ^
+[0m[0;32m                (                            )
+[0m[1m../src/glpk/glpios01.c:1002:32: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         {  if (stat == GLP_NL && gamma > 0.0 ||
+[0;1;32m                ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpios01.c:1002:32: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         {  if (stat == GLP_NL && gamma > 0.0 ||
+[0;1;32m                               ^
+[0m[0;32m                (                            )
+[0m[1m../src/glpk/glpios01.c:1003:32: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+                stat == GLP_NU && gamma < 0.0 ||
+[0;1;32m                ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpios01.c:1003:32: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+                stat == GLP_NU && gamma < 0.0 ||
+[0;1;32m                               ^
+[0m[0;32m                (                            )
+[0m5 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpios02.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpios03.o
+[1m../src/glpk/glpios03.c:80:16: [0m[0;1;35mwarning: [0m[1mvariable 'rho' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized][0m
+      else if (T->mip->dir == GLP_MAX)
+[0;1;32m               ^~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpios03.c:96:63: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+         T->mip->it_cnt, bingo ? ">>>>>" : "mip =", best_mip, rho,
+[0;1;32m                                                              ^~~
+[0m[1m../src/glpk/glpios03.c:80:12: [0m[0;1;30mnote: [0mremove the 'if' if its condition is always true[0m
+      else if (T->mip->dir == GLP_MAX)
+[0;1;32m           ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpios03.c:56:46: [0m[0;1;30mnote: [0minitialize the variable 'rho' to silence this warning[0m
+      char best_mip[50], best_bound[50], *rho, rel_gap[50];
+[0;1;32m                                             ^
+[0m[0;32m                                              = NULL
+[0m[1m../src/glpk/glpios03.c:738:37: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         {  if (T->curr->level == 0 && T->curr->changed < 500 ||
+[0;1;32m                ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpios03.c:738:37: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         {  if (T->curr->level == 0 && T->curr->changed < 500 ||
+[0;1;32m                                    ^
+[0m[0;32m                (                                            )
+[0m[1m../src/glpk/glpios03.c:739:37: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+                T->curr->level >  0 && T->curr->changed < 50)
+[0;1;32m                ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpios03.c:739:37: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+                T->curr->level >  0 && T->curr->changed < 50)
+[0;1;32m                                    ^
+[0m[0;32m                (                                           )
+[0m[1m../src/glpk/glpios03.c:981:42: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+          T->parm->msg_lev >= GLP_MSG_ON &&
+[0;1;32m          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+[0m[1m../src/glpk/glpios03.c:981:42: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+          T->parm->msg_lev >= GLP_MSG_ON &&
+[0;1;32m                                         ^
+[0m[0;32m          (
+[0m4 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpios04.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpios05.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpios06.o
+[1m../src/glpk/glpios06.c:198:34: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         if (!(mir->lb[i] == 0.0 && mir->ub[i] == +DBL_MAX ||
+[0;1;32m               ~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpios06.c:198:34: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         if (!(mir->lb[i] == 0.0 && mir->ub[i] == +DBL_MAX ||
+[0;1;32m               ~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpios06.c:199:39: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+               mir->lb[i] == -DBL_MAX && mir->ub[i] == 0.0)) continue;
+[0;1;32m               ~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpios06.c:199:39: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+               mir->lb[i] == -DBL_MAX && mir->ub[i] == 0.0)) continue;
+[0;1;32m                                      ^
+[0m[0;32m               (                                          )
+[0m[1m../src/glpk/glpios06.c:274:31: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+            if (mir->isint[k] && mir->lb[k] == -DBL_MAX ||
+[0;1;32m                ~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpios06.c:274:31: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+            if (mir->isint[k] && mir->lb[k] == -DBL_MAX ||
+[0;1;32m                ~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpios06.c:275:31: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+                mir->isint[k] && mir->ub[k] == +DBL_MAX)
+[0;1;32m                ~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpios06.c:275:31: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+                mir->isint[k] && mir->ub[k] == +DBL_MAX)
+[0;1;32m                ~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpios06.c:959:19: [0m[0;1;35mwarning: [0m[1mvariable 'x' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized][0m
+         else if (mir->subst[k] == 'U')
+[0;1;32m                  ^~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpios06.c:970:14: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+         if (x < 0.0) x = 0.0;
+[0;1;32m             ^
+[0m[1m../src/glpk/glpios06.c:959:15: [0m[0;1;30mnote: [0mremove the 'if' if its condition is always true[0m
+         else if (mir->subst[k] == 'U')
+[0;1;32m              ^~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpios06.c:946:18: [0m[0;1;30mnote: [0minitialize the variable 'x' to silence this warning[0m
+      {  double x;
+[0;1;32m                 ^
+[0m[0;32m                  = 0.0
+[0m5 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpios07.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpios08.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpios09.o
+[1m../src/glpk/glpios09.c:71:16: [0m[0;1;35mwarning: [0m[1mvariable 'j' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized][0m
+      else if (T->parm->br_tech == GLP_BR_PCH)
+[0;1;32m               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpios09.c:77:14: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      return j;
+[0;1;32m             ^
+[0m[1m../src/glpk/glpios09.c:71:12: [0m[0;1;30mnote: [0mremove the 'if' if its condition is always true[0m
+      else if (T->parm->br_tech == GLP_BR_PCH)
+[0;1;32m           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpios09.c:54:12: [0m[0;1;30mnote: [0minitialize the variable 'j' to silence this warning[0m
+{     int j;
+[0;1;32m           ^
+[0m[0;32m            = 0
+[0m[1m../src/glpk/glpios09.c:299:38: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+                  if (stat == GLP_NL && dk < 0.0 ||
+[0;1;32m                      ~~~~~~~~~~~~~~~^~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpios09.c:299:38: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+                  if (stat == GLP_NL && dk < 0.0 ||
+[0;1;32m                                     ^
+[0m[0;32m                      (                         )
+[0m[1m../src/glpk/glpios09.c:300:38: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+                      stat == GLP_NU && dk > 0.0 ||
+[0;1;32m                      ~~~~~~~~~~~~~~~^~~~~~~~~~~
+[0m[1m../src/glpk/glpios09.c:300:38: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+                      stat == GLP_NU && dk > 0.0 ||
+[0;1;32m                                     ^
+[0m[0;32m                      (                         )
+[0m[1m../src/glpk/glpios09.c:304:38: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+                  if (stat == GLP_NL && dk > 0.0 ||
+[0;1;32m                      ~~~~~~~~~~~~~~~^~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpios09.c:304:38: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+                  if (stat == GLP_NL && dk > 0.0 ||
+[0;1;32m                                     ^
+[0m[0;32m                      (                         )
+[0m[1m../src/glpk/glpios09.c:305:38: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+                      stat == GLP_NU && dk < 0.0 ||
+[0;1;32m                      ~~~~~~~~~~~~~~~^~~~~~~~~~~
+[0m[1m../src/glpk/glpios09.c:305:38: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+                      stat == GLP_NU && dk < 0.0 ||
+[0;1;32m                                     ^
+[0m[0;32m                      (                         )
+[0m[1m../src/glpk/glpios09.c:459:22: [0m[0;1;35mwarning: [0m[1mvariable 'degrad' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized][0m
+            else if (P->dir == GLP_MAX)
+[0;1;32m                     ^~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpios09.c:467:17: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+            if (degrad < 1e-6 * (1.0 + 0.001 * fabs(P->obj_val)))
+[0;1;32m                ^~~~~~
+[0m[1m../src/glpk/glpios09.c:459:18: [0m[0;1;30mnote: [0mremove the 'if' if its condition is always true[0m
+            else if (P->dir == GLP_MAX)
+[0;1;32m                 ^~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpios09.c:433:20: [0m[0;1;30mnote: [0minitialize the variable 'degrad' to silence this warning[0m
+      double degrad;
+[0;1;32m                   ^
+[0m[0;32m                    = 0.0
+[0m[1m../src/glpk/glpios09.c:563:16: [0m[0;1;35mwarning: [0m[1mvariable 'psi' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized][0m
+      else if (brnch == GLP_UP_BRNCH)
+[0;1;32m               ^~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpios09.c:580:14: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+done: return psi;
+[0;1;32m             ^~~
+[0m[1m../src/glpk/glpios09.c:563:12: [0m[0;1;30mnote: [0mremove the 'if' if its condition is always true[0m
+      else if (brnch == GLP_UP_BRNCH)
+[0;1;32m           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpios09.c:545:31: [0m[0;1;30mnote: [0minitialize the variable 'psi' to silence this warning[0m
+      double beta, degrad, psi;
+[0;1;32m                              ^
+[0m[0;32m                               = 0.0
+[0m7 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpios10.o
+[1m../src/glpk/glpios10.c:227:24: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         {  if (k >= 5 && var[k].d < 0.35 || k >= 10) break;
+[0;1;32m                ~~~~~~~^~~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpios10.c:227:24: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         {  if (k >= 5 && var[k].d < 0.35 || k >= 10) break;
+[0;1;32m                       ^
+[0m[0;32m                (                        )
+[0m1 warning generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpios11.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpios12.o
+[1m../src/glpk/glpios12.c:69:16: [0m[0;1;35mwarning: [0m[1mvariable 'p' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized][0m
+      else if (T->parm->bt_tech == GLP_BT_BPH)
+[0;1;32m               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpios12.c:81:14: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      return p;
+[0;1;32m             ^
+[0m[1m../src/glpk/glpios12.c:69:12: [0m[0;1;30mnote: [0mremove the 'if' if its condition is always true[0m
+      else if (T->parm->bt_tech == GLP_BT_BPH)
+[0;1;32m           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpios12.c:54:12: [0m[0;1;30mnote: [0minitialize the variable 'p' to silence this warning[0m
+{     int p;
+[0;1;32m           ^
+[0m[0;32m            = 0
+[0m1 warning generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpipm.o
+[1m../src/glpk/glpipm.c:1063:16: [0m[0;1;35mwarning: [0m[1mvariable 'dir' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized][0m
+      else if (P->dir == GLP_MAX)
+[0;1;32m               ^~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpipm.c:1067:14: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      c[0] = dir * P->c0;
+[0;1;32m             ^~~
+[0m[1m../src/glpk/glpipm.c:1063:12: [0m[0;1;30mnote: [0mremove the 'if' if its condition is always true[0m
+      else if (P->dir == GLP_MAX)
+[0;1;32m           ^~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpipm.c:1033:17: [0m[0;1;30mnote: [0minitialize the variable 'dir' to silence this warning[0m
+      double dir, *A_val, *b, *c, *x, *y, *z;
+[0;1;32m                ^
+[0m[0;32m                 = 0.0
+[0m1 warning generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpmat.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpmpl01.o
+[1m../src/glpk/glpmpl01.c:472:30: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         mpl->token == T_AND && mpl->image[0] == 'a' ||
+[0;1;32m         ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpmpl01.c:472:30: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         mpl->token == T_AND && mpl->image[0] == 'a' ||
+[0;1;32m                             ^
+[0m[0;32m         (                                          )
+[0m[1m../src/glpk/glpmpl01.c:483:30: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         mpl->token == T_NOT && mpl->image[0] == 'n' ||
+[0;1;32m         ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl01.c:483:30: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         mpl->token == T_NOT && mpl->image[0] == 'n' ||
+[0;1;32m                             ^
+[0m[0;32m         (                                          )
+[0m[1m../src/glpk/glpmpl01.c:484:29: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         mpl->token == T_OR && mpl->image[0] == 'o' ||
+[0;1;32m         ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl01.c:484:29: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         mpl->token == T_OR && mpl->image[0] == 'o' ||
+[0;1;32m                            ^
+[0m[0;32m         (                                         )
+[0m[1m../src/glpk/glpmpl01.c:1081:10: [0m[0;1;35mwarning: [0m[1mvariable 'code' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/glpmpl01.c:1084:14: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      return code;
+[0;1;32m             ^~~~
+[0m[1m../src/glpk/glpmpl01.c:942:17: [0m[0;1;30mnote: [0minitialize the variable 'code' to silence this warning[0m
+      CODE *code;
+[0;1;32m                ^
+[0m[0;32m                 = NULL
+[0m[1m../src/glpk/glpmpl01.c:1227:16: [0m[0;1;35mwarning: [0m[1mvariable 'op' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized][0m
+      else if (strcmp(mpl->image, "gmtime") == 0)
+[0;1;32m               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl01.c:1239:11: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      if (op == O_MIN || op == O_MAX)
+[0;1;32m          ^~
+[0m[1m../src/glpk/glpmpl01.c:1227:12: [0m[0;1;30mnote: [0mremove the 'if' if its condition is always true[0m
+      else if (strcmp(mpl->image, "gmtime") == 0)
+[0;1;32m           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl01.c:1175:13: [0m[0;1;30mnote: [0minitialize the variable 'op' to silence this warning[0m
+      int op;
+[0;1;32m            ^
+[0m[0;32m             = 0
+[0m[1m../src/glpk/glpmpl01.c:1983:31: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+                  op == O_SUM && arg.loop.x->type == A_FORMULA))
+[0;1;32m                  ~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl01.c:1983:31: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+                  op == O_SUM && arg.loop.x->type == A_FORMULA))
+[0;1;32m                  ~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl01.c:2021:10: [0m[0;1;35mwarning: [0m[1mvariable 'code' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/glpmpl01.c:2027:15: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      link_up(code);
+[0;1;32m              ^~~~
+[0m[1m../src/glpk/glpmpl01.c:1940:17: [0m[0;1;30mnote: [0minitialize the variable 'code' to silence this warning[0m
+{     CODE *code;
+[0;1;32m                ^
+[0m[0;32m                 = NULL
+[0m[1m../src/glpk/glpmpl01.c:1958:16: [0m[0;1;35mwarning: [0m[1mvariable 'op' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized][0m
+      else if (strcmp(mpl->image, "setof") == 0)
+[0;1;32m               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl01.c:1970:15: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      switch (op)
+[0;1;32m              ^~
+[0m[1m../src/glpk/glpmpl01.c:1958:12: [0m[0;1;30mnote: [0mremove the 'if' if its condition is always true[0m
+      else if (strcmp(mpl->image, "setof") == 0)
+[0;1;32m           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl01.c:1942:13: [0m[0;1;30mnote: [0minitialize the variable 'op' to silence this warning[0m
+      int op;
+[0;1;32m            ^
+[0m[0;32m             = 0
+[0m[1m../src/glpk/glpmpl01.c:2246:16: [0m[0;1;35mwarning: [0m[1mvariable 'code' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized][0m
+      else if (mpl->token == T_IF)
+[0;1;32m               ^~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl01.c:2256:14: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      return code;
+[0;1;32m             ^~~~
+[0m[1m../src/glpk/glpmpl01.c:2246:12: [0m[0;1;30mnote: [0mremove the 'if' if its condition is always true[0m
+      else if (mpl->token == T_IF)
+[0;1;32m           ^~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl01.c:2195:17: [0m[0;1;30mnote: [0minitialize the variable 'code' to silence this warning[0m
+{     CODE *code;
+[0;1;32m                ^
+[0m[0;32m                 = NULL
+[0m[1m../src/glpk/glpmpl01.c:3848:16: [0m[0;1;35mwarning: [0m[1mvariable 'type' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized][0m
+      else if (is_keyword(mpl, "maximize"))
+[0;1;32m               ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl.h:370:20: [0m[0;1;30mnote: [0mexpanded from macro 'is_keyword'[0m
+#define is_keyword _glp_mpl_is_keyword
+[0;1;32m                   ^
+[0m[1m../src/glpk/glpmpl01.c:3872:19: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      obj->type = type;
+[0;1;32m                  ^~~~
+[0m[1m../src/glpk/glpmpl01.c:3848:12: [0m[0;1;30mnote: [0mremove the 'if' if its condition is always true[0m
+      else if (is_keyword(mpl, "maximize"))
+[0;1;32m           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl01.c:3845:15: [0m[0;1;30mnote: [0minitialize the variable 'type' to silence this warning[0m
+      int type;
+[0;1;32m              ^
+[0m[0;32m               = 0
+[0m[1m../src/glpk/glpmpl01.c:4569:24: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+{     if (!mpl->flag_d && is_keyword(mpl, "end") ||
+[0;1;32m          ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpmpl01.c:4569:24: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+{     if (!mpl->flag_d && is_keyword(mpl, "end") ||
+[0;1;32m                       ^
+[0m[0;32m          (                                     )
+[0m[1m../src/glpk/glpmpl01.c:4570:24: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+           mpl->flag_d && is_literal(mpl, "end"))
+[0;1;32m           ~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl01.c:4570:24: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+           mpl->flag_d && is_literal(mpl, "end"))
+[0;1;32m                       ^
+[0m[0;32m           (                                    )
+[0m12 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpmpl02.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpmpl03.o
+[1m../src/glpk/glpmpl03.c:37:30: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+{     if (x > 0.0 && y > 0.0 && x > + 0.999 * DBL_MAX - y ||
+[0;1;32m          ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpmpl03.c:37:30: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+{     if (x > 0.0 && y > 0.0 && x > + 0.999 * DBL_MAX - y ||
+[0;1;32m                             ^
+[0m[0;32m          (                                              )
+[0m[1m../src/glpk/glpmpl03.c:38:30: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+          x < 0.0 && y < 0.0 && x < - 0.999 * DBL_MAX - y)
+[0;1;32m          ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl03.c:38:30: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+          x < 0.0 && y < 0.0 && x < - 0.999 * DBL_MAX - y)
+[0;1;32m                             ^
+[0m[0;32m          (                                              )
+[0m[1m../src/glpk/glpmpl03.c:50:30: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+{     if (x > 0.0 && y < 0.0 && x > + 0.999 * DBL_MAX + y ||
+[0;1;32m          ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpmpl03.c:50:30: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+{     if (x > 0.0 && y < 0.0 && x > + 0.999 * DBL_MAX + y ||
+[0;1;32m                             ^
+[0m[0;32m          (                                              )
+[0m[1m../src/glpk/glpmpl03.c:51:30: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+          x < 0.0 && y > 0.0 && x < - 0.999 * DBL_MAX + y)
+[0;1;32m          ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl03.c:51:30: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+          x < 0.0 && y > 0.0 && x < - 0.999 * DBL_MAX + y)
+[0;1;32m                             ^
+[0m[0;32m          (                                              )
+[0m[1m../src/glpk/glpmpl03.c:131:25: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+            if (x > 0.0 && y < 0.0 || x < 0.0 && y > 0.0) r += y;
+[0;1;32m                ~~~~~~~~^~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpmpl03.c:131:25: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+            if (x > 0.0 && y < 0.0 || x < 0.0 && y > 0.0) r += y;
+[0;1;32m                        ^
+[0m[0;32m                (                 )
+[0m[1m../src/glpk/glpmpl03.c:131:47: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+            if (x > 0.0 && y < 0.0 || x < 0.0 && y > 0.0) r += y;
+[0;1;32m                                   ~~ ~~~~~~~~^~~~~~~~~~
+[0m[1m../src/glpk/glpmpl03.c:131:47: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+            if (x > 0.0 && y < 0.0 || x < 0.0 && y > 0.0) r += y;
+[0;1;32m                                              ^
+[0m[0;32m                                      (                 )
+[0m[1m../src/glpk/glpmpl03.c:144:20: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+      if (x == 0.0 && y <= 0.0 || x < 0.0 && y != floor(y))
+[0;1;32m          ~~~~~~~~~^~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpmpl03.c:144:20: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+      if (x == 0.0 && y <= 0.0 || x < 0.0 && y != floor(y))
+[0;1;32m                   ^
+[0m[0;32m          (                   )
+[0m[1m../src/glpk/glpmpl03.c:144:43: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+      if (x == 0.0 && y <= 0.0 || x < 0.0 && y != floor(y))
+[0;1;32m                               ~~ ~~~~~~~~^~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl03.c:144:43: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+      if (x == 0.0 && y <= 0.0 || x < 0.0 && y != floor(y))
+[0;1;32m                                          ^
+[0m[0;32m                                  (                       )
+[0m[1m../src/glpk/glpmpl03.c:148:37: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+      if (fabs(x) > 1.0 && y > +1.0 &&
+[0;1;32m          ~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+[0m[1m../src/glpk/glpmpl03.c:148:37: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+      if (fabs(x) > 1.0 && y > +1.0 &&
+[0;1;32m                                    ^
+[0m[0;32m          (
+[0m[1m../src/glpk/glpmpl03.c:150:37: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+          fabs(x) < 1.0 && y < -1.0 &&
+[0;1;32m          ~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+[0m[1m../src/glpk/glpmpl03.c:150:37: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+          fabs(x) < 1.0 && y < -1.0 &&
+[0;1;32m                                    ^
+[0m[0;32m          (
+[0m[1m../src/glpk/glpmpl03.c:154:37: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+      if (fabs(x) > 1.0 && y < -1.0 &&
+[0;1;32m          ~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+[0m[1m../src/glpk/glpmpl03.c:154:37: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+      if (fabs(x) > 1.0 && y < -1.0 &&
+[0;1;32m                                    ^
+[0m[0;32m          (
+[0m[1m../src/glpk/glpmpl03.c:156:37: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+          fabs(x) < 1.0 && y > +1.0 &&
+[0;1;32m          ~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+[0m[1m../src/glpk/glpmpl03.c:156:37: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+          fabs(x) < 1.0 && y > +1.0 &&
+[0;1;32m                                    ^
+[0m[0;32m          (
+[0m[1m../src/glpk/glpmpl03.c:1076:25: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+      {  if (temp > 0.0 && dt > 0.0 || temp < 0.0 && dt < 0.0)
+[0;1;32m             ~~~~~~~~~~~^~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpmpl03.c:1076:25: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+      {  if (temp > 0.0 && dt > 0.0 || temp < 0.0 && dt < 0.0)
+[0;1;32m                        ^
+[0m[0;32m             (                     )
+[0m[1m../src/glpk/glpmpl03.c:1076:51: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+      {  if (temp > 0.0 && dt > 0.0 || temp < 0.0 && dt < 0.0)
+[0;1;32m                                    ~~ ~~~~~~~~~~~^~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl03.c:1076:51: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+      {  if (temp > 0.0 && dt > 0.0 || temp < 0.0 && dt < 0.0)
+[0;1;32m                                                  ^
+[0m[0;32m                                       (                     )
+[0m[1m../src/glpk/glpmpl03.c:2375:16: [0m[0;1;35mwarning: [0m[1mvariable 'refer' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized][0m
+      else if (set->option != NULL)
+[0;1;32m               ^~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl03.c:2385:14: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      return refer;
+[0;1;32m             ^~~~~
+[0m[1m../src/glpk/glpmpl03.c:2375:12: [0m[0;1;30mnote: [0mremove the 'if' if its condition is always true[0m
+      else if (set->option != NULL)
+[0;1;32m           ^~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl03.c:2359:21: [0m[0;1;30mnote: [0minitialize the variable 'refer' to silence this warning[0m
+      ELEMSET *refer;
+[0;1;32m                    ^
+[0m[0;32m                     = NULL
+[0m[1m../src/glpk/glpmpl03.c:2706:16: [0m[0;1;35mwarning: [0m[1mvariable 'value' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized][0m
+      else if (par->defval != NULL)
+[0;1;32m               ^~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl03.c:2719:14: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      return value;
+[0;1;32m             ^~~~~
+[0m[1m../src/glpk/glpmpl03.c:2706:12: [0m[0;1;30mnote: [0mremove the 'if' if its condition is always true[0m
+      else if (par->defval != NULL)
+[0;1;32m           ^~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl03.c:2685:19: [0m[0;1;30mnote: [0minitialize the variable 'value' to silence this warning[0m
+      double value;
+[0;1;32m                  ^
+[0m[0;32m                   = 0.0
+[0m[1m../src/glpk/glpmpl03.c:2944:16: [0m[0;1;35mwarning: [0m[1mvariable 'value' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized][0m
+      else if (par->defval != NULL)
+[0;1;32m               ^~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl03.c:2954:14: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      return value;
+[0;1;32m             ^~~~~
+[0m[1m../src/glpk/glpmpl03.c:2944:12: [0m[0;1;30mnote: [0mremove the 'if' if its condition is always true[0m
+      else if (par->defval != NULL)
+[0;1;32m           ^~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl03.c:2923:20: [0m[0;1;30mnote: [0minitialize the variable 'value' to silence this warning[0m
+      SYMBOL *value;
+[0;1;32m                   ^
+[0m[0;32m                    = NULL
+[0m[1m../src/glpk/glpmpl03.c:3886:10: [0m[0;1;35mwarning: [0m[1mvariable 'value' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/glpmpl03.c:3892:25: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      code->value.num = value;
+[0;1;32m                        ^~~~~
+[0m[1m../src/glpk/glpmpl03.c:3594:19: [0m[0;1;35mwarning: [0m[1mvariable 'value' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+                  default:
+[0;1;32m                  ^~~~~~~
+[0m[1m../src/glpk/glpmpl03.c:3892:25: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      code->value.num = value;
+[0;1;32m                        ^~~~~
+[0m[1m../src/glpk/glpmpl03.c:3554:19: [0m[0;1;35mwarning: [0m[1mvariable 'value' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+                  default:
+[0;1;32m                  ^~~~~~~
+[0m[1m../src/glpk/glpmpl03.c:3892:25: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      code->value.num = value;
+[0;1;32m                        ^~~~~
+[0m[1m../src/glpk/glpmpl03.c:3483:19: [0m[0;1;30mnote: [0minitialize the variable 'value' to silence this warning[0m
+{     double value;
+[0;1;32m                  ^
+[0m[0;32m                   = 0.0
+[0m[1m../src/glpk/glpmpl03.c:4012:10: [0m[0;1;35mwarning: [0m[1mvariable 'value' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/glpmpl03.c:4018:42: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      code->value.sym = copy_symbol(mpl, value);
+[0;1;32m                                         ^~~~~
+[0m[1m../src/glpk/glpmpl03.c:3903:20: [0m[0;1;30mnote: [0minitialize the variable 'value' to silence this warning[0m
+{     SYMBOL *value;
+[0;1;32m                   ^
+[0m[0;32m                    = NULL
+[0m[1m../src/glpk/glpmpl03.c:4263:10: [0m[0;1;35mwarning: [0m[1mvariable 'value' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/glpmpl03.c:4269:25: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      code->value.bit = value;
+[0;1;32m                        ^~~~~
+[0m[1m../src/glpk/glpmpl03.c:4059:16: [0m[0;1;30mnote: [0minitialize the variable 'value' to silence this warning[0m
+{     int value;
+[0;1;32m               ^
+[0m[0;32m                = 0
+[0m[1m../src/glpk/glpmpl03.c:4311:10: [0m[0;1;35mwarning: [0m[1mvariable 'value' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/glpmpl03.c:4317:43: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      code->value.tuple = copy_tuple(mpl, value);
+[0;1;32m                                          ^~~~~
+[0m[1m../src/glpk/glpmpl03.c:4280:19: [0m[0;1;30mnote: [0minitialize the variable 'value' to silence this warning[0m
+{     TUPLE *value;
+[0;1;32m                  ^
+[0m[0;32m                   = NULL
+[0m[1m../src/glpk/glpmpl03.c:4467:10: [0m[0;1;35mwarning: [0m[1mvariable 'value' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/glpmpl03.c:4473:43: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      code->value.set = copy_elemset(mpl, value);
+[0;1;32m                                          ^~~~~
+[0m[1m../src/glpk/glpmpl03.c:4364:21: [0m[0;1;30mnote: [0minitialize the variable 'value' to silence this warning[0m
+{     ELEMSET *value;
+[0;1;32m                    ^
+[0m[0;32m                     = NULL
+[0m[1m../src/glpk/glpmpl03.c:4589:29: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+               if (dt > 0.0 && !(t0 <= x && x <= tf) ||
+[0;1;32m                   ~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpmpl03.c:4589:29: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+               if (dt > 0.0 && !(t0 <= x && x <= tf) ||
+[0;1;32m                            ^
+[0m[0;32m                   (                                )
+[0m[1m../src/glpk/glpmpl03.c:4590:29: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+                   dt < 0.0 && !(tf <= x && x <= t0))
+[0;1;32m                   ~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmpl03.c:4590:29: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+                   dt < 0.0 && !(tf <= x && x <= t0))
+[0;1;32m                            ^
+[0m[0;32m                   (                                )
+[0m[1m../src/glpk/glpmpl03.c:4607:15: [0m[0;1;35mwarning: [0m[1mvariable 'value' is used uninitialized whenever switch case is taken [-Wsometimes-uninitialized][0m
+         case O_SETOF:
+[0;1;32m              ^~~~~~~
+[0m[1m../src/glpk/glpmpl.h:2176:25: [0m[0;1;30mnote: [0mexpanded from macro 'O_SETOF'[0m
+#define O_SETOF         383   /* compute elemental set */
+[0;1;32m                        ^~~
+[0m[1m../src/glpk/glpmpl03.c:4628:14: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      return value;
+[0;1;32m             ^~~~~
+[0m[1m../src/glpk/glpmpl03.c:4625:10: [0m[0;1;35mwarning: [0m[1mvariable 'value' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/glpmpl03.c:4628:14: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      return value;
+[0;1;32m             ^~~~~
+[0m[1m../src/glpk/glpmpl03.c:4494:16: [0m[0;1;30mnote: [0minitialize the variable 'value' to silence this warning[0m
+{     int value;
+[0;1;32m               ^
+[0m[0;32m                = 0
+[0m[1m../src/glpk/glpmpl03.c:4798:10: [0m[0;1;35mwarning: [0m[1mvariable 'value' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/glpmpl03.c:4804:44: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      code->value.form = copy_formula(mpl, value);
+[0;1;32m                                           ^~~~~
+[0m[1m../src/glpk/glpmpl03.c:4689:21: [0m[0;1;30mnote: [0minitialize the variable 'value' to silence this warning[0m
+{     FORMULA *value;
+[0;1;32m                    ^
+[0m[0;32m                     = NULL
+[0m29 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpmpl04.o
+[1m../src/glpk/glpmpl04.c:925:10: [0m[0;1;35mwarning: [0m[1mvariable 'kind' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/glpmpl04.c:928:14: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      return kind;
+[0;1;32m             ^~~~
+[0m[1m../src/glpk/glpmpl04.c:912:15: [0m[0;1;30mnote: [0minitialize the variable 'kind' to silence this warning[0m
+{     int kind;
+[0;1;32m              ^
+[0m[0;32m               = 0
+[0m[1m../src/glpk/glpmpl04.c:1161:10: [0m[0;1;35mwarning: [0m[1mvariable 'kind' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/glpmpl04.c:1164:14: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      return kind;
+[0;1;32m             ^~~~
+[0m[1m../src/glpk/glpmpl04.c:1148:15: [0m[0;1;30mnote: [0minitialize the variable 'kind' to silence this warning[0m
+{     int kind;
+[0;1;32m              ^
+[0m[0;32m               = 0
+[0m2 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpmpl05.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpmpl06.o
+[1m../src/glpk/glpmpl06.c:666:17: [0m[0;1;35mwarning: [0m[1mexplicitly assigning value of variable of type 'int' to itself [-Wself-assign][0m
+         for (j = j; j < 11; j++)
+[0;1;32m              ~ ^ ~
+[0m[1m../src/glpk/glpmpl06.c:825:20: [0m[0;1;35mwarning: [0m[1mexplicitly assigning value of variable of type 'int' to itself [-Wself-assign][0m
+            for (j = j; j < dbf->len[k]; j++)
+[0;1;32m                 ~ ^ ~
+[0m[1m../src/glpk/glpmpl06.c:939:10: [0m[0;1;35mwarning: [0m[1mvariable 'ret' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/glpmpl06.c:942:11: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      if (ret > 0)
+[0;1;32m          ^~~
+[0m[1m../src/glpk/glpmpl06.c:925:14: [0m[0;1;30mnote: [0minitialize the variable 'ret' to silence this warning[0m
+      int ret;
+[0;1;32m             ^
+[0m[0;32m              = 0
+[0m[1m../src/glpk/glpmpl06.c:964:10: [0m[0;1;35mwarning: [0m[1mvariable 'ret' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/glpmpl06.c:967:11: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      if (ret)
+[0;1;32m          ^~~
+[0m[1m../src/glpk/glpmpl06.c:950:14: [0m[0;1;30mnote: [0minitialize the variable 'ret' to silence this warning[0m
+      int ret;
+[0;1;32m             ^
+[0m[0;32m              = 0
+[0m[1m../src/glpk/glpmpl06.c:989:10: [0m[0;1;35mwarning: [0m[1mvariable 'ret' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/glpmpl06.c:994:11: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      if (ret)
+[0;1;32m          ^~~
+[0m[1m../src/glpk/glpmpl06.c:975:14: [0m[0;1;30mnote: [0minitialize the variable 'ret' to silence this warning[0m
+      int ret;
+[0;1;32m             ^
+[0m[0;32m              = 0
+[0m5 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpmps.o
+[1m../src/glpk/glpmps.c:1111:21: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+          csa->deck && strlen(csa->P->row[i]->name) > 8)
+[0;1;32m          ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmps.c:1111:21: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+          csa->deck && strlen(csa->P->row[i]->name) > 8)
+[0;1;32m          ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmps.c:1126:21: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+          csa->deck && strlen(csa->P->col[j]->name) > 8)
+[0;1;32m          ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmps.c:1126:21: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+          csa->deck && strlen(csa->P->col[j]->name) > 8)
+[0;1;32m          ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmps.c:1280:19: [0m[0;1;35mwarning: [0m[1mexplicitly assigning value of variable of type 'GLPAIJ *' (aka 'struct GLPAIJ *') to itself [-Wself-assign][0m
+         for (aij = aij; aij != NULL; aij = aij->c_next)
+[0;1;32m              ~~~ ^ ~~~
+[0m[1m../src/glpk/glpmps.c:1324:22: [0m[0;1;35mwarning: [0m[1mvariable 'rhs' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized][0m
+            else if (type == GLP_DB || type == GLP_FX)
+[0;1;32m                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmps.c:1329:14: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+         if (rhs != 0.0)
+[0;1;32m             ^~~
+[0m[1m../src/glpk/glpmps.c:1324:18: [0m[0;1;30mnote: [0mremove the 'if' if its condition is always true[0m
+            else if (type == GLP_DB || type == GLP_FX)
+[0;1;32m                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpmps.c:1313:20: [0m[0;1;30mnote: [0minitialize the variable 'rhs' to silence this warning[0m
+         double rhs;
+[0;1;32m                   ^
+[0m[0;32m                    = 0.0
+[0m4 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpnet03.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpnet04.o
+[1m../src/glpk/glpnet04.c:292:24: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+      if (parm[9] == 1 && parm[10] > parm[11] ||
+[0;1;32m          ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpnet04.c:292:24: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+      if (parm[9] == 1 && parm[10] > parm[11] ||
+[0;1;32m                       ^
+[0m[0;32m          (                                  )
+[0m[1m../src/glpk/glpnet04.c:293:24: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+          parm[9] == 2 && parm[10] < 1)
+[0;1;32m          ~~~~~~~~~~~~~^~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpnet04.c:293:24: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+          parm[9] == 2 && parm[10] < 1)
+[0;1;32m                       ^
+[0m[0;32m          (                           )
+[0m[1m../src/glpk/glpnet04.c:301:25: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+      if (parm[12] == 1 && !(0 <= parm[13] && parm[13] <= parm[14]) ||
+[0;1;32m          ~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpnet04.c:301:25: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+      if (parm[12] == 1 && !(0 <= parm[13] && parm[13] <= parm[14]) ||
+[0;1;32m                        ^
+[0m[0;32m          (                                                        )
+[0m[1m../src/glpk/glpnet04.c:302:25: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+          parm[12] == 2 && parm[13] < 1)
+[0;1;32m          ~~~~~~~~~~~~~~^~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpnet04.c:302:25: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+          parm[12] == 2 && parm[13] < 1)
+[0;1;32m                        ^
+[0m[0;32m          (                            )
+[0m4 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpnet05.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpnpp01.o
+[1m../src/glpk/glpnpp01.c:371:16: [0m[0;1;35mwarning: [0m[1mvariable 'dir' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized][0m
+      else if (npp->orig_dir == GLP_MAX)
+[0;1;32m               ^~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpnpp01.c:386:17: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      npp->c0 = dir * orig->c0;
+[0;1;32m                ^~~
+[0m[1m../src/glpk/glpnpp01.c:371:12: [0m[0;1;30mnote: [0mremove the 'if' if its condition is always true[0m
+      else if (npp->orig_dir == GLP_MAX)
+[0;1;32m           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpnpp01.c:363:17: [0m[0;1;30mnote: [0minitialize the variable 'dir' to silence this warning[0m
+      double dir;
+[0;1;32m                ^
+[0m[0;32m                 = 0.0
+[0m[1m../src/glpk/glpnpp01.c:502:16: [0m[0;1;35mwarning: [0m[1mvariable 'dir' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized][0m
+      else if (npp->orig_dir == GLP_MAX)
+[0;1;32m               ^~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpnpp01.c:506:33: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      glp_set_obj_coef(prob, 0, dir * npp->c0);
+[0;1;32m                                ^~~
+[0m[1m../src/glpk/glpnpp01.c:502:12: [0m[0;1;30mnote: [0mremove the 'if' if its condition is always true[0m
+      else if (npp->orig_dir == GLP_MAX)
+[0;1;32m           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpnpp01.c:495:17: [0m[0;1;30mnote: [0minitialize the variable 'dir' to silence this warning[0m
+      double dir, *val;
+[0;1;32m                ^
+[0m[0;32m                 = 0.0
+[0m2 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpnpp02.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpnpp03.o
+[1m../src/glpk/glpnpp03.c:1020:36: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+            {  if (info->apq > 0.0 && info->lb != -DBL_MAX ||
+[0;1;32m                   ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpnpp03.c:1020:36: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+            {  if (info->apq > 0.0 && info->lb != -DBL_MAX ||
+[0;1;32m                   ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpnpp03.c:1021:36: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+                   info->apq < 0.0 && info->ub != +DBL_MAX ||
+[0;1;32m                   ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpnpp03.c:1021:36: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+                   info->apq < 0.0 && info->ub != +DBL_MAX ||
+[0;1;32m                   ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpnpp03.c:1031:36: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+            {  if (info->apq > 0.0 && info->ub != +DBL_MAX ||
+[0;1;32m                   ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpnpp03.c:1031:36: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+            {  if (info->apq > 0.0 && info->ub != +DBL_MAX ||
+[0;1;32m                   ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpnpp03.c:1032:36: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+                   info->apq < 0.0 && info->lb != -DBL_MAX ||
+[0;1;32m                   ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpnpp03.c:1032:36: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+                   info->apq < 0.0 && info->lb != -DBL_MAX ||
+[0;1;32m                   ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpnpp03.c:1082:36: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         if (lambda > +DBL_EPSILON && info->lb_changed ||
+[0;1;32m             ~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpnpp03.c:1082:36: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         if (lambda > +DBL_EPSILON && info->lb_changed ||
+[0;1;32m                                   ^
+[0m[0;32m             (                                        )
+[0m[1m../src/glpk/glpnpp03.c:1083:36: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+             lambda < -DBL_EPSILON && info->ub_changed)
+[0;1;32m             ~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpnpp03.c:1083:36: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+             lambda < -DBL_EPSILON && info->ub_changed)
+[0;1;32m                                   ^
+[0m[0;32m             (                                        )
+[0m[1m../src/glpk/glpnpp03.c:2147:22: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         if (at == 0 && apj->val < 0.0 || at != 0 && apj->val > 0.0)
+[0;1;32m             ~~~~~~~~^~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpnpp03.c:2147:22: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         if (at == 0 && apj->val < 0.0 || at != 0 && apj->val > 0.0)
+[0;1;32m                     ^
+[0m[0;32m             (                        )
+[0m[1m../src/glpk/glpnpp03.c:2147:51: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         if (at == 0 && apj->val < 0.0 || at != 0 && apj->val > 0.0)
+[0;1;32m                                       ~~ ~~~~~~~~^~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpnpp03.c:2147:51: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         if (at == 0 && apj->val < 0.0 || at != 0 && apj->val > 0.0)
+[0;1;32m                                                  ^
+[0m[0;32m                                          (                        )
+[0m[1m../src/glpk/glpnpp03.c:2765:32: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         {  if (apj->val > 0.0 && apj->col->ub == +DBL_MAX ||
+[0;1;32m                ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpnpp03.c:2765:32: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         {  if (apj->val > 0.0 && apj->col->ub == +DBL_MAX ||
+[0;1;32m                ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpnpp03.c:2766:32: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+                apj->val < 0.0 && apj->col->lb == -DBL_MAX)
+[0;1;32m                ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpnpp03.c:2766:32: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+                apj->val < 0.0 && apj->col->lb == -DBL_MAX)
+[0;1;32m                ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpnpp03.c:2814:32: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         {  if (apj->val > 0.0 && apj->col->lb == -DBL_MAX ||
+[0;1;32m                ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpnpp03.c:2814:32: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         {  if (apj->val > 0.0 && apj->col->lb == -DBL_MAX ||
+[0;1;32m                ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpnpp03.c:2815:32: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+                apj->val < 0.0 && apj->col->ub == +DBL_MAX)
+[0;1;32m                ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpnpp03.c:2815:32: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+                apj->val < 0.0 && apj->col->ub == +DBL_MAX)
+[0;1;32m                ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m12 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpnpp04.o
+[1m../src/glpk/glpnpp04.c:524:24: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         if (kase == 1 && ret == 1 || ret == 2)
+[0;1;32m             ~~~~~~~~~~^~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpnpp04.c:524:24: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         if (kase == 1 && ret == 1 || ret == 2)
+[0;1;32m                       ^
+[0m[0;32m             (                    )
+[0m[1m../src/glpk/glpnpp04.c:727:16: [0m[0;1;35mwarning: [0m[1mvariable 'ptr' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized][0m
+      else if (which == 1)
+[0;1;32m               ^~~~~~~~~~
+[0m[1m../src/glpk/glpnpp04.c:734:16: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      for (e = ptr; e != NULL; e = e->next)
+[0;1;32m               ^~~
+[0m[1m../src/glpk/glpnpp04.c:727:12: [0m[0;1;30mnote: [0mremove the 'if' if its condition is always true[0m
+      else if (which == 1)
+[0;1;32m           ^~~~~~~~~~~~~~~
+[0m[1m../src/glpk/glpnpp04.c:718:23: [0m[0;1;30mnote: [0minitialize the variable 'ptr' to silence this warning[0m
+{     struct elem *ptr, *e, *i, *k;
+[0;1;32m                      ^
+[0m[0;32m                       = NULL
+[0m[1m../src/glpk/glpnpp04.c:1017:24: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         if (kase == 1 && ret == 1 || ret == 2)
+[0;1;32m             ~~~~~~~~~~^~~~~~~~~~~ ~~
+[0m[1m../src/glpk/glpnpp04.c:1017:24: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         if (kase == 1 && ret == 1 || ret == 2)
+[0;1;32m                       ^
+[0m[0;32m             (                    )
+[0m3 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpnpp05.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpnpp06.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glprgr.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpscl.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpsdf.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpspm.o
+  CC(target) Release/obj.target/libglpk/src/glpk/glpsql.o
+[1m../src/glpk/glpsql.c:46:14: [0m[0;1;35mwarning: [0m[1munused function 'db_iodbc_open_int' [-Wunused-function][0m
+static void *db_iodbc_open_int(TABDCA *dca, int mode, const char
+[0;1;32m             ^
+[0m[1m../src/glpk/glpsql.c:48:14: [0m[0;1;35mwarning: [0m[1munused function 'db_mysql_open_int' [-Wunused-function][0m
+static void *db_mysql_open_int(TABDCA *dca, int mode, const char
+[0;1;32m             ^
+[0m2 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpssx01.o
+[1m../src/glpk/glpssx01.c:472:55: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+         if ((stat[k] == SSX_NF || stat[k] == SSX_NL) && s < 0 ||
+[0;1;32m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~ ~~
+[0m[1m../src/glpk/glpssx01.c:472:55: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+         if ((stat[k] == SSX_NF || stat[k] == SSX_NL) && s < 0 ||
+[0;1;32m                                                      ^
+[0m[0;32m             (                                                )
+[0m[1m../src/glpk/glpssx01.c:473:55: [0m[0;1;35mwarning: [0m[1m'&&' within '||' [-Wlogical-op-parentheses][0m
+             (stat[k] == SSX_NF || stat[k] == SSX_NU) && s > 0)
+[0;1;32m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+[0m[1m../src/glpk/glpssx01.c:473:55: [0m[0;1;30mnote: [0mplace parentheses around the '&&' expression to silence this warning[0m
+             (stat[k] == SSX_NF || stat[k] == SSX_NU) && s > 0)
+[0;1;32m                                                      ^
+[0m[0;32m             (                                                )
+[0m[1m../src/glpk/glpssx01.c:790:25: [0m[0;1;35mwarning: [0m[1mexpression result unused [-Wunused-value][0m
+               xassert(("Internal error: basis matrix is singular", 0));
+[0;1;32m                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/env/glpenv.h:250:16: [0m[0;1;30mnote: [0mexpanded from macro 'xassert'[0m
+      ((void)((expr) || (glp_assert_(#expr, __FILE__, __LINE__), 1)))
+[0;1;32m               ^~~~
+[0m3 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/glpssx02.o
+  CC(target) Release/obj.target/libglpk/src/glpk/lux.o
+  CC(target) Release/obj.target/libglpk/src/glpk/amd/amd_1.o
+  CC(target) Release/obj.target/libglpk/src/glpk/amd/amd_2.o
+  CC(target) Release/obj.target/libglpk/src/glpk/amd/amd_aat.o
+  CC(target) Release/obj.target/libglpk/src/glpk/amd/amd_control.o
+  CC(target) Release/obj.target/libglpk/src/glpk/amd/amd_defaults.o
+  CC(target) Release/obj.target/libglpk/src/glpk/amd/amd_dump.o
+  CC(target) Release/obj.target/libglpk/src/glpk/amd/amd_info.o
+  CC(target) Release/obj.target/libglpk/src/glpk/amd/amd_order.o
+  CC(target) Release/obj.target/libglpk/src/glpk/amd/amd_post_tree.o
+  CC(target) Release/obj.target/libglpk/src/glpk/amd/amd_postorder.o
+  CC(target) Release/obj.target/libglpk/src/glpk/amd/amd_preprocess.o
+  CC(target) Release/obj.target/libglpk/src/glpk/amd/amd_valid.o
+  CC(target) Release/obj.target/libglpk/src/glpk/bflib/btf.o
+  CC(target) Release/obj.target/libglpk/src/glpk/bflib/btfint.o
+  CC(target) Release/obj.target/libglpk/src/glpk/bflib/fhv.o
+  CC(target) Release/obj.target/libglpk/src/glpk/bflib/fhvint.o
+  CC(target) Release/obj.target/libglpk/src/glpk/bflib/ifu.o
+  CC(target) Release/obj.target/libglpk/src/glpk/bflib/luf.o
+  CC(target) Release/obj.target/libglpk/src/glpk/bflib/lufint.o
+  CC(target) Release/obj.target/libglpk/src/glpk/bflib/scf.o
+[1m../src/glpk/bflib/scf.c:506:10: [0m[0;1;35mwarning: [0m[1mvariable 'ret' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/bflib/scf.c:509:11: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      if (ret != 0)
+[0;1;32m          ^~~
+[0m[1m../src/glpk/bflib/scf.c:476:17: [0m[0;1;30mnote: [0minitialize the variable 'ret' to silence this warning[0m
+      int k, ret;
+[0;1;32m                ^
+[0m[0;32m                 = 0
+[0m1 warning generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/bflib/scfint.o
+[1m../src/glpk/bflib/scfint.c:74:10: [0m[0;1;35mwarning: [0m[1mvariable 'n0_max' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/bflib/scfint.c:78:24: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      if (old_n0_max < n0_max)
+[0;1;32m                       ^~~~~~
+[0m[1m../src/glpk/bflib/scfint.c:48:37: [0m[0;1;30mnote: [0minitialize the variable 'n0_max' to silence this warning[0m
+      int nn_max, old_n0_max, n0_max, k, ret;
+[0;1;32m                                    ^
+[0m[0;32m                                     = 0
+[0m[1m../src/glpk/bflib/scfint.c:74:10: [0m[0;1;35mwarning: [0m[1mvariable 'old_n0_max' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/bflib/scfint.c:78:11: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      if (old_n0_max < n0_max)
+[0;1;32m          ^~~~~~~~~~
+[0m[1m../src/glpk/bflib/scfint.c:48:29: [0m[0;1;30mnote: [0minitialize the variable 'old_n0_max' to silence this warning[0m
+      int nn_max, old_n0_max, n0_max, k, ret;
+[0;1;32m                            ^
+[0m[0;32m                             = 0
+[0m[1m../src/glpk/bflib/scfint.c:211:10: [0m[0;1;35mwarning: [0m[1mvariable 'norm' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/bflib/scfint.c:214:14: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      return norm;
+[0;1;32m             ^~~~
+[0m[1m../src/glpk/bflib/scfint.c:200:18: [0m[0;1;30mnote: [0minitialize the variable 'norm' to silence this warning[0m
+      double norm;
+[0;1;32m                 ^
+[0m[0;32m                  = 0.0
+[0m3 warnings generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/bflib/sgf.o
+  CC(target) Release/obj.target/libglpk/src/glpk/bflib/sva.o
+  CC(target) Release/obj.target/libglpk/src/glpk/cglib/cfg.o
+  CC(target) Release/obj.target/libglpk/src/glpk/cglib/cfg1.o
+  CC(target) Release/obj.target/libglpk/src/glpk/colamd/colamd.o
+  CC(target) Release/obj.target/libglpk/src/glpk/env/alloc.o
+  CC(target) Release/obj.target/libglpk/src/glpk/env/dlsup.o
+  CC(target) Release/obj.target/libglpk/src/glpk/env/env.o
+  CC(target) Release/obj.target/libglpk/src/glpk/env/error.o
+  CC(target) Release/obj.target/libglpk/src/glpk/env/stdout.o
+  CC(target) Release/obj.target/libglpk/src/glpk/env/stream.o
+  CC(target) Release/obj.target/libglpk/src/glpk/env/time.o
+  CC(target) Release/obj.target/libglpk/src/glpk/env/tls.o
+  CC(target) Release/obj.target/libglpk/src/glpk/minisat/minisat.o
+  CC(target) Release/obj.target/libglpk/src/glpk/misc/bignum.o
+  CC(target) Release/obj.target/libglpk/src/glpk/misc/dmp.o
+  CC(target) Release/obj.target/libglpk/src/glpk/misc/ffalg.o
+  CC(target) Release/obj.target/libglpk/src/glpk/misc/fp2rat.o
+  CC(target) Release/obj.target/libglpk/src/glpk/misc/gcd.o
+  CC(target) Release/obj.target/libglpk/src/glpk/misc/jd.o
+  CC(target) Release/obj.target/libglpk/src/glpk/misc/keller.o
+  CC(target) Release/obj.target/libglpk/src/glpk/misc/mc13d.o
+  CC(target) Release/obj.target/libglpk/src/glpk/misc/mc21a.o
+  CC(target) Release/obj.target/libglpk/src/glpk/misc/okalg.o
+  CC(target) Release/obj.target/libglpk/src/glpk/misc/qmd.o
+  CC(target) Release/obj.target/libglpk/src/glpk/misc/relax4.o
+[1m../src/glpk/misc/relax4.c:2689:16: [0m[0;1;35mwarning: [0m[1mvariable 'nas' is uninitialized when used here [-Wuninitialized][0m
+            {  nas++;
+[0;1;32m               ^~~
+[0m[1m../src/glpk/misc/relax4.c:2226:48: [0m[0;1;30mnote: [0minitialize the variable 'nas' to silence this warning[0m
+         last, lastqueue, maxcost, mincost, nas, naug, new_level, node,
+[0;1;32m                                               ^
+[0m[0;32m                                                = 0
+[0m1 warning generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/misc/rng.o
+  CC(target) Release/obj.target/libglpk/src/glpk/misc/rng1.o
+  CC(target) Release/obj.target/libglpk/src/glpk/misc/round2n.o
+  CC(target) Release/obj.target/libglpk/src/glpk/misc/str2int.o
+  CC(target) Release/obj.target/libglpk/src/glpk/misc/str2num.o
+  CC(target) Release/obj.target/libglpk/src/glpk/misc/strspx.o
+  CC(target) Release/obj.target/libglpk/src/glpk/misc/strtrim.o
+  CC(target) Release/obj.target/libglpk/src/glpk/misc/triang.o
+  CC(target) Release/obj.target/libglpk/src/glpk/misc/wclique.o
+  CC(target) Release/obj.target/libglpk/src/glpk/misc/wclique1.o
+  CC(target) Release/obj.target/libglpk/src/glpk/proxy/proxy.o
+[1m../src/glpk/proxy/proxy.c:956:23: [0m[0;1;35mwarning: [0m[1munused variable 'tlimit' [-Wunused-variable][0m
+    double val, tela, tlimit;
+[0;1;32m                      ^
+[0m1 warning generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/proxy/proxy1.o
+  CC(target) Release/obj.target/libglpk/src/glpk/simplex/spxat.o
+  CC(target) Release/obj.target/libglpk/src/glpk/simplex/spxchuzc.o
+  CC(target) Release/obj.target/libglpk/src/glpk/simplex/spxchuzr.o
+  CC(target) Release/obj.target/libglpk/src/glpk/simplex/spxlp.o
+  CC(target) Release/obj.target/libglpk/src/glpk/simplex/spxnt.o
+  CC(target) Release/obj.target/libglpk/src/glpk/simplex/spxprim.o
+[1m../src/glpk/simplex/spxprim.c:639:10: [0m[0;1;35mwarning: [0m[1mvariable 'nnn' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/simplex/spxprim.c:644:62: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+         csa->phase == 2 ? '*' : ' ', csa->it_cnt, obj, sum, nnn);
+[0;1;32m                                                             ^~~
+[0m[1m../src/glpk/simplex/spxprim.c:611:14: [0m[0;1;30mnote: [0minitialize the variable 'nnn' to silence this warning[0m
+{     int nnn, k;
+[0;1;32m             ^
+[0m[0;32m              = 0
+[0m1 warning generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/simplex/spxprob.o
+[1m../src/glpk/simplex/spxprob.c:165:10: [0m[0;1;35mwarning: [0m[1mvariable 'dir' is used uninitialized whenever switch default is taken [-Wsometimes-uninitialized][0m
+         default:
+[0;1;32m         ^~~~~~~
+[0m[1m../src/glpk/simplex/spxprob.c:169:14: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      c[0] = dir * P->c0;
+[0;1;32m             ^~~
+[0m[1m../src/glpk/simplex/spxprob.c:156:17: [0m[0;1;30mnote: [0minitialize the variable 'dir' to silence this warning[0m
+      double dir, delta;
+[0;1;32m                ^
+[0m[0;32m                 = 0.0
+[0m1 warning generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/simplex/spychuzc.o
+  CC(target) Release/obj.target/libglpk/src/glpk/simplex/spychuzr.o
+  CC(target) Release/obj.target/libglpk/src/glpk/simplex/spydual.o
+  CC(target) Release/obj.target/libglpk/src/glpk/zlib/adler32.o
+  CC(target) Release/obj.target/libglpk/src/glpk/zlib/compress.o
+  CC(target) Release/obj.target/libglpk/src/glpk/zlib/crc32.o
+  CC(target) Release/obj.target/libglpk/src/glpk/zlib/deflate.o
+  CC(target) Release/obj.target/libglpk/src/glpk/zlib/gzclose.o
+  CC(target) Release/obj.target/libglpk/src/glpk/zlib/gzlib.o
+  CC(target) Release/obj.target/libglpk/src/glpk/zlib/gzread.o
+  CC(target) Release/obj.target/libglpk/src/glpk/zlib/gzwrite.o
+  CC(target) Release/obj.target/libglpk/src/glpk/zlib/inffast.o
+  CC(target) Release/obj.target/libglpk/src/glpk/zlib/inflate.o
+[1m../src/glpk/zlib/inflate.c:1475:61: [0m[0;1;35mwarning: [0m[1mshifting a negative signed value is undefined [-Wshift-negative-value][0m
+    if (strm == Z_NULL || strm->state == Z_NULL) return -1L << 16;
+[0;1;32m                                                        ~~~ ^
+[0m1 warning generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/zlib/inftrees.o
+  CC(target) Release/obj.target/libglpk/src/glpk/zlib/trees.o
+  CC(target) Release/obj.target/libglpk/src/glpk/zlib/uncompr.o
+  CC(target) Release/obj.target/libglpk/src/glpk/zlib/zio.o
+[1m../src/glpk/zlib/zio.c:40:10: [0m[0;1;35mwarning: [0m[1mvariable 'fp' is used uninitialized whenever '?:' condition is false [-Wsometimes-uninitialized][0m
+         assert(oflag != oflag);
+[0;1;32m         ^~~~~~~~~~~~~~~~~~~~~~
+[0m[1m/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/assert.h:93:6: [0m[0;1;30mnote: [0mexpanded from macro 'assert'[0m
+    (__builtin_expect(!(e), 0) ? __assert_rtn(__func__, __FILE__, __LINE__, #e) : (void)0)
+[0;1;32m     ^~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/glpk/zlib/zio.c:41:11: [0m[0;1;30mnote: [0muninitialized use occurs here[0m
+      if (fp == NULL)
+[0;1;32m          ^~
+[0m[1m../src/glpk/zlib/zio.c:40:10: [0m[0;1;30mnote: [0mremove the '?:' if its condition is always true[0m
+         assert(oflag != oflag);
+[0;1;32m         ^
+[0m[1m/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/assert.h:93:6: [0m[0;1;30mnote: [0mexpanded from macro 'assert'[0m
+    (__builtin_expect(!(e), 0) ? __assert_rtn(__func__, __FILE__, __LINE__, #e) : (void)0)
+[0;1;32m     ^
+[0m[1m../src/glpk/zlib/zio.c:29:15: [0m[0;1;30mnote: [0minitialize the variable 'fp' to silence this warning[0m
+{     FILE *fp;
+[0;1;32m              ^
+[0m[0;32m               = NULL
+[0m1 warning generated.
+  CC(target) Release/obj.target/libglpk/src/glpk/zlib/zutil.o
+  LIBTOOL-STATIC Release/glpk.a
+  CXX(target) Release/obj.target/glpk/src/nodeglpk.o
+In file included from ../src/nodeglpk.cc:4:
+In file included from ../node_modules/cpp-eventemitter/eventemitter.hpp:27:
+In file included from ../node_modules/nan/nan.h:221:
+In file included from ../node_modules/nan/nan_converters.h:67:
+[1m../node_modules/nan/nan_converters_43_inl.h:22:1: [0m[0;1;35mwarning: [0m[1m'ToBoolean' is deprecated: ToBoolean can never throw. Use Local version. [-Wdeprecated-declarations][0m
+X(Boolean)
+[0;1;32m^
+[0m[1m../node_modules/nan/nan_converters_43_inl.h:18:12: [0m[0;1;30mnote: [0mexpanded from macro 'X'[0m
+      val->To ## TYPE(isolate->GetCurrentContext())                            \
+[0;1;32m           ^
+[0m[1m<scratch space>:201:1: [0m[0;1;30mnote: [0mexpanded from here[0m
+ToBoolean
+[0;1;32m^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:2567:3: [0m[0;1;30mnote: [0m'ToBoolean' has been explicitly marked deprecated here[0m
+  V8_DEPRECATED("ToBoolean can never throw. Use Local version.",
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:311:29: [0m[0;1;30mnote: [0mexpanded from macro 'V8_DEPRECATED'[0m
+  declarator __attribute__((deprecated(message)))
+[0;1;32m                            ^
+[0mIn file included from ../src/nodeglpk.cc:4:
+In file included from ../node_modules/cpp-eventemitter/eventemitter.hpp:27:
+In file included from ../node_modules/nan/nan.h:221:
+In file included from ../node_modules/nan/nan_converters.h:67:
+[1m../node_modules/nan/nan_converters_43_inl.h:40:1: [0m[0;1;35mwarning: [0m[1m'BooleanValue' is deprecated: BooleanValue can never throw. Use Isolate version. [-Wdeprecated-declarations][0m
+X(bool, Boolean)
+[0;1;32m^
+[0m[1m../node_modules/nan/nan_converters_43_inl.h:37:15: [0m[0;1;30mnote: [0mexpanded from macro 'X'[0m
+  return val->NAME ## Value(isolate->GetCurrentContext());                     \
+[0;1;32m              ^
+[0m[1m<scratch space>:208:1: [0m[0;1;30mnote: [0mexpanded from here[0m
+BooleanValue
+[0;1;32m^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:2605:3: [0m[0;1;30mnote: [0m'BooleanValue' has been explicitly marked deprecated here[0m
+  V8_DEPRECATED("BooleanValue can never throw. Use Isolate version.",
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:311:29: [0m[0;1;30mnote: [0mexpanded from macro 'V8_DEPRECATED'[0m
+  declarator __attribute__((deprecated(message)))
+[0;1;32m                            ^
+[0mIn file included from ../src/nodeglpk.cc:4:
+In file included from ../node_modules/cpp-eventemitter/eventemitter.hpp:27:
+In file included from ../node_modules/nan/nan.h:222:
+In file included from ../node_modules/nan/nan_new.h:189:
+[1m../node_modules/nan/nan_implementation_12_inl.h:103:42: [0m[0;1;31merror: [0m[1mno viable conversion from 'v8::Isolate *' to 'Local<v8::Context>'[0m
+  return scope.Escape(v8::Function::New( isolate
+[0;1;32m                                         ^~~~~~~
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:183:7: [0m[0;1;30mnote: [0mcandidate constructor (the implicit copy constructor) not viable: no known conversion from
+      'v8::Isolate *' to 'const v8::Local<v8::Context> &' for 1st argument[0m
+class Local {
+[0;1;32m      ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:183:7: [0m[0;1;30mnote: [0mcandidate constructor (the implicit move constructor) not viable: no known conversion from
+      'v8::Isolate *' to 'v8::Local<v8::Context> &&' for 1st argument[0m
+[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:187:13: [0m[0;1;30mnote: [0mcandidate template ignored: could not match 'Local<type-parameter-0-0>' against
+      'v8::Isolate *'[0m
+  V8_INLINE Local(Local<S> that)
+[0;1;32m            ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:4171:22: [0m[0;1;30mnote: [0mpassing argument to parameter 'context' here[0m
+      Local<Context> context, FunctionCallback callback,
+[0;1;32m                     ^
+[0mIn file included from ../src/nodeglpk.cc:4:
+In file included from ../node_modules/cpp-eventemitter/eventemitter.hpp:27:
+[1m../node_modules/nan/nan.h:1064:44: [0m[0;1;35mwarning: [0m[1m'ToString' is deprecated: Use maybe version [-Wdeprecated-declarations][0m
+      v8::Local<v8::String> string = from->ToString(v8::Isolate::GetCurrent());
+[0;1;32m                                           ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:2587:3: [0m[0;1;30mnote: [0m'ToString' has been explicitly marked deprecated here[0m
+  V8_DEPRECATED("Use maybe version",
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:311:29: [0m[0;1;30mnote: [0mexpanded from macro 'V8_DEPRECATED'[0m
+  declarator __attribute__((deprecated(message)))
+[0;1;32m                            ^
+[0mIn file included from ../src/nodeglpk.cc:4:
+In file included from ../node_modules/cpp-eventemitter/eventemitter.hpp:27:
+[1m../node_modules/nan/nan.h:1855:28: [0m[0;1;35mwarning: [0m[1m'Set' is deprecated: Use maybe version [-Wdeprecated-declarations][0m
+    New(persistentHandle)->Set(New(key).ToLocalChecked(), value);
+[0;1;32m                           ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:3402:3: [0m[0;1;30mnote: [0m'Set' has been explicitly marked deprecated here[0m
+  V8_DEPRECATED("Use maybe version",
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:311:29: [0m[0;1;30mnote: [0mexpanded from macro 'V8_DEPRECATED'[0m
+  declarator __attribute__((deprecated(message)))
+[0;1;32m                            ^
+[0mIn file included from ../src/nodeglpk.cc:4:
+In file included from ../node_modules/cpp-eventemitter/eventemitter.hpp:27:
+[1m../node_modules/nan/nan.h:1861:28: [0m[0;1;35mwarning: [0m[1m'Set' is deprecated: Use maybe version [-Wdeprecated-declarations][0m
+    New(persistentHandle)->Set(key, value);
+[0;1;32m                           ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:3402:3: [0m[0;1;30mnote: [0m'Set' has been explicitly marked deprecated here[0m
+  V8_DEPRECATED("Use maybe version",
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:311:29: [0m[0;1;30mnote: [0mexpanded from macro 'V8_DEPRECATED'[0m
+  declarator __attribute__((deprecated(message)))
+[0;1;32m                            ^
+[0mIn file included from ../src/nodeglpk.cc:4:
+In file included from ../node_modules/cpp-eventemitter/eventemitter.hpp:27:
+[1m../node_modules/nan/nan.h:1867:28: [0m[0;1;35mwarning: [0m[1m'Set' is deprecated: Use maybe version [-Wdeprecated-declarations][0m
+    New(persistentHandle)->Set(index, value);
+[0;1;32m                           ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:3411:3: [0m[0;1;30mnote: [0m'Set' has been explicitly marked deprecated here[0m
+  V8_DEPRECATED("Use maybe version",
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:311:29: [0m[0;1;30mnote: [0mexpanded from macro 'V8_DEPRECATED'[0m
+  declarator __attribute__((deprecated(message)))
+[0;1;32m                            ^
+[0mIn file included from ../src/nodeglpk.cc:4:
+In file included from ../node_modules/cpp-eventemitter/eventemitter.hpp:27:
+[1m../node_modules/nan/nan.h:1873:32: [0m[0;1;35mwarning: [0m[1m'Get' is deprecated: Use maybe version [-Wdeprecated-declarations][0m
+        New(persistentHandle)->Get(New(key).ToLocalChecked()));
+[0;1;32m                               ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:3457:3: [0m[0;1;30mnote: [0m'Get' has been explicitly marked deprecated here[0m
+  V8_DEPRECATED("Use maybe version", Local<Value> Get(Local<Value> key));
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:311:29: [0m[0;1;30mnote: [0mexpanded from macro 'V8_DEPRECATED'[0m
+  declarator __attribute__((deprecated(message)))
+[0;1;32m                            ^
+[0mIn file included from ../src/nodeglpk.cc:4:
+In file included from ../node_modules/cpp-eventemitter/eventemitter.hpp:27:
+[1m../node_modules/nan/nan.h:1879:48: [0m[0;1;35mwarning: [0m[1m'Get' is deprecated: Use maybe version [-Wdeprecated-declarations][0m
+    return scope.Escape(New(persistentHandle)->Get(key));
+[0;1;32m                                               ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:3457:3: [0m[0;1;30mnote: [0m'Get' has been explicitly marked deprecated here[0m
+  V8_DEPRECATED("Use maybe version", Local<Value> Get(Local<Value> key));
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:311:29: [0m[0;1;30mnote: [0mexpanded from macro 'V8_DEPRECATED'[0m
+  declarator __attribute__((deprecated(message)))
+[0;1;32m                            ^
+[0mIn file included from ../src/nodeglpk.cc:4:
+In file included from ../node_modules/cpp-eventemitter/eventemitter.hpp:27:
+[1m../node_modules/nan/nan.h:1884:48: [0m[0;1;35mwarning: [0m[1m'Get' is deprecated: Use maybe version [-Wdeprecated-declarations][0m
+    return scope.Escape(New(persistentHandle)->Get(index));
+[0;1;32m                                               ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:3461:3: [0m[0;1;30mnote: [0m'Get' has been explicitly marked deprecated here[0m
+  V8_DEPRECATED("Use maybe version", Local<Value> Get(uint32_t index));
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:311:29: [0m[0;1;30mnote: [0mexpanded from macro 'V8_DEPRECATED'[0m
+  declarator __attribute__((deprecated(message)))
+[0;1;32m                            ^
+[0mIn file included from ../src/nodeglpk.cc:4:
+In file included from ../node_modules/cpp-eventemitter/eventemitter.hpp:27:
+In file included from ../node_modules/nan/nan.h:2698:
+[1m../node_modules/nan/nan_object_wrap.h:24:25: [0m[0;1;31merror: [0m[1mno member named 'IsNearDeath' in 'Nan::Persistent<v8::Object, v8::NonCopyablePersistentTraits<v8::Object> >'[0m
+    assert(persistent().IsNearDeath());
+[0;1;32m           ~~~~~~~~~~~~ ^
+[0m[1m/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/assert.h:93:25: [0m[0;1;30mnote: [0mexpanded from macro 'assert'[0m
+    (__builtin_expect(!(e), 0) ? __assert_rtn(__func__, __FILE__, __LINE__, #e) : (void)0)
+[0;1;32m                        ^
+[0mIn file included from ../src/nodeglpk.cc:4:
+In file included from ../node_modules/cpp-eventemitter/eventemitter.hpp:27:
+In file included from ../node_modules/nan/nan.h:2698:
+[1m../node_modules/nan/nan_object_wrap.h:67:18: [0m[0;1;35mwarning: [0m[1m'MarkIndependent' is deprecated: Weak objects are always considered independent. Use TracedGlobal when trying to use
+      EmbedderHeapTracer. Use a strong handle when trying to keep an object alive. [-Wdeprecated-declarations][0m
+    persistent().MarkIndependent();
+[0;1;32m                 ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:563:3: [0m[0;1;30mnote: [0m'MarkIndependent' has been explicitly marked deprecated here[0m
+  V8_DEPRECATED(
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:311:29: [0m[0;1;30mnote: [0mexpanded from macro 'V8_DEPRECATED'[0m
+  declarator __attribute__((deprecated(message)))
+[0;1;32m                            ^
+[0mIn file included from ../src/nodeglpk.cc:4:
+In file included from ../node_modules/cpp-eventemitter/eventemitter.hpp:27:
+In file included from ../node_modules/nan/nan.h:2698:
+[1m../node_modules/nan/nan_object_wrap.h:124:26: [0m[0;1;31merror: [0m[1mno member named 'IsNearDeath' in 'Nan::Persistent<v8::Object, v8::NonCopyablePersistentTraits<v8::Object> >'[0m
+    assert(wrap->handle_.IsNearDeath());
+[0;1;32m           ~~~~~~~~~~~~~ ^
+[0m[1m/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/assert.h:93:25: [0m[0;1;30mnote: [0mexpanded from macro 'assert'[0m
+    (__builtin_expect(!(e), 0) ? __assert_rtn(__func__, __FILE__, __LINE__, #e) : (void)0)
+[0;1;32m                        ^
+[0mIn file included from ../src/nodeglpk.cc:4:
+In file included from ../node_modules/cpp-eventemitter/eventemitter.hpp:33:
+[1m../node_modules/cpp-eventemitter/eventemitter_impl.hpp:129:24: [0m[0;1;35mwarning: [0m[1m'Call' is deprecated [-Wdeprecated-declarations][0m
+            callback_->Call(1, info);
+[0;1;32m                       ^
+[0m[1m../node_modules/nan/nan.h:1654:3: [0m[0;1;30mnote: [0m'Call' has been explicitly marked deprecated here[0m
+  NAN_DEPRECATED inline v8::Local<v8::Value>
+[0;1;32m  ^
+[0m[1m../node_modules/nan/nan.h:102:40: [0m[0;1;30mnote: [0mexpanded from macro 'NAN_DEPRECATED'[0m
+# define NAN_DEPRECATED __attribute__((deprecated))
+[0;1;32m                                       ^
+[0mIn file included from ../src/nodeglpk.cc:6:
+[1m../src/tree.hpp:20:26: [0m[0;1;31merror: [0m[1mno template named 'Handle'[0m
+        static void Init(Handle<Object>){
+[0;1;32m                         ^
+[0m[1m../src/tree.hpp:54:89: [0m[0;1;31merror: [0m[1mtoo few arguments to function call, single argument 'context' was not specified[0m
+            Local<Function> cons = Nan::New<FunctionTemplate>(constructor)->GetFunction();
+[0;1;32m                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:5995:3: [0m[0;1;30mnote: [0m'GetFunction' declared here[0m
+  V8_WARN_UNUSED_RESULT MaybeLocal<Function> GetFunction(
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:351:31: [0m[0;1;30mnote: [0mexpanded from macro 'V8_WARN_UNUSED_RESULT'[0m
+#define V8_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+[0;1;32m                              ^
+[0mIn file included from ../src/nodeglpk.cc:6:
+[1m../src/tree.hpp:56:56: [0m[0;1;31merror: [0m[1mno matching member function for call to 'ToObject'[0m
+            Tree* host = ObjectWrap::Unwrap<Tree>(ret->ToObject());
+[0;1;32m                                                  ~~~~~^~~~~~~~
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:2576:44: [0m[0;1;30mnote: [0mcandidate function not viable: requires single argument 'context', but no arguments were
+      provided[0m
+  V8_WARN_UNUSED_RESULT MaybeLocal<Object> ToObject(
+[0;1;32m                                           ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:2590:31: [0m[0;1;30mnote: [0mcandidate function not viable: requires single argument 'isolate', but no arguments were
+      provided[0m
+                Local<Object> ToObject(Isolate* isolate) const);
+[0;1;32m                              ^
+[0mIn file included from ../src/nodeglpk.cc:6:
+[1m../src/tree.hpp:87:66: [0m[0;1;31merror: [0m[1mno matching member function for call to 'ToString'[0m
+            auto s = std::string(*v8::String::Utf8Value(info[0]->ToString()));
+[0;1;32m                                                        ~~~~~~~~~^~~~~~~~
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:2572:44: [0m[0;1;30mnote: [0mcandidate function not viable: requires single argument 'context', but no arguments were
+      provided[0m
+  V8_WARN_UNUSED_RESULT MaybeLocal<String> ToString(
+[0;1;32m                                           ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:2588:31: [0m[0;1;30mnote: [0mcandidate function not viable: requires single argument 'isolate', but no arguments were
+      provided[0m
+                Local<String> ToString(Isolate* isolate) const);
+[0;1;32m                              ^
+[0mIn file included from ../src/nodeglpk.cc:6:
+[1m../src/tree.hpp:106:13: [0m[0;1;35mwarning: [0m[1m'Set' is deprecated: Use maybe version [-Wdeprecated-declarations][0m
+            GLP_SET_FIELD_INT32(ret, "a", a_cnt);
+[0;1;32m            ^
+[0m[1m../src/common.h:333:6: [0m[0;1;30mnote: [0mexpanded from macro 'GLP_SET_FIELD_INT32'[0m
+OBJ->Set(Nan::New<String>(KEY).ToLocalChecked(), Nan::New<Int32>(VALUE));
+[0;1;32m     ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:3402:3: [0m[0;1;30mnote: [0m'Set' has been explicitly marked deprecated here[0m
+  V8_DEPRECATED("Use maybe version",
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:311:29: [0m[0;1;30mnote: [0mexpanded from macro 'V8_DEPRECATED'[0m
+  declarator __attribute__((deprecated(message)))
+[0;1;32m                            ^
+[0mIn file included from ../src/nodeglpk.cc:6:
+[1m../src/tree.hpp:107:13: [0m[0;1;35mwarning: [0m[1m'Set' is deprecated: Use maybe version [-Wdeprecated-declarations][0m
+            GLP_SET_FIELD_INT32(ret, "n", n_cnt);
+[0;1;32m            ^
+[0m[1m../src/common.h:333:6: [0m[0;1;30mnote: [0mexpanded from macro 'GLP_SET_FIELD_INT32'[0m
+OBJ->Set(Nan::New<String>(KEY).ToLocalChecked(), Nan::New<Int32>(VALUE));
+[0;1;32m     ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:3402:3: [0m[0;1;30mnote: [0m'Set' has been explicitly marked deprecated here[0m
+  V8_DEPRECATED("Use maybe version",
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:311:29: [0m[0;1;30mnote: [0mexpanded from macro 'V8_DEPRECATED'[0m
+  declarator __attribute__((deprecated(message)))
+[0;1;32m                            ^
+[0mIn file included from ../src/nodeglpk.cc:6:
+[1m../src/tree.hpp:108:13: [0m[0;1;35mwarning: [0m[1m'Set' is deprecated: Use maybe version [-Wdeprecated-declarations][0m
+            GLP_SET_FIELD_INT32(ret, "t", t_cnt);
+[0;1;32m            ^
+[0m[1m../src/common.h:333:6: [0m[0;1;30mnote: [0mexpanded from macro 'GLP_SET_FIELD_INT32'[0m
+OBJ->Set(Nan::New<String>(KEY).ToLocalChecked(), Nan::New<Int32>(VALUE));
+[0;1;32m     ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:3402:3: [0m[0;1;30mnote: [0m'Set' has been explicitly marked deprecated here[0m
+  V8_DEPRECATED("Use maybe version",
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:311:29: [0m[0;1;30mnote: [0mexpanded from macro 'V8_DEPRECATED'[0m
+  declarator __attribute__((deprecated(message)))
+[0;1;32m                            ^
+[0mIn file included from ../src/nodeglpk.cc:6:
+[1m../src/tree.hpp:115:9: [0m[0;1;31merror: [0m[1mtoo few arguments to function call, single argument 'context' was not specified[0m
+        GLP_BIND_VALUE_INT32(Tree, NextNode, glp_ios_next_node);
+[0;1;32m        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/common.h:167:83: [0m[0;1;30mnote: [0mexpanded from macro 'GLP_BIND_VALUE_INT32'[0m
+    GLP_CATCH_RET(info.GetReturnValue().Set(API(host->handle, info[0]->Int32Value()));)\
+[0;1;32m                                                              ~~~~~~~~~~~~~~~~~~~ ^
+[0m[1m../src/common.h:28:30: [0m[0;1;30mnote: [0mexpanded from macro 'GLP_CATCH_RET'[0m
+#define GLP_CATCH_RET(X) try{X}catch (std::string s) {Nan::ThrowError(s.c_str());return;}
+[0;1;32m                             ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:2613:3: [0m[0;1;30mnote: [0m'Int32Value' declared here[0m
+  V8_WARN_UNUSED_RESULT Maybe<int32_t> Int32Value(Local<Context> context) const;
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:351:31: [0m[0;1;30mnote: [0mexpanded from macro 'V8_WARN_UNUSED_RESULT'[0m
+#define V8_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+[0;1;32m                              ^
+[0mIn file included from ../src/nodeglpk.cc:6:
+[1m../src/tree.hpp:117:9: [0m[0;1;31merror: [0m[1mtoo few arguments to function call, single argument 'context' was not specified[0m
+        GLP_BIND_VALUE_INT32(Tree, PrevNode, glp_ios_prev_node);
+[0;1;32m        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/common.h:167:83: [0m[0;1;30mnote: [0mexpanded from macro 'GLP_BIND_VALUE_INT32'[0m
+    GLP_CATCH_RET(info.GetReturnValue().Set(API(host->handle, info[0]->Int32Value()));)\
+[0;1;32m                                                              ~~~~~~~~~~~~~~~~~~~ ^
+[0m[1m../src/common.h:28:30: [0m[0;1;30mnote: [0mexpanded from macro 'GLP_CATCH_RET'[0m
+#define GLP_CATCH_RET(X) try{X}catch (std::string s) {Nan::ThrowError(s.c_str());return;}
+[0;1;32m                             ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:2613:3: [0m[0;1;30mnote: [0m'Int32Value' declared here[0m
+  V8_WARN_UNUSED_RESULT Maybe<int32_t> Int32Value(Local<Context> context) const;
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:351:31: [0m[0;1;30mnote: [0mexpanded from macro 'V8_WARN_UNUSED_RESULT'[0m
+#define V8_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+[0;1;32m                              ^
+[0mIn file included from ../src/nodeglpk.cc:6:
+[1m../src/tree.hpp:119:9: [0m[0;1;31merror: [0m[1mtoo few arguments to function call, single argument 'context' was not specified[0m
+        GLP_BIND_VALUE_INT32(Tree, UpNode, glp_ios_up_node);
+[0;1;32m        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/common.h:167:83: [0m[0;1;30mnote: [0mexpanded from macro 'GLP_BIND_VALUE_INT32'[0m
+    GLP_CATCH_RET(info.GetReturnValue().Set(API(host->handle, info[0]->Int32Value()));)\
+[0;1;32m                                                              ~~~~~~~~~~~~~~~~~~~ ^
+[0m[1m../src/common.h:28:30: [0m[0;1;30mnote: [0mexpanded from macro 'GLP_CATCH_RET'[0m
+#define GLP_CATCH_RET(X) try{X}catch (std::string s) {Nan::ThrowError(s.c_str());return;}
+[0;1;32m                             ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:2613:3: [0m[0;1;30mnote: [0m'Int32Value' declared here[0m
+  V8_WARN_UNUSED_RESULT Maybe<int32_t> Int32Value(Local<Context> context) const;
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:351:31: [0m[0;1;30mnote: [0mexpanded from macro 'V8_WARN_UNUSED_RESULT'[0m
+#define V8_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+[0;1;32m                              ^
+[0mIn file included from ../src/nodeglpk.cc:6:
+[1m../src/tree.hpp:121:9: [0m[0;1;31merror: [0m[1mtoo few arguments to function call, single argument 'context' was not specified[0m
+        GLP_BIND_VALUE_INT32(Tree, NodeLevel, glp_ios_node_level);
+[0;1;32m        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/common.h:167:83: [0m[0;1;30mnote: [0mexpanded from macro 'GLP_BIND_VALUE_INT32'[0m
+    GLP_CATCH_RET(info.GetReturnValue().Set(API(host->handle, info[0]->Int32Value()));)\
+[0;1;32m                                                              ~~~~~~~~~~~~~~~~~~~ ^
+[0m[1m../src/common.h:28:30: [0m[0;1;30mnote: [0mexpanded from macro 'GLP_CATCH_RET'[0m
+#define GLP_CATCH_RET(X) try{X}catch (std::string s) {Nan::ThrowError(s.c_str());return;}
+[0;1;32m                             ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:2613:3: [0m[0;1;30mnote: [0m'Int32Value' declared here[0m
+  V8_WARN_UNUSED_RESULT Maybe<int32_t> Int32Value(Local<Context> context) const;
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:351:31: [0m[0;1;30mnote: [0mexpanded from macro 'V8_WARN_UNUSED_RESULT'[0m
+#define V8_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+[0;1;32m                              ^
+[0mIn file included from ../src/nodeglpk.cc:6:
+[1m../src/tree.hpp:123:9: [0m[0;1;31merror: [0m[1mtoo few arguments to function call, single argument 'context' was not specified[0m
+        GLP_BIND_VALUE_INT32(Tree, NodeBound, glp_ios_node_bound);
+[0;1;32m        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/common.h:167:83: [0m[0;1;30mnote: [0mexpanded from macro 'GLP_BIND_VALUE_INT32'[0m
+    GLP_CATCH_RET(info.GetReturnValue().Set(API(host->handle, info[0]->Int32Value()));)\
+[0;1;32m                                                              ~~~~~~~~~~~~~~~~~~~ ^
+[0m[1m../src/common.h:28:30: [0m[0;1;30mnote: [0mexpanded from macro 'GLP_CATCH_RET'[0m
+#define GLP_CATCH_RET(X) try{X}catch (std::string s) {Nan::ThrowError(s.c_str());return;}
+[0;1;32m                             ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:2613:3: [0m[0;1;30mnote: [0m'Int32Value' declared here[0m
+  V8_WARN_UNUSED_RESULT Maybe<int32_t> Int32Value(Local<Context> context) const;
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:351:31: [0m[0;1;30mnote: [0mexpanded from macro 'V8_WARN_UNUSED_RESULT'[0m
+#define V8_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+[0;1;32m                              ^
+[0mIn file included from ../src/nodeglpk.cc:6:
+[1m../src/tree.hpp:139:78: [0m[0;1;31merror: [0m[1mtoo few arguments to function call, single argument 'context' was not specified[0m
+            GLP_CATCH_RET(glp_ios_row_attr(host->handle, info[0]->Int32Value(), &attr);)
+[0;1;32m                                                         ~~~~~~~~~~~~~~~~~~~ ^
+[0m[1m../src/common.h:28:30: [0m[0;1;30mnote: [0mexpanded from macro 'GLP_CATCH_RET'[0m
+#define GLP_CATCH_RET(X) try{X}catch (std::string s) {Nan::ThrowError(s.c_str());return;}
+[0;1;32m                             ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:2613:3: [0m[0;1;30mnote: [0m'Int32Value' declared here[0m
+  V8_WARN_UNUSED_RESULT Maybe<int32_t> Int32Value(Local<Context> context) const;
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:351:31: [0m[0;1;30mnote: [0mexpanded from macro 'V8_WARN_UNUSED_RESULT'[0m
+#define V8_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+[0;1;32m                              ^
+[0mIn file included from ../src/nodeglpk.cc:6:
+[1m../src/tree.hpp:142:13: [0m[0;1;35mwarning: [0m[1m'Set' is deprecated: Use maybe version [-Wdeprecated-declarations][0m
+            GLP_SET_FIELD_INT32(ret, "level", attr.level);
+[0;1;32m            ^
+[0m[1m../src/common.h:333:6: [0m[0;1;30mnote: [0mexpanded from macro 'GLP_SET_FIELD_INT32'[0m
+OBJ->Set(Nan::New<String>(KEY).ToLocalChecked(), Nan::New<Int32>(VALUE));
+[0;1;32m     ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:3402:3: [0m[0;1;30mnote: [0m'Set' has been explicitly marked deprecated here[0m
+  V8_DEPRECATED("Use maybe version",
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:311:29: [0m[0;1;30mnote: [0mexpanded from macro 'V8_DEPRECATED'[0m
+  declarator __attribute__((deprecated(message)))
+[0;1;32m                            ^
+[0mIn file included from ../src/nodeglpk.cc:6:
+[1m../src/tree.hpp:143:13: [0m[0;1;35mwarning: [0m[1m'Set' is deprecated: Use maybe version [-Wdeprecated-declarations][0m
+            GLP_SET_FIELD_INT32(ret, "origin", attr.origin);
+[0;1;32m            ^
+[0m[1m../src/common.h:333:6: [0m[0;1;30mnote: [0mexpanded from macro 'GLP_SET_FIELD_INT32'[0m
+OBJ->Set(Nan::New<String>(KEY).ToLocalChecked(), Nan::New<Int32>(VALUE));
+[0;1;32m     ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:3402:3: [0m[0;1;30mnote: [0m'Set' has been explicitly marked deprecated here[0m
+  V8_DEPRECATED("Use maybe version",
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:311:29: [0m[0;1;30mnote: [0mexpanded from macro 'V8_DEPRECATED'[0m
+  declarator __attribute__((deprecated(message)))
+[0;1;32m                            ^
+[0mIn file included from ../src/nodeglpk.cc:6:
+[1m../src/tree.hpp:144:13: [0m[0;1;35mwarning: [0m[1m'Set' is deprecated: Use maybe version [-Wdeprecated-declarations][0m
+            GLP_SET_FIELD_INT32(ret, "klass", attr.klass);
+[0;1;32m            ^
+[0m[1m../src/common.h:333:6: [0m[0;1;30mnote: [0mexpanded from macro 'GLP_SET_FIELD_INT32'[0m
+OBJ->Set(Nan::New<String>(KEY).ToLocalChecked(), Nan::New<Int32>(VALUE));
+[0;1;32m     ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:3402:3: [0m[0;1;30mnote: [0m'Set' has been explicitly marked deprecated here[0m
+  V8_DEPRECATED("Use maybe version",
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:311:29: [0m[0;1;30mnote: [0mexpanded from macro 'V8_DEPRECATED'[0m
+  declarator __attribute__((deprecated(message)))
+[0;1;32m                            ^
+[0mIn file included from ../src/nodeglpk.cc:6:
+[1m../src/tree.hpp:172:43: [0m[0;1;31merror: [0m[1mtoo few arguments to function call, single argument 'context' was not specified[0m
+                pind[i] = ind->Int32Value();
+[0;1;32m                          ~~~~~~~~~~~~~~~ ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:2613:3: [0m[0;1;30mnote: [0m'Int32Value' declared here[0m
+  V8_WARN_UNUSED_RESULT Maybe<int32_t> Int32Value(Local<Context> context) const;
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:351:31: [0m[0;1;30mnote: [0mexpanded from macro 'V8_WARN_UNUSED_RESULT'[0m
+#define V8_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+[0;1;32m                              ^
+[0mIn file included from ../src/nodeglpk.cc:6:
+[1m../src/tree.hpp:173:44: [0m[0;1;31merror: [0m[1mtoo few arguments to function call, single argument 'context' was not specified[0m
+                pval[i] = val->NumberValue();
+[0;1;32m                          ~~~~~~~~~~~~~~~~ ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:2608:3: [0m[0;1;30mnote: [0m'NumberValue' declared here[0m
+  V8_WARN_UNUSED_RESULT Maybe<double> NumberValue(Local<Context> context) const;
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:351:31: [0m[0;1;30mnote: [0mexpanded from macro 'V8_WARN_UNUSED_RESULT'[0m
+#define V8_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+[0;1;32m                              ^
+[0mIn file included from ../src/nodeglpk.cc:6:
+[1m../src/tree.hpp:177:79: [0m[0;1;31merror: [0m[1mno matching member function for call to 'ToString'[0m
+            GLP_CATCH(info.GetReturnValue().Set(glp_ios_add_row(tree->handle, V8TOCSTRING(info[0]), info[1]->Int32Value(),
+[0;1;32m            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[0m[1m../src/common.h:14:47: [0m[0;1;30mnote: [0mexpanded from macro 'V8TOCSTRING'[0m
+#define V8TOCSTRING(S) (*String::Utf8Value(S->ToString()))
+[0;1;32m                                              ^
+[0m[1m../src/common.h:30:26: [0m[0;1;30mnote: [0mexpanded from macro 'GLP_CATCH'[0m
+#define GLP_CATCH(X) try{X}catch (std::string s) {Nan::ThrowError(s.c_str());}
+[0;1;32m                         ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:2572:44: [0m[0;1;30mnote: [0mcandidate function not viable: requires single argument 'context', but no arguments were
+      provided[0m
+  V8_WARN_UNUSED_RESULT MaybeLocal<String> ToString(
+[0;1;32m                                           ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:2588:31: [0m[0;1;30mnote: [0mcandidate function not viable: requires single argument 'isolate', but no arguments were
+      provided[0m
+                Local<String> ToString(Isolate* isolate) const);
+[0;1;32m                              ^
+[0mIn file included from ../src/nodeglpk.cc:6:
+[1m../src/tree.hpp:177:121: [0m[0;1;31merror: [0m[1mtoo few arguments to function call, single argument 'context' was not specified[0m
+            GLP_CATCH(info.GetReturnValue().Set(glp_ios_add_row(tree->handle, V8TOCSTRING(info[0]), info[1]->Int32Value(),
+[0;1;32m                                                                                                    ~~~~~~~~~~~~~~~~~~~ ^
+[0m[1m../src/common.h:30:26: [0m[0;1;30mnote: [0mexpanded from macro 'GLP_CATCH'[0m
+#define GLP_CATCH(X) try{X}catch (std::string s) {Nan::ThrowError(s.c_str());}
+[0;1;32m                         ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:2613:3: [0m[0;1;30mnote: [0m'Int32Value' declared here[0m
+  V8_WARN_UNUSED_RESULT Maybe<int32_t> Int32Value(Local<Context> context) const;
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:351:31: [0m[0;1;30mnote: [0mexpanded from macro 'V8_WARN_UNUSED_RESULT'[0m
+#define V8_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+[0;1;32m                              ^
+[0mIn file included from ../src/nodeglpk.cc:6:
+[1m../src/tree.hpp:178:37: [0m[0;1;31merror: [0m[1mtoo few arguments to function call, single argument 'context' was not specified[0m
+                info[2]->Int32Value(), count, pind, pval, info[5]->Int32Value(), info[6]->NumberValue()));)
+[0;1;32m                ~~~~~~~~~~~~~~~~~~~ ^
+[0m[1m../src/common.h:30:26: [0m[0;1;30mnote: [0mexpanded from macro 'GLP_CATCH'[0m
+#define GLP_CATCH(X) try{X}catch (std::string s) {Nan::ThrowError(s.c_str());}
+[0;1;32m                         ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:2613:3: [0m[0;1;30mnote: [0m'Int32Value' declared here[0m
+  V8_WARN_UNUSED_RESULT Maybe<int32_t> Int32Value(Local<Context> context) const;
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:351:31: [0m[0;1;30mnote: [0mexpanded from macro 'V8_WARN_UNUSED_RESULT'[0m
+#define V8_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+[0;1;32m                              ^
+[0mIn file included from ../src/nodeglpk.cc:6:
+[1m../src/tree.hpp:178:79: [0m[0;1;31merror: [0m[1mtoo few arguments to function call, single argument 'context' was not specified[0m
+                info[2]->Int32Value(), count, pind, pval, info[5]->Int32Value(), info[6]->NumberValue()));)
+[0;1;32m                                                          ~~~~~~~~~~~~~~~~~~~ ^
+[0m[1m../src/common.h:30:26: [0m[0;1;30mnote: [0mexpanded from macro 'GLP_CATCH'[0m
+#define GLP_CATCH(X) try{X}catch (std::string s) {Nan::ThrowError(s.c_str());}
+[0;1;32m                         ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8.h:2613:3: [0m[0;1;30mnote: [0m'Int32Value' declared here[0m
+  V8_WARN_UNUSED_RESULT Maybe<int32_t> Int32Value(Local<Context> context) const;
+[0;1;32m  ^
+[0m[1m/Users/guycole/Library/Caches/node-gyp/12.15.0/include/node/v8config.h:351:31: [0m[0;1;30mnote: [0mexpanded from macro 'V8_WARN_UNUSED_RESULT'[0m
+#define V8_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+[0;1;32m                              ^
+[0m[0;1;31mfatal error: [0mtoo many errors emitted, stopping now [-ferror-limit=][0m
+17 warnings and 20 errors generated.
+make: *** [Release/obj.target/glpk/src/nodeglpk.o] Error 1
+[37;40mgyp[0m [0m[31;40mERR![0m [0m[35mbuild error[0m 
+[0m[37;40mgyp[0m [0m[31;40mERR![0m [0m[35mstack[0m Error: `make` failed with exit code: 2
+[0m[37;40mgyp[0m [0m[31;40mERR![0m [0m[35mstack[0m     at ChildProcess.onExit (/Users/guycole/.nvm/versions/node/v12.15.0/lib/node_modules/npm/node_modules/node-gyp/lib/build.js:194:23)
+[0m[37;40mgyp[0m [0m[31;40mERR![0m [0m[35mstack[0m     at ChildProcess.emit (events.js:223:5)
+[0m[37;40mgyp[0m [0m[31;40mERR![0m [0m[35mstack[0m     at Process.ChildProcess._handle.onexit (internal/child_process.js:272:12)
+[0m[37;40mgyp[0m [0m[31;40mERR![0m [0m[35mSystem[0m Darwin 19.3.0
+[0m[37;40mgyp[0m [0m[31;40mERR![0m [0m[35mcommand[0m "/Users/guycole/.nvm/versions/node/v12.15.0/bin/node" "/Users/guycole/.nvm/versions/node/v12.15.0/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js" "rebuild"
+[0m[37;40mgyp[0m [0m[31;40mERR![0m [0m[35mcwd[0m /Users/guycole/github/node-glpk
+[0m[37;40mgyp[0m [0m[31;40mERR![0m [0m[35mnode -v[0m v12.15.0
+[0m[37;40mgyp[0m [0m[31;40mERR![0m [0m[35mnode-gyp -v[0m v5.0.5
+[0m[37;40mgyp[0m [0m[31;40mERR![0m [0m[35mnot ok[0m 
+[0m[37;40mnpm[0m [0m[31;40mERR![0m [0m[35mcode[0m ELIFECYCLE
+[0m[37;40mnpm[0m [0m[31;40mERR![0m [0m[35merrno[0m 1
+[0m[37;40mnpm[0m [0m[31;40mERR![0m[35m[0m glpk@0.0.12 install: `node-gyp rebuild`
+[0m[37;40mnpm[0m [0m[31;40mERR![0m[35m[0m Exit status 1
+[0m[37;40mnpm[0m [0m[31;40mERR![0m[35m[0m 
+[0m[37;40mnpm[0m [0m[31;40mERR![0m[35m[0m Failed at the glpk@0.0.12 install script.
+[0m[37;40mnpm[0m [0m[31;40mERR![0m[35m[0m This is probably not a problem with npm. There is likely additional logging output above.
+[0m
+[37;40mnpm[0m [0m[31;40mERR![0m[35m[0m A complete log of this run can be found in:
+[0m[37;40mnpm[0m [0m[31;40mERR![0m[35m[0m     /Users/guycole/.npm/_logs/2020-02-10T23_06_03_656Z-debug.log
+[0mguycole@skyguy:103>exit
+exit
+
+Script done on Mon Feb 10 15:06:21 2020

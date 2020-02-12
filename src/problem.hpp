@@ -25,13 +25,15 @@ namespace NodeGLPK {
     
     class Problem : public node::ObjectWrap {
     public:
-        static void Init(Handle<Object> exports){
+        static void Init(Local<Object> exports){
+//gsc   static void Init(Handle<Object> exports){
             // Prepare constructor template
             Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
             tpl->SetClassName(Nan::New<String>("Problem").ToLocalChecked());
             tpl->InstanceTemplate()->SetInternalFieldCount(1);
             
             // Prototype
+#if 0 //gsc
             Nan::SetPrototypeMethod(tpl, "on", On);
             Nan::SetPrototypeMethod(tpl, "setProbName", SetProbName);
             Nan::SetPrototypeMethod(tpl, "getProbName", GetProbName);
@@ -163,13 +165,15 @@ namespace NodeGLPK {
             Nan::SetPrototypeMethod(tpl, "getColBind", GetColBind);
             Nan::SetPrototypeMethod(tpl, "warmUp", WarmUp);
             Nan::SetPrototypeMethod(tpl, "memStats", MemStats);
-            
+
             constructor.Reset(tpl);
             exports->Set(Nan::New<String>("Problem").ToLocalChecked(), tpl->GetFunction());
+#endif
         }
         
         static bool SmcpInit(glp_smcp* scmp, Local<Value> value){
             if (!value->IsObject()) return false;
+#if 0 //gsc
             Local<Object> obj = value->ToObject();
             Local<Array> props = obj->GetPropertyNames();
             for(uint32_t i = 0; i < props->Length(); i++){
@@ -224,6 +228,7 @@ namespace NodeGLPK {
                     V8CHECKBOOL(true, error.c_str());
                 }
             }
+  #endif
             return true;
         }
     private:
@@ -234,7 +239,6 @@ namespace NodeGLPK {
              env_state_(make_shared_environ_state(info_)),
              counters_{0,0,0,0},
             thread{false}{
-
            GLPKEnvStateGuard stateguard{env_state_, info_}; 
            handle = glp_create_prob();
         }
@@ -242,7 +246,7 @@ namespace NodeGLPK {
         ~Problem(){
             if (handle) {
                 GLPKEnvStateGuard stateguard{env_state_, info_}; 
-                glp_delete_prob(handle);
+   //gsc             glp_delete_prob(handle);
                 handle = NULL;
             }
             emitter_->removeAllListeners();
@@ -264,10 +268,12 @@ namespace NodeGLPK {
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
 
+#if 0 //gsc
             auto s = std::string(*v8::String::Utf8Value(info[0]->ToString()));
             Nan::Callback* callback = new Nan::Callback(info[1].As<Function>());
 
             lp->emitter_->on(s, callback);
+#endif
         }
 
         static NAN_METHOD(MemStats) {
@@ -300,11 +306,12 @@ namespace NodeGLPK {
             int* pia = new int[ia->Length()];
             int* pja = new int[ja->Length()];
             double* par = new double[ar->Length()];
-            
+
+#if 0 //gsc
             for (size_t i = 0; i < ia->Length(); i++) pia[i] = ia->Get(i)->Int32Value();
             for (size_t i = 0; i < ja->Length(); i++) pja[i] = ja->Get(i)->Int32Value();
             for (size_t i = 0; i < ar->Length(); i++) par[i] = ar->Get(i)->NumberValue();
-            
+#endif
             Problem* lp = ObjectWrap::Unwrap<Problem>(info.Holder());
             V8CHECK(!lp->handle, "object deleted");
             V8CHECK(lp->thread.load(), "an async operation is inprogress");
@@ -450,6 +457,7 @@ namespace NodeGLPK {
         
         static bool IptcpInit(glp_iptcp* iptcp, Local<Value> value){
             if (!value->IsObject()) return true;
+#if 0 //gsc
             Local<Object> obj = value->ToObject();
             Local<Array> props = obj->GetPropertyNames();
             for(uint32_t i = 0; i < props->Length(); i++){
@@ -467,6 +475,7 @@ namespace NodeGLPK {
                     error += keystr;
                     V8CHECKBOOL(true, error.c_str());
                 }
+#endif
             }
             return true;
         }
@@ -536,6 +545,7 @@ namespace NodeGLPK {
         
         static bool MpscpInit(glp_mpscp *mpscp, Local<Value> value){
             if (value->IsObject()){
+#if 0 //gsc
                 Local<Object> obj = value->ToObject();
                 Local<Array> props = obj->GetPropertyNames();
                 for(uint32_t i = 0; i < props->Length(); i++){
@@ -559,6 +569,7 @@ namespace NodeGLPK {
                         V8CHECKBOOL(true, error.c_str());
                     }
                 }
+#endif
             }
             return true;
         }
@@ -578,10 +589,11 @@ namespace NodeGLPK {
                 if (info.Length() == 1)
                     if (!MpscpInit(&mpscp, info[0])) return;
                       
-                          
+#if 0 //gsc
                 int ret = glp_read_mps(lp->handle, info[0]->Int32Value(), &mpscp, V8TOCSTRING(info[2]));
                 if (mpscp.obj_name) delete[] mpscp.obj_name;
                 info.GetReturnValue().Set(ret);
+#endif
             )
         }
         
@@ -629,6 +641,7 @@ namespace NodeGLPK {
             V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
+#if 0 //gsc
             ReadMpsWorker *worker = new ReadMpsWorker(callback, lp, info[0]->Int32Value(), V8TOCSTRING(info[2]));
             if (!MpscpInit(&worker->mpscp, info[1])){
                 worker->Destroy();
@@ -637,6 +650,7 @@ namespace NodeGLPK {
             lp->thread = true;
             GLPKEnvStateDecorator* decorated = new GLPKEnvStateDecorator(worker, lp->emitter_, lp->env_state_);
             Nan::AsyncQueueWorker(decorated);
+#endif
         }
         
         static NAN_METHOD(WriteMpsSync) {
@@ -657,7 +671,7 @@ namespace NodeGLPK {
                 if (!MpscpInit(&mpscp, info[0])) return;
               
                           
-              info.GetReturnValue().Set(glp_write_mps(lp->handle, info[0]->Int32Value(), &mpscp, V8TOCSTRING(info[2])));
+ //gsc             info.GetReturnValue().Set(glp_write_mps(lp->handle, info[0]->Int32Value(), &mpscp, V8TOCSTRING(info[2])));
             )
         }
         
@@ -705,6 +719,7 @@ namespace NodeGLPK {
             V8CHECK(lp->thread.load(), "an async operation is inprogress");
             
             Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
+#if 0
             WriteMpsWorker *worker = new WriteMpsWorker(callback, lp, info[0]->Int32Value(), V8TOCSTRING(info[2]));
             if (!MpscpInit(&worker->mpscp, info[1])){
                 worker->Destroy();
@@ -713,6 +728,7 @@ namespace NodeGLPK {
             lp->thread = true;
             GLPKEnvStateDecorator* decorated = new GLPKEnvStateDecorator(worker, lp->emitter_, lp->env_state_);
             Nan::AsyncQueueWorker(decorated);
+#endif
         }
  
         struct IocpCallbackInfo {
@@ -730,9 +746,11 @@ namespace NodeGLPK {
             Local<Value> t = Tree::Instantiate(T, cbinfo->env_state_);
             Local<Value> argv[argc] = {Nan::New<Value>(t)};
             cbinfo->callback->Call(argc, argv);
+#if 0 //gsc
             Tree* host = ObjectWrap::Unwrap<Tree>(t->ToObject());
             host->thread = true;
             host->handle = NULL;
+#endif
         };
         
         

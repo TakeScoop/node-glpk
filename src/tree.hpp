@@ -17,12 +17,14 @@ namespace NodeGLPK {
     
     class Tree : public node::ObjectWrap {
     public:
-        static void Init(Handle<Object>){
+//gsc        static void Init(Handle<Object>){
+        static void Init(Local<Object>){
             // Prepare constructor template
             Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
             tpl->SetClassName(Nan::New("Tree").ToLocalChecked());
             tpl->InstanceTemplate()->SetInternalFieldCount(1);
-            
+
+#if 0 //gsc
             // prototypes
             Nan::SetPrototypeMethod(tpl, "on", On);
             Nan::SetPrototypeMethod(tpl, "reason", Reason);
@@ -45,19 +47,22 @@ namespace NodeGLPK {
             Nan::SetPrototypeMethod(tpl, "selectNode", SelectNode);
             Nan::SetPrototypeMethod(tpl, "addRow", AddRow);
             Nan::SetPrototypeMethod(tpl, "heurSol", HeurSol);
-            
+#endif
             //NanAssignPersistent(constructor, tpl);
             constructor.Reset(tpl);
         }
 
         static Local<Value> Instantiate(glp_tree* tree, std::shared_ptr<glp_environ_state_t> env_state) {
-            Local<Function> cons = Nan::New<FunctionTemplate>(constructor)->GetFunction();
+#if 0
+//gsc       Local<Function> cons = Nan::New<FunctionTemplate>(constructor)->GetFunction();
             Local<Value> ret = Nan::NewInstance(cons).ToLocalChecked();
             Tree* host = ObjectWrap::Unwrap<Tree>(ret->ToObject());
             host->env_state_ = env_state;
             host->handle = tree;
             host->thread = false;
             return ret;
+#endif
+            return NULL; //gsc
         }
     private:
         Tree()
@@ -84,10 +89,13 @@ namespace NodeGLPK {
             Tree* tree = ObjectWrap::Unwrap<Tree>(info.Holder());
             V8CHECK(!tree->handle, "object deleted");
 
+#if 0
+//gsc
             auto s = std::string(*v8::String::Utf8Value(info[0]->ToString()));
             Nan::Callback* callback = new Nan::Callback(info[1].As<Function>());
 
             tree->emitter_->on(s, callback);
+#endif
         }
         
         GLP_BIND_VALUE(Tree, Reason, glp_ios_reason);
@@ -109,7 +117,8 @@ namespace NodeGLPK {
             
             info.GetReturnValue().Set(ret);
         }
-        
+
+#if 0 //gsc
         GLP_BIND_VALUE(Tree, CurrNode, glp_ios_curr_node);
         
         GLP_BIND_VALUE_INT32(Tree, NextNode, glp_ios_next_node);
@@ -125,7 +134,8 @@ namespace NodeGLPK {
         GLP_BIND_VALUE(Tree, BestNode, glp_ios_best_node);
         
         GLP_BIND_VALUE(Tree, MipGap, glp_ios_mip_gap);
-        
+#endif
+
         static NAN_METHOD(RowAttrib) {
             V8CHECK(info.Length() != 1, "Wrong number of arguments");
             V8CHECK(!info[0]->IsInt32(), "Wrong arguments");
@@ -136,7 +146,7 @@ namespace NodeGLPK {
            
             GLP_CREATE_HOOK_GUARDS(host); 
             glp_attr attr;
-            GLP_CATCH_RET(glp_ios_row_attr(host->handle, info[0]->Int32Value(), &attr);)
+ //gsc           GLP_CATCH_RET(glp_ios_row_attr(host->handle, info[0]->Int32Value(), &attr);)
             
             Local<Object> ret = Nan::New<Object>();
             GLP_SET_FIELD_INT32(ret, "level", attr.level);
@@ -167,20 +177,22 @@ namespace NodeGLPK {
             
             int* pind = (int*)malloc(count * sizeof(int));
             double* pval = (double*)malloc(count * sizeof(double));
-            
+#if 0 //gsc
             for (unsigned int i = 0; i < count; i++){
                 pind[i] = ind->Int32Value();
                 pval[i] = val->NumberValue();
             }
-            
+#endif
             count--;
+#if 0 //gsc
             GLP_CATCH(info.GetReturnValue().Set(glp_ios_add_row(tree->handle, V8TOCSTRING(info[0]), info[1]->Int32Value(),
                 info[2]->Int32Value(), count, pind, pval, info[5]->Int32Value(), info[6]->NumberValue()));)
-            
+#endif
             free(pind);
             free(pval);
         }
-        
+
+#if 0 //gsc
         GLP_BIND_VOID_INT32(Tree, DelRow, glp_ios_del_row);
         
         GLP_BIND_VOID(Tree, ClearPool, glp_ios_clear_pool);
@@ -190,7 +202,8 @@ namespace NodeGLPK {
         GLP_BIND_VOID_INT32_INT32(Tree, BranchUpon, glp_ios_branch_upon);
         
         GLP_BIND_VOID_INT32(Tree, SelectNode, glp_ios_select_node);
-        
+#endif
+
         static NAN_METHOD(HeurSol) {
             V8CHECK(info.Length() != 1, "Wrong number of arguments");
             V8CHECK(!info[0]->IsFloat64Array(), "Wrong arguments");
@@ -206,7 +219,7 @@ namespace NodeGLPK {
             GLP_CATCH_RET(V8CHECK(count != (glp_get_num_cols(glp_ios_get_prob(tree->handle)) + 1), "Invalid arrays length");)
             
             double* px = (double*)malloc(count * sizeof(double));
-            for (int i = 0; i < count; i++) px[i] = x->NumberValue();
+//gsc            for (int i = 0; i < count; i++) px[i] = x->NumberValue();
             GLP_CATCH(info.GetReturnValue().Set(glp_ios_heur_sol(tree->handle, px));)
             free(px);
         }
